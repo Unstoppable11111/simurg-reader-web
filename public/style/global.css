@@ -1,0 +1,45 @@
+body {
+  margin: 0;
+  padding: 0;
+  background: #141414;
+}
+
+a {
+  /* 去掉下划线 */
+  text-decoration: none;
+  /* 继承父元素的文字颜色（避免默认的蓝色/紫色） */
+  color: inherit;
+  /* 去掉点击时的焦点轮廓（可选） */
+  outline: none;
+  /* 鼠标悬停时不显示文本装饰（强化去除下划线） */
+  text-underline-offset: none;
+}
+
+/* 去掉 visited（已访问）状态的样式 */
+a:visited {
+  color: inherit;
+}
+
+/* 去掉 active（点击中）状态的样式 */
+a:active {
+  color: inherit;
+}
+
+/* 清除 ul 的默认样式 */
+ul {
+  /* 移除默认内边距（解决左侧缩进） */
+  padding-left: 0;
+  /* 移除默认外边距 */
+  margin: 0;
+  /* 移除列表项符号 */
+  list-style: none;
+}
+
+/* 清除 li 的默认样式（可选，根据需要） */
+li {
+  /* 移除可能的默认外边距/内边距 */
+  margin: 0;
+  padding: 0;
+  /* 如需移除列表项的默认行高或其他样式可在此添加 */
+  /* line-height: 1; */
+}

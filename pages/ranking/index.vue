@@ -1,0 +1,322 @@
+<template>
+  <Header :margin-left="'244px'" />
+  <div class="ranking-container">
+    <div class="ranking-box">
+      <div class="ranking-nav-box">
+        <div class="ranking-nav-list">
+          <div 
+            v-for="item in rankingNavItems" 
+            :key="item.id"
+            class="ranking-nav-item"
+            :class="{ 'active': item.active }"
+            @click="selectRanking(item)">
+              <div>{{ item.name }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ranking-content-box">
+      <div class="ranking-title-box">
+        <div class="ranking-title">
+            {{ currentRanking }}
+        </div>
+      </div>
+      <div class="ranking-desc-box">
+        <div class="ranking-desc-text">基于昨日书籍热度排行</div>
+        <div 
+          class="ranking-day"
+          :class="{ 'active-type': rankingType === '日榜' }"
+          @click="selectRankingType('日榜')">
+          日榜
+        </div>
+        <div 
+          class="ranking-month"
+          :class="{ 'active-type': rankingType === '月榜' }"
+          @click="selectRankingType('月榜')">
+          月榜
+        </div>
+      </div>
+      <div class="ranking-book-box">
+        <div class="ranking-book-list">
+          <div 
+            v-for="book in rankingBooks" 
+            :key="book.id"
+            @click="gotoBookDetail(book.id)"
+            class="ranking-book-item">
+            <img class="book-img" :src="book.image" :alt="book.title">
+            <div class="book-info">
+              <div class="book-title">{{ book.title }}</div>
+              <div class="book-author">{{ book.author }}</div>
+              <div class="book-desc">{{ book.description }}</div>
+              <div class="book-status">
+                  {{ book.status }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup>
+  import Header from "@/components/layout/Header.vue";
+  
+  // 榜单导航项数据
+  const rankingNavItems = ref([
+    { id: 1, name: '大热榜', active: true },
+    { id: 2, name: '新书榜', active: false },
+    { id: 3, name: '完结榜', active: false },
+    { id: 4, name: '收藏榜', active: false },
+    { id: 5, name: '更新榜', active: false }
+  ]);
+  
+  // 当前选中的榜单
+  const currentRanking = ref('大热榜');
+  
+  const router = useRouter()
+  // 榜单类型（日榜、月榜）
+  const rankingType = ref('日榜');
+  
+  // 模拟书籍数据
+  const rankingBooks = ref([
+    {
+      id: 1,
+      image: 'http://www.tireba.com/simurg-reader/images/1.jpg',
+      title: '我在60年代搞代购',
+      author: '作者一',
+      description: '这是一个关于穿越到60年代的故事，主人公通过代购改变命运...',
+      status: '连载中 | 热度: 9.8万 | 今日更新'
+    },
+    {
+      id: 2,
+      image: 'http://www.tireba.com/simurg-reader/images/2.jpg',
+      title: '恶鬼真千金在恋综摆烂后爆红了',
+      author: '作者二',
+      description: '真千金参加恋爱综艺，摆烂反而收获了人气和爱情...',
+      status: '连载中 | 热度: 8.5万 | 今日更新'
+    },
+    {
+      id: 3,
+      image: 'http://www.tireba.com/simurg-reader/images/3.jpg',
+      title: '我先贪掉九百万',
+      author: '作者三',
+      description: '现代都市题材，讲述主人公如何在金钱与道德之间选择...',
+      status: '连载中 | 热度: 7.2万 | 昨日更新'
+    },
+    {
+      id: 4,
+      image: 'http://www.tireba.com/simurg-reader/images/4.jpg',
+      title: '高考悟道手撕电磁炮',
+      author: '作者四',
+      description: '学霸穿越异世界，用科学知识征服魔法世界...',
+      status: '连载中 | 热度: 6.9万 | 昨日更新'
+    },
+    {
+      id: 5,
+      image: 'http://www.tireba.com/simurg-reader/images/5.jpg',
+      title: '天赋长生我出卖寿命成神',
+      author: '作者五',
+      description: '获得长生天赋，通过出卖寿命获得神力...',
+      status: '连载中 | 热度: 6.1万 | 前日更新'
+    }
+  ]);
+  
+  // 选择榜单
+  const selectRanking = (item) => {
+    // 更新导航项的激活状态
+    rankingNavItems.value.forEach(navItem => {
+      navItem.active = navItem.id === item.id;
+    });
+    
+    // 更新当前榜单名称
+    currentRanking.value = item.name;
+    
+    // 这里可以添加请求对应榜单数据的逻辑
+    console.log(`切换到${item.name}`);
+  };
+  
+  // 选择榜单类型
+  const selectRankingType = (type) => {
+    rankingType.value = type;
+    // 这里可以添加请求对应榜单类型数据的逻辑
+    console.log(`切换到${type}`);
+  };
+
+  // 点击书籍跳转到详情页
+  const gotoBookDetail = (bookId) => {
+    console.log('点击了书籍，ID:', bookId)
+    // 使用路由跳转到书籍详情页
+    router.push(`/book/${bookId}`)
+  }
+</script>
+
+<style lang="scss" scoped>
+  .ranking-container {
+    display: flex;
+    margin-top: 38px;
+  }
+  .ranking-box {
+    width: 200px;
+    margin-right: 38px;
+    margin-left: 280px;
+  }
+  .ranking-nav-list {
+    display: flex;
+    flex-direction: column;
+  }
+  .ranking-nav-item {
+    width: 200px;
+    height: 82px;
+    text-align: center;
+    line-height: 82px;
+    font-family: PingFangSC, PingFang SC;
+    font-weight: 400;
+    font-size: 22px;
+    color: #A2A0A0;
+    text-align: center;
+    font-style: normal;
+    background-color: #424242;
+    cursor: pointer;
+  }
+  .ranking-nav-item:first-child.active, .ranking-nav-item:first-child:hover{
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+  .ranking-nav-item:last-child.active, .ranking-nav-item:last-child:hover{
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+  }
+  
+  .ranking-nav-item:hover {
+    background: rgba(249,110,8,0.25);
+    color: #FFFFFF;
+  }
+  .active {
+    background: rgba(249,110,8,0.35);
+    color: #FFFFFF;
+  }
+  
+  .ranking-title-box {
+    width: 1122px;
+    height: 79px;
+    background: linear-gradient( 90deg, #2F2437 0%, #1E1B1F 100%);
+    border-radius: 10px 10px 0px 0px;
+  }
+  .ranking-title {
+    font-family: PingFangSC, PingFang SC;
+    font-weight: 600;
+    font-size: 24px;
+    color: #FFFFFF;
+    line-height: 33px;
+    text-align: left;
+    font-style: normal;
+    color: #fff;
+    line-height: 100px;
+    padding-left: 34px;
+  }
+  .ranking-desc-box {
+    position: relative;;
+    display: flex;
+    width: 1122px;
+    height: 50px;
+    background: #2F2437;
+  }
+  .ranking-desc-text {
+    width: 160px;
+    height: 22px;
+    font-family: PingFangSC, PingFang SC;
+    font-weight: 400;
+    font-size: 16px;
+    color: #828282;
+    line-height: 50px;
+    text-align: left;
+    font-style: normal;
+    padding-left: 34px;
+  }
+  .ranking-day, .ranking-month {
+    position: absolute;
+    top: 12.5px;
+    width: 36px;
+    height: 25px;
+    font-family: PingFangSC, PingFang SC;
+    font-weight: 400;
+    font-size: 18px;
+    color: #828282;
+    line-height: 25px;
+    text-align: left;
+    font-style: normal;
+    cursor: pointer;
+  }
+  .ranking-day {
+    right: 118px;
+  }
+  .ranking-month {
+    right: 32px;
+  }
+  .active-type {
+    font-weight: 600 !important;
+    color: #D8D8D8 !important;
+  }
+  .ranking-book-box {
+    margin-top: 34px;
+  }
+  .ranking-book-item {
+    display: flex;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    &:hover {
+      background: rgba(47,36,55,0.7);
+    }
+  }
+  .book-info {
+    display: flex;
+    flex-direction: column;
+    padding-left: 16px;
+  }
+  .book-img {
+    width: 156px;
+    height: 208px;
+    border-radius: 10px;
+  }
+  .book-title {
+    font-family: PingFangSC, PingFang SC;
+    font-weight: 600;
+    font-size: 20px;
+    color: #FFFFFF;
+    line-height: 28px;
+    margin-bottom: 10px;
+    &:hover {
+      color: #EA7D2B;
+    }
+  }
+  .book-author {
+    font-family: PingFangSC, PingFang SC;
+    font-weight: 400;
+    font-size: 16px;
+    color: #A2A0A0;
+    line-height: 22px;
+    margin-bottom: 10px;
+  }
+  .book-desc {
+    font-family: PingFangSC, PingFang SC;
+    font-weight: 400;
+    font-size: 14px;
+    color: #828282;
+    line-height: 20px;
+    margin-bottom: 10px;
+  }
+  .book-status {
+    font-family: PingFangSC, PingFang SC;
+    font-weight: 400;
+    font-size: 14px;
+    color: #B2B2B2;
+    line-height: 20px;
+  }
+</style>
