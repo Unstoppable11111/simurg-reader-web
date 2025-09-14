@@ -65,6 +65,7 @@
       >
         ↑
       </div>
+
     </div>
 </template>
 
@@ -265,5 +266,8 @@
 
 .back-to-top:hover {
   transform: translateY(-5px);
+}
+.fluid-cursor {
+  z-index: 9999 !important;
 }
 </style>

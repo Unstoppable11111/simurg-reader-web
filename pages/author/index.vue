@@ -65,22 +65,39 @@
       <div class="author-right-content-box">
         <!-- 作者首页内容 -->
         <div v-if="activeNav === 'author-home'" class="author-home-content">
-          <img class="author-avatar" src="http://www.tireba.com/simurg-reader/images/author1.png" alt="">
+          <!-- 作者信息 -->
           <div class="author-info-box">
-            <div class="author-name">田拽拽，晚上好啊</div>
-            <div class="welcome-author-desc">今天是你在simurg reader创作的第1天，继续努力码字吧~</div>
+            <img class="author-avatar" src="http://www.tireba.com/simurg-reader/images/author1.png" alt="">
+            <div class="author-info">
+              <div class="author-name">田拽拽，晚上好啊</div>
+              <div class="welcome-author-desc">今天是你在simurg reader创作的第1天，继续努力码字吧~</div>
+            </div>
+            <div class="author-work-num-box">
+              <label class="author-work-num-label">作品数量</label>
+              <span class="author-work-num">0</span>
+            </div>
+            <div class="author-reader-num-box">
+              <label class="author-reader-num-label">累计读者</label>
+              <span class="author-reader-num">0</span>
+            </div>
+            <div class="author-word-num-box">
+              <label class="author-word-num-label">累计字数</label>
+              <span class="author-word-num">0</span>
+            </div>
           </div>
-          <div class="author-work-num-box">
-            <label class="author-work-num-label">作品数量</label>
-            <span class="author-work-num">0</span>
-          </div>
-          <div class="author-reader-num-box">
-            <label class="author-reader-num-label">累计读者</label>
-            <span class="author-reader-num">0</span>
-          </div>
-          <div class="author-word-num-box">
-            <label class="author-word-num-label">累计字数</label>
-            <span class="author-word-num">0</span>
+
+          <!-- 作品小说 -->
+          <div class="author-works-box">
+            <div style="position: relative;height: 68px;">
+              <label class="author-works-box-title">作品小说</label>
+              <NuxtLink to="/" class="to-work-management">更多</NuxtLink>
+            </div>
+            <!-- 如果作者还没创建作品，则展示空的盒子 -->
+            <div class="empty-box">
+              <img class="empty-img" src="" alt="">
+              <label class="empty-label">你还没有作品，快去创建你的新作品吧～</label>
+              <NuxtLink to="/becomeAuthor/writeBook" class="to-write-book">新建小说</NuxtLink>
+            </div>
           </div>
         </div>
 
@@ -179,7 +196,7 @@ const switchNav = (nav) => {
 .author-container {
   display: flex;
   color: #fff;
-  margin-top: 38px;
+  margin-top: 122px;
 }
 .author-left-nav-box {
   width: 220px;
@@ -230,6 +247,10 @@ const switchNav = (nav) => {
 }
 .author-home-content {
   display: flex;
+  flex-direction: column;
+}
+.author-info-box {
+  display: flex;
   align-items: center;
   width: 100%;
   height: 146px;
@@ -243,7 +264,7 @@ const switchNav = (nav) => {
   border-radius: 50%;
   margin-right: 12px;
 }
-.author-info-box {
+.author-info {
   flex: 1;
 }
 .author-name {
@@ -301,6 +322,71 @@ const switchNav = (nav) => {
   text-align: left;
   font-style: normal;
 }
+.author-works-box {
+  width: 1116px;
+  height: 287px;
+  background: #424242;
+  border-radius: 6px;
+  margin-top: 16px;
+}
+.author-works-box-title {
+  position: absolute;
+  top: 24px;
+  left: 24px;
+  font-family: PingFangSC, PingFang SC;
+  font-weight: 600;
+  font-size: 18px;
+  color: #FFFFFF;
+  line-height: 25px;
+  text-align: left;
+  font-style: normal;
+}
+.to-work-management {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  font-family: PingFangSC, PingFang SC;
+  font-weight: 400;
+  font-size: 16px;
+  color: #A2A0A0;
+  line-height: 22px;
+  text-align: left;
+  font-style: normal;
+}
+.empty-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.empty-img {
+  width: 100px;
+  height: 100px;
+  background: #A2A0A0;
+}
+.empty-label {
+  font-family: PingFangSC, PingFang SC;
+  font-weight: 400;
+  font-size: 14px;
+  color: #999797;
+  line-height: 20px;
+  text-align: left;
+  font-style: normal;
+  margin-top: 7px;
+}
+.to-write-book {
+  width: 200px;
+  height: 49px;
+  background: linear-gradient( 90deg, #FF9B51 0%, #ED5B00 100%);
+  border-radius: 18px;
+  text-align: center;
+  line-height: 49px;
+  font-family: PingFangSC, PingFang SC;
+  font-weight: 600;
+  font-size: 14px;
+  color: #FFFFFF;
+  font-style: normal;
+  margin-top: 12px;
+}
 
 // 新增的内容区域样式
 .author-content-section {
@@ -341,4 +427,5 @@ const switchNav = (nav) => {
     color: #aaa;
   }
 }
+
 </style>

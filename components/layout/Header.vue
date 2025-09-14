@@ -58,10 +58,12 @@
 
 <style lang="scss" scoped>
 .header {
+  position: fixed;
   display: flex;
   width: 1920px;
   height: 84px;
   align-items: center;
+  z-index: 1000;
 }
 .logo {
   width: 54px;

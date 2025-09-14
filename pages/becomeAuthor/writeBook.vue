@@ -1,10 +1,16 @@
 <template>
   <div class="author-page">
-    <ClientOnly>
-      <div class="editor-container">
-        <CKEditor v-model="content" />
-      </div>
-    </ClientOnly>
+    <div class="editor-container">
+      <ClientOnly>
+        <TinyMCEEditor
+          v-model="content"
+          placeholder="开始写作..."
+          :height="400"
+          @init="onEditorInit"
+          @change="onContentChange"
+        />
+      </ClientOnly>
+    </div>
     <button @click="handleSave" class="save-button">保存内容</button>
     
     <!-- 显示当前内容，方便调试 -->
@@ -17,12 +23,23 @@
 
 <script setup>    
 import { ref } from 'vue'
+import TinyMCEEditor from '@/components/TinyMCEEditor.vue'
 
-const content = ref('<p>开始写作...</p>')
+const content = ref('<p></p>')
 
 const handleSave = () => {
   console.log('保存的内容：', content.value)
   // 这里可以添加保存到服务器的逻辑
+}
+
+// 编辑器初始化事件
+const onEditorInit = (editor) => {
+  console.log('编辑器已初始化')
+}
+
+// 内容变化事件
+const onContentChange = (newContent) => {
+  console.log('内容已变化:', newContent)
 }
 </script>
 

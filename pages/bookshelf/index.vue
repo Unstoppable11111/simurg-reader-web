@@ -156,6 +156,7 @@ import Header from "@/components/layout/Header.vue";
 }
 .book-shelf-box {
   display: flex;
+  margin-top: 122px;
 }
 .book-shelf-left-nav-box {
   width: 220px;

@@ -1,56 +1,58 @@
 <template>
-  <Header :margin-left="'244px'" />
-  <div class="ranking-container">
-    <div class="ranking-box">
-      <div class="ranking-nav-box">
-        <div class="ranking-nav-list">
-          <div 
-            v-for="item in rankingNavItems" 
-            :key="item.id"
-            class="ranking-nav-item"
-            :class="{ 'active': item.active }"
-            @click="selectRanking(item)">
-              <div>{{ item.name }}</div>
+  <div class="ranking-page">
+    <Header :margin-left="'244px'" />
+    <div class="ranking-container">
+      <div class="ranking-box">
+        <div class="ranking-nav-box">
+          <div class="ranking-nav-list">
+            <div 
+              v-for="item in rankingNavItems" 
+              :key="item.id"
+              class="ranking-nav-item"
+              :class="{ 'active': item.active }"
+              @click="selectRanking(item)">
+                <div>{{ item.name }}</div>
+            </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <div class="ranking-content-box">
-      <div class="ranking-title-box">
-        <div class="ranking-title">
-            {{ currentRanking }}
+      <div class="ranking-content-box">
+        <div class="ranking-title-box">
+          <div class="ranking-title">
+              {{ currentRanking }}
+          </div>
         </div>
-      </div>
-      <div class="ranking-desc-box">
-        <div class="ranking-desc-text">基于昨日书籍热度排行</div>
-        <div 
-          class="ranking-day"
-          :class="{ 'active-type': rankingType === '日榜' }"
-          @click="selectRankingType('日榜')">
-          日榜
-        </div>
-        <div 
-          class="ranking-month"
-          :class="{ 'active-type': rankingType === '月榜' }"
-          @click="selectRankingType('月榜')">
-          月榜
-        </div>
-      </div>
-      <div class="ranking-book-box">
-        <div class="ranking-book-list">
+        <div class="ranking-desc-box">
+          <div class="ranking-desc-text">基于昨日书籍热度排行</div>
           <div 
-            v-for="book in rankingBooks" 
-            :key="book.id"
-            @click="gotoBookDetail(book.id)"
-            class="ranking-book-item">
-            <img class="book-img" :src="book.image" :alt="book.title">
-            <div class="book-info">
-              <div class="book-title">{{ book.title }}</div>
-              <div class="book-author">{{ book.author }}</div>
-              <div class="book-desc">{{ book.description }}</div>
-              <div class="book-status">
-                  {{ book.status }}
+            class="ranking-day"
+            :class="{ 'active-type': rankingType === '日榜' }"
+            @click="selectRankingType('日榜')">
+            日榜
+          </div>
+          <div 
+            class="ranking-month"
+            :class="{ 'active-type': rankingType === '月榜' }"
+            @click="selectRankingType('月榜')">
+            月榜
+          </div>
+        </div>
+        <div class="ranking-book-box">
+          <div class="ranking-book-list">
+            <div 
+              v-for="book in rankingBooks" 
+              :key="book.id"
+              @click="gotoBookDetail(book.id)"
+              class="ranking-book-item">
+              <img class="book-img" :src="book.image" :alt="book.title">
+              <div class="book-info">
+                <div class="book-title">{{ book.title }}</div>
+                <div class="book-author">{{ book.author }}</div>
+                <div class="book-desc">{{ book.description }}</div>
+                <div class="book-status">
+                    {{ book.status }}
+                </div>
               </div>
             </div>
           </div>
@@ -153,14 +155,18 @@
 </script>
 
 <style lang="scss" scoped>
+  .ranking-page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
   .ranking-container {
     display: flex;
-    margin-top: 38px;
+    margin-top: 122px;
   }
   .ranking-box {
     width: 200px;
     margin-right: 38px;
-    margin-left: 280px;
   }
   .ranking-nav-list {
     display: flex;

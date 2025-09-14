@@ -164,7 +164,7 @@
     height: 878px;
     background: #424242;
     border-radius: 14px;
-    padding: 54px 54px 0;
+    margin: 122px 54px 0;
   }
   .become-author-recommend-box {
     display: flex;
@@ -172,7 +172,7 @@
     height: 174px;
     background: #646261;
     border-radius: 6px;
-    margin-bottom: 40px;
+    margin: 54px 0 38px 54px;
   }
   .become-author-recommend-img {
     width: 74px;
@@ -204,7 +204,7 @@
   .become-author-form-item {
     display: flex;
     align-items: center;
-    margin-bottom: 24px;
+    margin: 0 0 24px 54px;
   }
   .form-label .required {
     font-family: PingFangSC, PingFang SC;
