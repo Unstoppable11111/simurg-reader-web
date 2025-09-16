@@ -45,11 +45,12 @@
 
 <script setup>
 import { NuxtLink } from '#components'
+import { API_ENDPOINTS, apiRequest } from '@/utils/api.js'
 
 // 获取路由参数
 const route = useRoute()
 const bookId = route.params.id
-const chapterId = route.query.chapter || '1'
+const chapterNumber = route.query.chapter || '1'
 
 // 使用 useAsyncData 获取书籍数据
 const { data: book } = await useAsyncData(`book-${bookId}`, () => {
@@ -145,6 +146,30 @@ const { data: book } = await useAsyncData(`book-${bookId}`, () => {
     }, 100)
   })
 })
+
+// 使用 useAsyncData 获取章节数据
+
+try {
+  // 调用章节详情接口
+  // const response = await apiRequest(API_ENDPOINTS.BOOK_CHAPTER_DETAIL, {
+  //   method: 'POST',
+  //   body: JSON.stringify({
+  //     bookId: bookId,
+  //     chapterNumber: chapterNumber
+  //   })
+  // });
+  const requestData = {
+    bookId: 1, // 热门榜、新书榜、畅销榜
+    chapterNumber: 1 // 获取前5名
+  };
+  const response = await apiRequest(API_ENDPOINTS.BOOK_CHAPTER_DETAIL, {
+      method: 'POST',
+      body: JSON.stringify(requestData)
+  });
+  console.log("获取章节内容成功:", response);
+} catch (error) {
+  console.error('获取章节内容失败:', error)
+}
 
 const addToBookshelf = () => { 
   console.log('添加到书架');

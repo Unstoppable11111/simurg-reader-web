@@ -5,7 +5,7 @@
       
       <!-- 轮播图（作为背景层） -->
       <Carousel 
-        :height="500" 
+        :bannerList="bannerList"
         class="carousel"
       />
 
@@ -86,15 +86,33 @@
 
   const books = [
     {"id": "10001", "picUrl": "http://www.tireba.com/simurg-reader/images/1.jpg", "title": "我在60年代搞代购", "bookCate": "60年代"},
-    {"id": "10002", "picUrl": "http://www.tireba.com/simurg-reader/images/2.jpg", "title": "恶鬼真千金在恋综摆烂后爆红了", "bookCate": "恋综"},
-    {"id": "10003", "picUrl": "http://www.tireba.com/simurg-reader/images/3.jpg", "title": "我先贪掉九百万", "bookCate": "反贪"},
-    {"id": "10004", "picUrl": "http://www.tireba.com/simurg-reader/images/4.jpg", "title": "高考悟道手撕电磁炮", "bookCate": "逆天"},
-    {"id": "10005", "picUrl": "http://www.tireba.com/simurg-reader/images/5.jpg", "title": "天赋长生我出卖寿命成神", "bookCate": "全民"},
-    {"id": "10006", "picUrl": "http://www.tireba.com/simurg-reader/images/6.jpg", "title": "播种万族涅槃成神", "bookCate": "重生成龟"},
-    {"id": "10007", "picUrl": "http://www.tireba.com/simurg-reader/images/7.jpg", "title": "炮灰全家偷听我心声后杀疯了", "bookCate": "言情"},
-    {"id": "10008", "picUrl": "http://www.tireba.com/simurg-reader/images/8.jpg", "title": "炮灰全家读我心声后配角团杀疯了", "bookCate": "心声"},
-    {"id": "10009", "picUrl": "http://www.tireba.com/simurg-reader/images/9.jpg", "title": "我就有神级资质了", "bookCate": "穿越"}
+    {"id": "10001", "picUrl": "http://www.tireba.com/simurg-reader/images/2.jpg", "title": "恶鬼真千金在恋综摆烂后爆红了", "bookCate": "恋综"},
+    {"id": "10001", "picUrl": "http://www.tireba.com/simurg-reader/images/3.jpg", "title": "我先贪掉九百万", "bookCate": "反贪"},
+    {"id": "10001", "picUrl": "http://www.tireba.com/simurg-reader/images/4.jpg", "title": "高考悟道手撕电磁炮", "bookCate": "逆天"},
+    {"id": "10001", "picUrl": "http://www.tireba.com/simurg-reader/images/5.jpg", "title": "天赋长生我出卖寿命成神", "bookCate": "全民"},
+    {"id": "10001", "picUrl": "http://www.tireba.com/simurg-reader/images/6.jpg", "title": "播种万族涅槃成神", "bookCate": "重生成龟"},
+    {"id": "10001", "picUrl": "http://www.tireba.com/simurg-reader/images/7.jpg", "title": "炮灰全家偷听我心声后杀疯了", "bookCate": "言情"},
+    {"id": "10001", "picUrl": "http://www.tireba.com/simurg-reader/images/8.jpg", "title": "炮灰全家读我心声后配角团杀疯了", "bookCate": "心声"},
+    {"id": "10001", "picUrl": "http://www.tireba.com/simurg-reader/images/9.jpg", "title": "我就有神级资质了", "bookCate": "穿越"}
   ];
+
+  const bannerList = [
+  {
+    id: 1001,
+    title: "玄幻小说：九天之上",
+    imageUrl: "http://www.tireba.com/simurg-reader/images/banner1.png"
+  },
+  {
+    id: 1002,
+    title: "都市异能：暗夜行者",
+    imageUrl: "https://picsum.photos/id/238/1200/400"
+  },
+  {
+    id: 1003,
+    title: "历史穿越：梦回大唐",
+    imageUrl: "https://picsum.photos/id/239/1200/400"
+  }
+];
 
 
   // 回到顶部功能
@@ -175,7 +193,7 @@
 .featured-title, .recommend-title, .ranking-title, .newly-signed-title, .book-cate-title {
   width: 56px;
   height: 40px;
-  font-family: PingFangSC, PingFang SC;
+  font-family: TrajanPro;
   font-weight: 600;
   font-size: 28px;
   color: #FFFFFF;

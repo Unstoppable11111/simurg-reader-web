@@ -11,7 +11,7 @@
         </div>
         <div class="book-info">
           <div class="book-cover">
-            <img :src="book.picUrl" :alt="book.title" />
+            <img :src="book.coverImageUrl" :alt="book.title" />
           </div>
           
           <div class="book-content">
@@ -25,19 +25,20 @@
             </div>
             
             <div class="book-author">
-              <span>作者：{{ book.author }}</span>
+              <span>作者：{{ book.authorPenName }}</span>
             </div>
             
             <div class="book-stats">
-              <span>{{ book.wordCount }}万字</span>
+              <span>300万字</span>
               <span> | </span>
-              <span>{{ book.readCount }}万次浏览</span>
+              <span>{{ book.bookViews }}万次浏览</span>
               <span> | </span>
-              <span>{{ book.popularity }}万累计人气值</span>
+              <span>{{ book.totalFavorites }}万累计人气值</span>
             </div>
             
             <div class="book-actions">
-              <NuxtLink :to="`/book/read?book=${book.id}&chapter=${book.tableOfContents[0].id}`" class="btn-read-now">开始阅读</NuxtLink>
+              <!-- <NuxtLink :to="`/book/read?book=${book.bookId}&chapter=${book.tableOfContents[0].id}`" class="btn-read-now">开始阅读</NuxtLink> -->
+              <NuxtLink :to="`/book/read?book=${book.bookId}&chapter=1`" class="btn-read-now">开始阅读</NuxtLink>
               <button class="btn-add-to-bookshelf">加入书架</button>
             </div>
           </div>
@@ -100,45 +101,51 @@
 <script setup>
   import Header from '@/components/layout/Header.vue';
   import Footer from '@/components/layout/Footer.vue';
+  import { API_ENDPOINTS , apiRequest} from '@/utils/api';
   // 获取路由参数
   const route = useRoute()
   const bookId = route.params.id
 
   // 模拟书籍数据（实际项目中应从API获取）
   // 在实际应用中，您可以使用 useAsyncData 或 useFetch 获取数据
-  const { data: book } = await useAsyncData(
-    `book-${bookId}`,
-    () => {
-      // 这里应该是API调用，例如:
-      // return $fetch(`/api/books/${bookId}`)
-      
-      // 当前使用模拟数据
-      return Promise.resolve({
-        id: bookId,
-        title: '我在精神病院学斩神',
-        picUrl: 'http://www.tireba.com/simurg-reader/images/bookdeatil1.png',
-        author: '三九',
-        authorAvatar: 'http://www.tireba.com/simurg-reader/images/author1.png',
-        authorDescription: '用心写出不一样的故事',
-        wordCount: '426.4',
-        readCount: '229.2',
-        popularity: '1920.3',
-        description: '你是否想过，在霓虹璀璨的都市之下，潜藏着来自古老神话的怪物？ 你是否想过，在那高悬于世人头顶的月亮之上，伫立着守望人间的神明？ 你是否想过，在人潮汹涌的现代城市之中，存在代替神明行走人间的超凡之人？ 人类统治的社会中，潜伏着无数诡异； 在那些无人问津的生命禁区，居住着古老的神明。 而属于大夏的神明，究竟去了何处？ 在这属于“人”的世界，“神秘”需要被肃清！你是否想过，在霓虹璀璨的都市之下，潜藏着来自古老神话的怪物？ 你是否想过，在那高悬于世人头顶的月亮之上，伫立着守望人间的神明？ 你是否想过，在人潮汹涌的现代城市之中，存在代替神明行走人间的超凡之人？ 人类统治的社会中，潜伏着无数诡异； 在那些无人问津的生命禁区，居住着古老的神明。 而属于大夏的神明，究竟去了何处？ 在这属于“人”的世界，“神秘”需要被肃清！',
-        tableOfContents: [
-          {id: "1", title: '第一章 初入精神病院', content: '超级无敌大环保在是按考虑到脑立清丸驱蚊器教科文卫起来' },
-          {id: "2", title: '第二章 神秘的病人', content: '阿萨德科技趣闻快乐球我那么力气我卡呢网卡了去哪' },
-          {id: "3", title: '第三章 斩神之术', content: '阿斯加德你去看我就恩为契机肯' },
-          {id: "4", title: '第四章 黑暗降临', content: '阿是就能看到卡拉奇玩呢我开启金额青蛙科技恩青蛙金卡纳' },
-          {id: "5", title: '第五章 绝境反击', content: '阿斯蒂芬规划局快乐李主席尺码手打' },
-          {id: "6", title: '第六章 真相揭晓', content: '阿萨德几年前我肯请问hiu额青蛙你卡了，问你前两年阿萨德模拟器' },
-          {id: "7", title: '第七章 新的开始', content: '阿斯加德你去看哦我呢亲微机课很那青蛙科技' },
-          {id: "8", title: '第八章 绝境反击', content: '阿斯蒂芬规划局快乐李主席尺码手打' },
-          {id: "9", title: '第九章 真相揭晓', content: '阿萨德几年前我肯请问hiu额青蛙你卡了，问你前两年阿萨德模拟器' }
-        ]
+  const url = new URL(`${API_ENDPOINTS.BOOK_DETAIL}/${bookId}`);
+  console.log("请求的url地址", url)
+  const {data: book} = await apiRequest(url);
+  console.log("书籍内容",book)
 
-      })
-    }
-  )
+  // const { data: book } = await apiRequest(
+  //   `book-${bookId}`,
+  //   () => {
+  //     // 这里应该是API调用，例如:
+  //     // return $fetch(`/api/books/${bookId}`)
+      
+  //     // 当前使用模拟数据
+  //     return Promise.resolve({
+  //       id: bookId,
+  //       title: '我在精神病院学斩神',
+  //       picUrl: 'http://www.tireba.com/simurg-reader/images/bookdeatil1.png',
+  //       author: '三九',
+  //       authorAvatar: 'http://www.tireba.com/simurg-reader/images/author1.png',
+  //       authorDescription: '用心写出不一样的故事',
+  //       wordCount: '426.4',
+  //       readCount: '229.2',
+  //       popularity: '1920.3',
+  //       description: '你是否想过，在霓虹璀璨的都市之下，潜藏着来自古老神话的怪物？ 你是否想过，在那高悬于世人头顶的月亮之上，伫立着守望人间的神明？ 你是否想过，在人潮汹涌的现代城市之中，存在代替神明行走人间的超凡之人？ 人类统治的社会中，潜伏着无数诡异； 在那些无人问津的生命禁区，居住着古老的神明。 而属于大夏的神明，究竟去了何处？ 在这属于“人”的世界，“神秘”需要被肃清！你是否想过，在霓虹璀璨的都市之下，潜藏着来自古老神话的怪物？ 你是否想过，在那高悬于世人头顶的月亮之上，伫立着守望人间的神明？ 你是否想过，在人潮汹涌的现代城市之中，存在代替神明行走人间的超凡之人？ 人类统治的社会中，潜伏着无数诡异； 在那些无人问津的生命禁区，居住着古老的神明。 而属于大夏的神明，究竟去了何处？ 在这属于“人”的世界，“神秘”需要被肃清！',
+  //       tableOfContents: [
+  //         {id: "1", title: '第一章 初入精神病院', content: '超级无敌大环保在是按考虑到脑立清丸驱蚊器教科文卫起来' },
+  //         {id: "2", title: '第二章 神秘的病人', content: '阿萨德科技趣闻快乐球我那么力气我卡呢网卡了去哪' },
+  //         {id: "3", title: '第三章 斩神之术', content: '阿斯加德你去看我就恩为契机肯' },
+  //         {id: "4", title: '第四章 黑暗降临', content: '阿是就能看到卡拉奇玩呢我开启金额青蛙科技恩青蛙金卡纳' },
+  //         {id: "5", title: '第五章 绝境反击', content: '阿斯蒂芬规划局快乐李主席尺码手打' },
+  //         {id: "6", title: '第六章 真相揭晓', content: '阿萨德几年前我肯请问hiu额青蛙你卡了，问你前两年阿萨德模拟器' },
+  //         {id: "7", title: '第七章 新的开始', content: '阿斯加德你去看哦我呢亲微机课很那青蛙科技' },
+  //         {id: "8", title: '第八章 绝境反击', content: '阿斯蒂芬规划局快乐李主席尺码手打' },
+  //         {id: "9", title: '第九章 真相揭晓', content: '阿萨德几年前我肯请问hiu额青蛙你卡了，问你前两年阿萨德模拟器' }
+  //       ]
+
+  //     })
+  //   }
+  // )
 
   // 设置页面标题
   useHead({

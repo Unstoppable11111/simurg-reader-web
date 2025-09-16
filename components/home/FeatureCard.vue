@@ -91,10 +91,8 @@
   }
 
   // 点击书籍跳转到详情页
-  const gotoBookDetail = (bookId) => {
-    console.log('点击了书籍，ID:', bookId)
-    // 使用路由跳转到书籍详情页
-    router.push(`/book/${bookId}`)
+  const gotoBookDetail = async (bookId) => {
+      router.push(`/book/${bookId}`)
   }
 
 
