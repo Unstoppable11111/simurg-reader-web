@@ -33,12 +33,11 @@
         <Ranking />
       </div>
 
-      <!-- 签约新书 -->
-      <div class="newly-signed-section">
+      <!-- 签约新书(第一期没有签约的书籍) -->
+      <!-- <div class="newly-signed-section">
         <span class="newly-signed-title">签约新书</span>
-        <!-- 这里放签约新书内容 -->
         <NewlySigned />
-      </div>
+      </div> -->
 
       <!-- 分类 -->
       <div class="book-cate-section">
@@ -52,7 +51,7 @@
       <!-- 最近更新书籍日志 -->
       <div class="last-update-book-section">
         <div class="last-update-book-title">最近更新</div>
-        <LastUpdateBook />
+        <LastUpdateBook :recentUpdateBooks="recentUpdateBooks" />
       </div>
 
       <Footer />
@@ -92,6 +91,15 @@
   const recommendBookUrl = new URL(`${API_ENDPOINTS.TAG_BOOKS}/RECOMMEND`);
   const {data: recommendBooks} = await apiRequest(recommendBookUrl);
   console.log("推荐书籍", books);
+
+  const recentUpdateBookUrl = {
+    size: 10, // 获取书籍数量
+  };
+  const recentUpdateBooks = await apiRequest(API_ENDPOINTS.RECENT_UPDATE_BOOKS, {
+      method: 'POST',
+      body: JSON.stringify(recentUpdateBookUrl)
+  });
+  console.log("最近更新书籍", recentUpdateBooks)
 
   // const books = [
   //   {"id": "490855748029517824", "picUrl": "http://www.tireba.com/simurg-reader/images/1.jpg", "title": "我在60年代搞代购", "bookCate": "60年代"},

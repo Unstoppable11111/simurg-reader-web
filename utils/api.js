@@ -13,6 +13,11 @@ export const API_ENDPOINTS = {
   // 首页排行榜接口
   RANKING_BOOKS: `${API_BASE_URL}/ranking/books`,
 
+  // 首页最近更新书籍接口
+  RECENT_UPDATE_BOOKS: `${API_BASE_URL}/book/recent-update`,
+
+  // 获取首页分类接口
+  CATEGORIES: `${API_BASE_URL}/category/list`,
 
   /** 首页相关接口结束*/
 

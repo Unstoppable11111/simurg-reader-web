@@ -10,7 +10,7 @@
       </div>
       <div class="table-body">
         <div 
-          v-for="book in books" 
+          v-for="book in recommendBooks" 
           :key="book.id" 
           class="table-row"
         >
@@ -26,6 +26,13 @@
 </template>
 
 <script setup>
+const props = defineProps({
+    recommendBooks: {
+      type: Array,
+      default: () => [],
+      required: true
+    }
+})
 // 定义书籍数据
 const books = ref([
   {

@@ -50,49 +50,6 @@ const gotoBookDetail = (bookId) => {
 // 当前激活的书籍索引
 const activeIndex = ref(0);
 
-// 书籍数据（包含额外信息）
-const books = ref([
-    {
-      bookId: 1,
-      imgUrl: "http://www.tireba.com/simurg-reader/images/1.jpg",
-      title: "穿书荒年，我靠修仙无敌了",
-      hot: "249.5万",
-      author: "南山有竹",
-      status: "连载中",
-      updateTime: "2023-10-01",
-      description: "现代修仙者意外穿到饥荒年代，左手空间右手灵泉，带领            携全家逆袭求生，却不料开启了惊天秘密..."
-    },
-    {
-      bookId: 2,
-      imgUrl: "http://www.tireba.com/simurg-reader/images/2.jpg",
-      title: "末世重生：我的植物变异了",
-      hot: "186.3万",
-      author: "风雨欲来",
-      status: "完结",
-      updateTime: "2023-09-28",
-      description: "末世三年，他被最信任的人背叛，意外重生回末世前夜。 这一次，他要守护好家人，让那些变异植物成为最强武器..."
-    },
-    {
-      bookId: 3,
-      imgUrl: "http://www.tireba.com/simurg-reader/images/3.jpg",
-      title: "全球高武：我能看到隐藏信息",
-      hot: "312.7万",
-      author: "执笔问长生",
-      status: "连载中",
-      updateTime: "2023-10-02",
-      description: "全球武道复苏，林辰意外获得看破万物信息的能力。 别人修炼靠苦修，他靠看破弱点，一路逆袭成为武道至尊..."
-    },
-    {
-      bookId: 4,
-      imgUrl: "http://www.tireba.com/simurg-reader/images/4.jpg",
-      title: "农家小福女：带着空间闯古代",
-      hot: "278.9万",
-      author: "月下独酌",
-      status: "连载中",
-      updateTime: "2023-09-30",
-      description: "现代美食博主穿越成古代农家女，附赠万能空间。 带领家人发家致富，却被某个权势滔天的王爷缠上..."
-    }
-]);
 </script>
 
 <style lang="scss" scoped>
