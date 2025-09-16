@@ -5,7 +5,7 @@
             :class="{ 'book-recommend-active': activeIndex === index }"
             @mouseenter="activeIndex = index"
             @mousemouseleave="activeIndex = -1"
-            v-for="(book, index) in books" 
+            v-for="(book, index) in recommendBooks" 
             :key="index"
             @click="gotoBookDetail(book.bookId)"
         >
@@ -33,7 +33,7 @@ import { ref } from 'vue';
 
 const router = useRouter();
 const props = defineProps({
-    books: {
+    recommendBooks: {
       type: Array,
       default: () => [],
       required: true

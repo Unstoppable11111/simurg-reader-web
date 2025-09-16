@@ -19,7 +19,7 @@
       <!-- 推荐专区 -->
       <div class="recommend-section">
         <span class="recommend-title">推荐</span>
-        <Recommend />
+        <Recommend :recommendBooks="recommendBooks" />
       </div>
 
       <!-- 排行榜 -->
@@ -79,40 +79,33 @@
   import BookCate from '~/components/home/BookCate.vue';
   import LastUpdateBook from '~/components/home/LastUpdateBook.vue';
   import Footer from '@/components/layout/Footer.vue';
+  import { API_ENDPOINTS, apiRequest } from '@/utils/api';
 
   definePageMeta({
     layout: 'default' // 可指定默认布局名称（可选）
   })
 
-  const books = [
-    {"id": "10001", "picUrl": "http://www.tireba.com/simurg-reader/images/1.jpg", "title": "我在60年代搞代购", "bookCate": "60年代"},
-    {"id": "10001", "picUrl": "http://www.tireba.com/simurg-reader/images/2.jpg", "title": "恶鬼真千金在恋综摆烂后爆红了", "bookCate": "恋综"},
-    {"id": "10001", "picUrl": "http://www.tireba.com/simurg-reader/images/3.jpg", "title": "我先贪掉九百万", "bookCate": "反贪"},
-    {"id": "10001", "picUrl": "http://www.tireba.com/simurg-reader/images/4.jpg", "title": "高考悟道手撕电磁炮", "bookCate": "逆天"},
-    {"id": "10001", "picUrl": "http://www.tireba.com/simurg-reader/images/5.jpg", "title": "天赋长生我出卖寿命成神", "bookCate": "全民"},
-    {"id": "10001", "picUrl": "http://www.tireba.com/simurg-reader/images/6.jpg", "title": "播种万族涅槃成神", "bookCate": "重生成龟"},
-    {"id": "10001", "picUrl": "http://www.tireba.com/simurg-reader/images/7.jpg", "title": "炮灰全家偷听我心声后杀疯了", "bookCate": "言情"},
-    {"id": "10001", "picUrl": "http://www.tireba.com/simurg-reader/images/8.jpg", "title": "炮灰全家读我心声后配角团杀疯了", "bookCate": "心声"},
-    {"id": "10001", "picUrl": "http://www.tireba.com/simurg-reader/images/9.jpg", "title": "我就有神级资质了", "bookCate": "穿越"}
-  ];
+  const featureBookUrl = new URL(`${API_ENDPOINTS.TAG_BOOKS}/FEATURED`);
+  const {data: books} = await apiRequest(featureBookUrl);
+  console.log("精选书籍", books);
 
-  const bannerList = [
-  {
-    id: 1001,
-    title: "玄幻小说：九天之上",
-    imageUrl: "http://www.tireba.com/simurg-reader/images/banner1.png"
-  },
-  {
-    id: 1002,
-    title: "都市异能：暗夜行者",
-    imageUrl: "https://picsum.photos/id/238/1200/400"
-  },
-  {
-    id: 1003,
-    title: "历史穿越：梦回大唐",
-    imageUrl: "https://picsum.photos/id/239/1200/400"
-  }
-];
+  const recommendBookUrl = new URL(`${API_ENDPOINTS.TAG_BOOKS}/RECOMMEND`);
+  const {data: recommendBooks} = await apiRequest(recommendBookUrl);
+  console.log("推荐书籍", books);
+
+  // const books = [
+  //   {"id": "490855748029517824", "picUrl": "http://www.tireba.com/simurg-reader/images/1.jpg", "title": "我在60年代搞代购", "bookCate": "60年代"},
+  //   {"id": "490855748029517824", "picUrl": "http://www.tireba.com/simurg-reader/images/2.jpg", "title": "恶鬼真千金在恋综摆烂后爆红了", "bookCate": "恋综"},
+  //   {"id": "490855748029517824", "picUrl": "http://www.tireba.com/simurg-reader/images/3.jpg", "title": "我先贪掉九百万", "bookCate": "反贪"},
+  //   {"id": "490855748029517824", "picUrl": "http://www.tireba.com/simurg-reader/images/4.jpg", "title": "高考悟道手撕电磁炮", "bookCate": "逆天"},
+  //   {"id": "490855748029517824", "picUrl": "http://www.tireba.com/simurg-reader/images/5.jpg", "title": "天赋长生我出卖寿命成神", "bookCate": "全民"},
+  //   {"id": "490855748029517824", "picUrl": "http://www.tireba.com/simurg-reader/images/6.jpg", "title": "播种万族涅槃成神", "bookCate": "重生成龟"},
+  //   {"id": "490855748029517824", "picUrl": "http://www.tireba.com/simurg-reader/images/7.jpg", "title": "炮灰全家偷听我心声后杀疯了", "bookCate": "言情"},
+  //   {"id": "490855748029517824", "picUrl": "http://www.tireba.com/simurg-reader/images/8.jpg", "title": "炮灰全家读我心声后配角团杀疯了", "bookCate": "心声"},
+  //   {"id": "490855748029517824", "picUrl": "http://www.tireba.com/simurg-reader/images/9.jpg", "title": "我就有神级资质了", "bookCate": "穿越"}
+  // ];
+
+  const bannerList = [];
 
 
   // 回到顶部功能

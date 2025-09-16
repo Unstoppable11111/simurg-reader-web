@@ -4,6 +4,12 @@ export const API_ENDPOINTS = {
   // 首页轮播图接口
   BANNERS: `${API_BASE_URL}/banner/role`,
 
+  // 首页根据标签获取书籍接口
+  TAG_BOOKS: `${API_BASE_URL}/book/list_by_tag`,
+
+  // 获取首页推荐书籍接口
+  RECOMMEND_BOOKS: `${API_BASE_URL}/recommend/books`,
+
   // 首页排行榜接口
   RANKING_BOOKS: `${API_BASE_URL}/ranking/books`,
 
@@ -16,6 +22,8 @@ export const API_ENDPOINTS = {
   // 书籍章节详情信息
   BOOK_CHAPTER_DETAIL: `${API_BASE_URL}/book/chapter/detail`,
 
+  // 文件上传接口
+  FILE_UPLOAD: `${API_BASE_URL}/file/upload`,
 
   // 认证相关
   AUTH_GOOGLE: `${API_BASE_URL}/auth/1`,
@@ -29,6 +37,23 @@ export async function apiRequest(endpoint, options = {}) {
         'Content-Type': 'application/json',
         ...options.headers
       },
+      ...options
+    })
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`)
+    }
+    
+    return await response.json()
+  } catch (error) {
+    console.error('API request failed:', error)
+    throw error
+  }
+}
+
+export async function apiFileRequest(endpoint, options = {}) {
+  try {
+    const response = await fetch(endpoint, {
       ...options
     })
     

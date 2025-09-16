@@ -76,21 +76,19 @@
 
 <script setup>
   import Header from "@/components/layout/Header.vue";
+  import { API_ENDPOINTS, apiFileRequest } from "@/utils/api";
 
   const penName = ref('');
   const bio = ref('');
   const agree = ref(false);
   const avatarPreview = ref('');
   const fileInput = ref(null);
+  const avatarUrl = ref('');
 
   const handleAvatarChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        avatarPreview.value = event.target.result;
-      };
-      reader.readAsDataURL(file);
+      uploadAvatar(file);
     }
   };
 
@@ -126,13 +124,47 @@
     
     const file = e.dataTransfer.files[0];
     if (file && file.type.startsWith('image/')) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        avatarPreview.value = event.target.result;
-      };
-      reader.readAsDataURL(file);
+      uploadAvatar(file);
     } else {
       alert('请上传有效的图片文件');
+    }
+  };
+
+  // 上传头像到后端
+  const uploadAvatar = async (file) => {
+    // 显示预览
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      avatarPreview.value = event.target.result;
+    };
+    reader.readAsDataURL(file);
+
+    // 创建 FormData 对象
+    const formData = new FormData();
+    formData.append('file', file);
+    console.log("文件对象",formData);
+    try {
+      // 这里需要替换为实际的上传接口URL
+      // 假设有一个上传头像的接口
+      const response = await apiFileRequest(API_ENDPOINTS.FILE_UPLOAD, {
+        method: 'POST',
+        body: formData
+      });
+
+      if (!response.ok) {
+        throw new Error('上传失败');
+      }
+
+      console.log(response);
+      
+      // 保存返回的图片URL
+      if (response.url) {
+        avatarUrl.value = result.url;
+        console.log('头像上传成功，URL:', avatarUrl.value);
+      }
+    } catch (error) {
+      console.error('上传错误:', error);
+      alert('头像上传失败，请重试');
     }
   };
 
