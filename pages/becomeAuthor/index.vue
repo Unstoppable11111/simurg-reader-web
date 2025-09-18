@@ -77,6 +77,7 @@
 <script setup>
   import Header from "@/components/layout/Header.vue";
   import { API_ENDPOINTS, apiFileRequest } from "@/utils/api";
+import { ca } from "element-plus/es/locale/index.mjs";
 
   const penName = ref('');
   const bio = ref('');
@@ -173,6 +174,13 @@
     // 验证必填字段
     if (!agree.value || !penName.value || !bio.value) {
       return;
+    }
+
+    try {
+      
+    } catch (error) {
+      console.error('提交错误:', error);
+      alert('提交失败，请检查填写的表单数据');
     }
 
     // 这里可以添加提交表单数据的逻辑

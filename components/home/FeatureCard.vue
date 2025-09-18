@@ -17,17 +17,17 @@
         <div
           class="feature-card"
           v-for="(book, idx) in books"
-          :key="book.id"
+          :key="book.bookId"
           :class="{ 
           'first-part': idx === 0,
           'active-part': idx === activeIndex
           }"
-          @click="gotoBookDetail(book.id)"
+          @click="gotoBookDetail(book.bookId)"
           :style="getItemStyles(idx)"
         >
-          <img :src="book.picUrl" :alt="book.title" class="book-img" />
+          <img :src="book.coverImageUrl" :alt="book.title" class="book-img" />
           <div class="book-title">{{ book.title }}</div>
-          <div class="book-cate">{{ book.bookCate }}</div>
+          <div class="book-cate">{{ book.title }}</div>
         </div>
       </div>
     </div>

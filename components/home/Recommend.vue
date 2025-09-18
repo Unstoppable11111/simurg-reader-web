@@ -9,17 +9,17 @@
             :key="index"
             @click="gotoBookDetail(book.bookId)"
         >
-            <img :src="book.imgUrl" alt="书籍封面" class="book-img">
+            <img :src="book.coverImageUrl" alt="书籍封面" class="book-img">
             <div class="book-text">
                 <span class="book-title">{{ book.title }}</span>
-                <span class="book-hot">{{ book.hot }}人气</span>
+                <span class="book-hot">{{ book.bookViews }}人气</span>
                 
                 <!-- 额外信息：仅在active状态显示 -->
                 <div class="book-details" v-if="activeIndex === index">
-                    <span class="book-author">作者：{{ book.author }}</span>
+                    <span class="book-author">作者：{{ book.authorPenName }}</span>
                     <div class="book-tags">
-                        <span class="tag">{{ book.status }}</span>
-                        <span class="tag update-tag">最近更新：{{ book.updateTime }}</span>
+                        <span class="tag">{{formatSerialStatus(book.serialStatus) }}</span>
+                        <span class="tag update-tag">最近更新：{{ formatTimestamp(book.publishDate) }}</span>
                     </div>
                     <p class="book-desc">{{ book.description }}</p>
                 </div>
@@ -30,6 +30,7 @@
 
 <script setup>
 import { ref } from 'vue';
+import { formatTimestamp, formatSerialStatus } from '@/utils/dataFormatter';
 
 const router = useRouter();
 const props = defineProps({
