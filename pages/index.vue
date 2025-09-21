@@ -103,7 +103,7 @@
     const recommendBookResult = await apiRequest(recommendBookUrl);
     console.log("推荐书籍", recommendBookResult);
     if (recommendBookResult.code === 200 && Array.isArray(recommendBookResult.data)) {
-      recommendBooks.value = recommendBookResult.data;
+      recommendBooks.value = recommendBookResult.data.slice(0, 4);
     }
   } catch (error) {
   }

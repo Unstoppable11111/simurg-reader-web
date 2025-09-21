@@ -58,9 +58,9 @@ const activeIndex = ref(0);
 <style lang="scss" scoped>
 .recommend-box {
     display: flex;
-    width: 1360px;
+    width: 1200;
     padding: 38px 0;
-    gap: 58px; /* 替代margin-right，更适合flex布局 */
+    gap: 28px; /* 替代margin-right，更适合flex布局 */
 }
 
 .recommend-book-item {
