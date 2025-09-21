@@ -25,7 +25,6 @@
         <div class="ranking-title-h2">
           <span class="ranking-title">排行榜</span>
           <NuxtLink to="/ranking" class="ranking-more">更多</NuxtLink>
-          <!-- <span class="ranking-more">更多</span> -->
         </div>
         <Ranking />
       </div>
@@ -42,7 +41,7 @@
           <span class="book-cate-title">分类</span>
           <span class="book-cate-more">更多</span>
         </div>
-        <BookCate />
+        <BookCate :bookCateList="bookCateList" />
       </div>
 
       <!-- 最近更新书籍日志 -->
@@ -82,10 +81,11 @@
     layout: 'default' // 可指定默认布局名称（可选）
   })
 
+  const banners = ref([]);
   const books = ref([]);
   const recommendBooks = ref([]);
+  const bookCateList = ref([]);
   const recentUpdateBooks = ref([]);
-  const banners = ref([]);
 
   try {
     const featureBookUrl = new URL(`${API_ENDPOINTS.TAG_BOOKS}/FEATURED`);
@@ -97,6 +97,7 @@
   } catch (error) {
   }
   
+  // 获取推荐书籍
   try {
     const recommendBookUrl = new URL(`${API_ENDPOINTS.TAG_BOOKS}/RECOMMEND`);
     const recommendBookResult = await apiRequest(recommendBookUrl);
@@ -107,6 +108,26 @@
   } catch (error) {
   }
 
+  // 获取书籍分类
+  try {
+    const bookCateResult = await apiRequest(API_ENDPOINTS.CATEGORIES, {
+      method: 'POST',
+      body: JSON.stringify({})
+    });
+    console.log("书籍分类", bookCateResult)
+    if (!bookCateResult.code === 200) {
+      throw new Error(`HTTP error! status: ${bookCateResult.status}`)
+    }
+    
+    const result = await bookCateResult
+    
+    if (result.code === 200 && Array.isArray(result.data)) {
+      bookCateList.value = result.data;
+    }
+  } catch (error) {
+  }
+
+  // 获取最近更新书籍
   try {
     const recentUpdateBookUrl = {
       size: 10, // 获取书籍数量
@@ -265,6 +286,7 @@
   width: 1200px;
   height: 260px;
   margin-top: 50px;
+  overflow: hidden;
 }
 .last-update-book-section {
   display: flex;

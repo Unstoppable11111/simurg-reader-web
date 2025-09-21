@@ -57,7 +57,7 @@
     <!-- 畅销榜 -->
     <div class="ranking-best-sellers-section" v-if="bestSellersBooks.length > 0">
       <div class="ranking-best-sellers-list">
-        <span class="ranking-best-sellers-title">畅销榜</span>
+        <span class="ranking-best-sellers-title">完结榜</span>
         <!-- 使用v-for循环渲染列表项 -->
         <div 
           class="ranking-best-sellers-itme" 
@@ -162,10 +162,10 @@ const fetchRankingData = async () => {
   } catch (error) {
   }
 
-  // 畅销榜
+  // 完结榜
   try {
     const bestsellerRankingData = {
-      rankingType: 3,
+      rankingType: 4,
       rankingSize: 5
     };
 
@@ -174,6 +174,7 @@ const fetchRankingData = async () => {
       body: JSON.stringify(bestsellerRankingData)
     });
     const result = response;
+    console.log('完结榜数据:', result);
     if (result.code === 200 && result.data) {
       bestSellersBooks.value = result.data || [];
     }
@@ -279,12 +280,12 @@ onMounted(() => {
     cursor: pointer; /* 鼠标变为手型，提示可点击 */
     }
   .book-cate {
-    height: 22px;
+    height: 17px;
     font-family: PingFangSC, PingFang SC;
     font-weight: 400;
-    font-size: 16px;
+    font-size: 12px;
     color: #DADADA;
-    line-height: 22px;
+    line-height: 17px;
     text-align: left;
     font-style: normal;
   }

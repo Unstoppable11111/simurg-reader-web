@@ -4,12 +4,12 @@
       <!-- 使用v-for循环循环渲染分类项 -->
       <div 
         class="book-cate-item" 
-        v-for="(category, index) in categories" 
+        v-for="(category, index) in bookCateList" 
         :key="index"
       >
         <img 
-          :src="category.imgUrl" 
-          :alt="category.name" 
+          :src="category.iconImageUrl" 
+          :alt="category.categoryName" 
           class="cate-img"
         />
       </div>
@@ -19,38 +19,19 @@
 
 <script setup>
 import { ref } from 'vue';
-
-// 分类数据数组
-const categories = ref([
-  {
-    imgUrl: "http://www.tireba.com/simurg-reader/images/cate1.png",
-    name: "青少年小说"
-  },
-  {
-    imgUrl: "http://www.tireba.com/simurg-reader/images/cate2.png",
-    name: "科幻小说"
-  },
-  {
-    imgUrl: "http://www.tireba.com/simurg-reader/images/cate3.png",
-    name: "历史传记"
-  },
-  {
-    imgUrl: "http://www.tireba.com/simurg-reader/images/cate4.png",
-    name: "悬疑推理"
-  },
-  {
-    imgUrl: "http://www.tireba.com/simurg-reader/images/cate5.png",
-    name: "浪漫爱情"
-  },
-  {
-    imgUrl: "http://www.tireba.com/simurg-reader/images/cate6.png",
-    name: "生活励志"
-  },
-  {
-    imgUrl: "http://www.tireba.com/simurg-reader/images/cate7.png",
-    name: "商业财经"
-  }
-]);
+import { API_ENDPOINTS, apiRequest } from '@/utils/api'
+const router = useRouter();
+const props = defineProps({
+    bookCateList: {
+      type: Array,
+      default: () => [],
+      required: true
+    },
+    apiUrl: {
+    type: String,
+    default: API_ENDPOINTS.RANKING_BOOKS
+    },
+})
 </script>
 
 <style lang="scss" scoped>

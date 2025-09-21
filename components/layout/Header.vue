@@ -51,29 +51,16 @@
   
   // 计算属性：是否已登录
   const isLoggedIn = computed(() => {
-     // 更详细的调试信息
-    console.log('Checking login status:');
-    console.log('- accessTokenCookie.value:', accessTokenCookie.value);
-    console.log('- userCookie.value:', userCookie.value);
-    console.log('- !!accessTokenCookie.value:', !!accessTokenCookie.value);
-    console.log('- !!userCookie.value:', !!userCookie.value);
-    
-    const loggedIn = !!accessTokenCookie.value && !!userCookie.value;
-    console.log('- isLoggedIn result:', loggedIn);
-    return loggedIn;
+    return !!accessTokenCookie.value && !!userCookie.value;
   })
   
   // 用户头像和名称
   const userAvatar = computed(() => {
-    const avatar = userCookie.value?.avatar || 'http://www.tireba.com/simurg-reader/images/author1.png';
-    console.log('Computed userAvatar:', avatar);
-    return avatar;
+    return userCookie.value?.avatar || 'http://www.tireba.com/simurg-reader/images/author1.png';
   })
   
   const userName = computed(() => {
-    const name = userCookie.value?.username || '用户';
-    console.log('Computed userName:', name);
-    return name;
+    return userCookie.value?.username || '用户';
   })
 
     const handleSearch = (query) => {

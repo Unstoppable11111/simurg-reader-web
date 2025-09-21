@@ -33,81 +33,39 @@ onMounted(async () => {
     console.log("回调响应参数",response);
     // 2. 登录成功，保存用户信息（如 Token、用户资料）
     if (response.code === 200) {
-      // 存入localStorage方式
-      // localStorage.setItem('user', JSON.stringify(response.user))
-      // localStorage.setItem('accessToken', response.data.tokenInfo.accessToken)
-      // localStorage.setItem('accessTokenExpire', response.data.tokenInfo.accessTokenExpire)
-      // localStorage.setItem('refreshToken', response.data.tokenInfo.refreshToken)
-      // localStorage.setItem('refreshTokenExpire', response.data.tokenInfo.refreshTokenExpire)
-      // const userCookie = useCookie('user')
-      // const accessTokenCookie = useCookie('accessToken')
-      // const refreshTokenCookie = useCookie('refreshToken')
-
-      // userCookie.value = response.thirdPartyUserInfo
-      // accessTokenCookie.value = response.data.tokenInfo.accessToken
-      // refreshTokenCookie.value = response.data.tokenInfo.refreshToken
-
-      // const accessTokenExpire = useCookie('accessTokenExpire')
-      // const refreshTokenExpire = useCookie('refreshTokenExpire')
-
-      // accessTokenExpire.value = response.data.tokenInfo.accessTokenExpire
-      // refreshTokenExpire.value = response.data.tokenInfo.refreshTokenExpire
-      // 使用useCookie设置cookie
-      // 使用useCookie设置cookie
-      const userCookie = useCookie('user', {
+       // 使用useCookie设置cookie，避免特殊字符被编码
+      const cookieOptions = {
         maxAge: 60 * 60 * 24 * 7, // 7天过期
         sameSite: true,
-        secure: process.env.NODE_ENV === 'production'
-      })
+        secure: process.env.NODE_ENV === 'production',
+        path: '/'
+      }
       
-      const accessTokenCookie = useCookie('accessToken', {
-        maxAge: 60 * 60 * 24 * 7,
-        sameSite: true,
-        secure: process.env.NODE_ENV === 'production'
-      })
+      // 设置用户信息到cookie（使用JSON序列化）
+      const userCookie = useCookie('user', cookieOptions)
+      userCookie.value = response.data.thirdPartyUserInfo || {}
       
-      const refreshTokenCookie = useCookie('refreshToken', {
-        maxAge: 60 * 60 * 24 * 7,
-        sameSite: true,
-        secure: process.env.NODE_ENV === 'production'
-      })
-
-      // 设置用户信息到cookie
-      // 检查response中的用户信息字段
-      const userInfo = response.data.thirdPartyUserInfo || {}
-      
-      console.log('User info to save:', userInfo)
-      
-      userCookie.value = userInfo
-      accessTokenCookie.value = response.data.tokenInfo.accessToken
-      refreshTokenCookie.value = response.data.tokenInfo.refreshToken
-
-      // 设置过期时间
-      const accessTokenExpire = useCookie('accessTokenExpire', {
-        maxAge: 60 * 60 * 24 * 7,
-        sameSite: true,
-        secure: process.env.NODE_ENV === 'production'
-      })
-      
-      const refreshTokenExpire = useCookie('refreshTokenExpire', {
-        maxAge: 60 * 60 * 24 * 7,
-        sameSite: true,
-        secure: process.env.NODE_ENV === 'production'
-      })
-
-      accessTokenExpire.value = response.data.tokenInfo.accessTokenExpire
-      refreshTokenExpire.value = response.data.tokenInfo.refreshTokenExpire
+      // 直接操作document.cookie来避免编码问题
+      if (process.client) {
+        const expires = new Date()
+        expires.setTime(expires.getTime() + (7 * 24 * 60 * 60 * 1000)) // 7天
+        
+        // 设置accessToken，不进行编码
+        document.cookie = `accessToken=${response.data.tokenInfo.accessToken}; expires=${expires.toUTCString()}; path=/; SameSite=Strict${process.env.NODE_ENV === 'production' ? '; Secure' : ''}`
+        
+        // 设置refreshToken，不进行编码
+        document.cookie = `refreshToken=${response.data.tokenInfo.refreshToken}; expires=${expires.toUTCString()}; path=/; SameSite=Strict${process.env.NODE_ENV === 'production' ? '; Secure' : ''}`
+        
+        // 设置过期时间
+        document.cookie = `accessTokenExpire=${response.data.tokenInfo.accessTokenExpire}; expires=${expires.toUTCString()}; path=/; SameSite=Strict${process.env.NODE_ENV === 'production' ? '; Secure' : ''}`
+        document.cookie = `refreshTokenExpire=${response.data.tokenInfo.refreshTokenExpire}; expires=${expires.toUTCString()}; path=/; SameSite=Strict${process.env.NODE_ENV === 'production' ? '; Secure' : ''}`
+      }
 
       console.log('Cookie设置完成:', {
         user: userCookie.value,
-        accessToken: accessTokenCookie.value,
-        refreshToken: refreshTokenCookie.value
+        accessToken: response.data.tokenInfo.accessToken,
+        refreshToken: response.data.tokenInfo.refreshToken
       });
-
-      // 设置过期时间
-
-      // 保存用户名
-
 
       // 跳转到首页或之前的页面
       router.push('/')

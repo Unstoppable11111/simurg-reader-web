@@ -6,9 +6,9 @@
       <div class="book-shelf-left-nav-box">
         <!-- 作者头像区域 -->
         <div class="author-avatar-box"> 
-          <img class="author-avatar" src="http://tireba.com/simurg-reader/images/author1.png" alt="">
-          <div class="author-name">腹黑的龙王在吃西瓜</div>
-          <div class="author-id">ID：1212454546</div>
+          <img class="author-avatar" :src="userInfo.pictureUrl" alt="">
+          <div class="author-name">{{ userInfo.username }}</div>
+          <div class="author-id">ID：{{ userInfo.userId }}</div>
           <div class="follow-box">
             <div class="author-follow">关注 <span class="author-follow-num">0</span></div>
             <div class="author-fan">粉丝 <span class="author-fan-num">22</span></div>
@@ -73,12 +73,13 @@
 </template>
 
 <script setup>
-import Header from "@/components/layout/Header.vue";
+  import Header from "@/components/layout/Header.vue";
+  import { API_ENDPOINTS, apiAuthRequest } from "@/utils/api";
 
   // 定义响应式数据，用于跟踪当前激活的导航项
   const activeNav = ref('bookshelf');
- const router = useRouter()
-
+  const router = useRouter()
+  const userInfo = ref({});
   // 定义书籍数据
   const books = ref([
     {
@@ -113,21 +114,21 @@ import Header from "@/components/layout/Header.vue";
 
   // 加载我的书架数据
   const queryMyBookShelf = async () => {
-    if (activeNav.value === 'bookshelf') return; // 如果已经是当前页面，不需要重复加载
-    
-    activeNav.value = 'bookshelf';
     // 这里调用后端接口获取用户收藏的书籍
-    // const response = await fetch('/api/user/bookshelf');
-    // const books = await response.json();
+    const reqData = {
+      page: 1,
+      size: 10
+    }
+    const response = await apiAuthRequest(API_ENDPOINTS.LIST_FAVORITE_BOOKS, {
+      method: 'POST',
+      body: JSON.stringify(reqData)
+    });
     // 处理返回的数据
-    console.log('加载我的书架数据');
+    console.log('加载我的书架数据', response);
   };
 
   // 加载历史记录数据
   const queryMyHistory = async () => {
-    if (activeNav.value === 'history') return; // 如果已经是当前页面，不需要重复加载
-    
-    activeNav.value = 'history';
     // 这里调用后端接口获取用户的历史阅读记录
     // const response = await fetch('/api/user/history');
     // const history = await response.json();
@@ -137,14 +138,27 @@ import Header from "@/components/layout/Header.vue";
 
   // 点击书籍跳转到详情页
   const gotoBookDetail = (bookId) => {
-    console.log('点击了书籍，ID:', bookId)
     // 使用路由跳转到书籍详情页
     router.push(`/book/${bookId}`)
   }
 
+  const fetchUserInfo = async () => { 
+    try {
+      const response = await apiAuthRequest(API_ENDPOINTS.USER_INFO);
+      if (response.code === 200) {
+        userInfo.value = response.data;
+      }
+      // 处理返回的用户信息
+    } catch (error) {
+      console.error('获取用户信息失败：', error);
+    }
+  }
+
   // 页面加载时默认加载书架数据
   onMounted(() => {
+    fetchUserInfo();
     queryMyBookShelf();
+
   });
 </script>
 

@@ -169,6 +169,8 @@
 
   .active-part .book-img{
     margin-top: 0;
+    position: relative;
+    top: -38px; /* 向上偏移38px，视觉上就比其他元素高出38px */
   }
 
   .first-part {
