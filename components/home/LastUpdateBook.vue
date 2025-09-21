@@ -2,11 +2,11 @@
   <div class="last-update-book-box">
     <div class="last-update-book-list">
       <div class="table-header">
-        <div class="th-type">类型</div>
-        <div class="th-book-name">书名</div>
-        <div class="th-book-content-name">最新章节</div>
-        <div class="th-book-author">作者</div>
-        <div class="th-book-update-time">更新时间</div>
+        <div class="th th-book-name">书名</div>
+        <div class="th th-book-content-name">最新章节</div>
+        <div class="th th-book-author">作者</div>
+        <div class="th th-type">类型</div>
+        <div class="th th-book-update-time">更新时间</div>
       </div>
       <div class="table-body">
         <div 
@@ -14,11 +14,11 @@
           :key="book.id" 
           class="table-row"
         >
-          <div class="th-type">{{ book.type }}</div>
-          <div class="th-book-name">{{ book.title }}</div>
-          <div class="th-book-content-name">{{ book.latestChapter }}</div>
-          <div class="th-book-author">{{ book.authorPenName }}</div>
-          <div class="th-book-update-time">{{ book.updateTime }}</div>
+          <div class="tr th-book-name">{{ book.title }}</div>
+          <div class="tr th-book-content-name">{{ book.latestChapter }}</div>
+          <div class="tr th-book-author">{{ book.authorPenName }}</div>
+          <div class="tr th-type">{{ book.type }}</div>
+          <div class="tr th-book-update-time">{{ book.updateTime }}</div>
         </div>
       </div>
     </div>
@@ -74,7 +74,7 @@ const books = ref([
   line-height: 29px;
   text-align: left;
   font-style: normal;
-  border-bottom: 1px solid #979796;
+  border-bottom: 1px solid #434343;
 }
 
 .th-type {
@@ -88,7 +88,7 @@ const books = ref([
   text-overflow: ellipsis;
 }
 .th-book-name {
-  width: 314px;
+  width: 332px;
   height: 68px;
   line-height: 68px;
    // 添加以下样式实现单行显示和省略号效果
@@ -134,12 +134,30 @@ const books = ref([
   line-height: 29px;
   text-align: left;
   font-style: normal;
-  border-bottom: 1px solid #979796;
+  border-bottom: 1px solid #434343;
 }
 .table-row div {
    &:hover {
     color: #ED5B00;
     cursor: pointer;
   }
+}
+.th {
+  font-family: PingFangSC, PingFang SC;
+  font-weight: 400;
+  font-size: 16px;
+  color: #747474;
+  text-align: left;
+  font-style: normal;
+  }
+.table-row .tr {
+  height: 68px;
+  font-family: PingFangSC, PingFang SC;
+  font-weight: 400;
+  font-size: 16px;
+  color: #DADADA;
+  line-height: 68px;
+  text-align: left;
+  font-style: normal;
 }
 </style>

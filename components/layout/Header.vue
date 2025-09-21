@@ -5,7 +5,6 @@
     <NuxtLink to="/" class="header-nav to-simurg-reader-index" :class="{ 'header-nav-active': $route.path === '/' }">首页</NuxtLink>
     <NuxtLink to="/bookshelf" class="header-nav to-bookshelf" :class="{ 'header-nav-active': $route.path === '/bookshelf' }">书架</NuxtLink>
     <NuxtLink to="/ranking" class="header-nav to-ranking" :class="{ 'header-nav-active': $route.path === '/ranking' }">排行榜</NuxtLink>
-    <!-- <NuxtLink to="/becomeAuthor" class="header-nav to-become-author" :class="{ 'header-nav-active': $route.path === '/becomeAuthor' }">成为作家</NuxtLink> -->
     <NuxtLink 
       v-if="!isAuthor" 
       to="/becomeAuthor" 
@@ -23,10 +22,13 @@
     <Search class="search" 
       placeholder="请输入书名或作者名"
       @search="handleSearch"/>
-    <NuxtLink class="login-btn" to="/login">登录</NuxtLink>
-    <!-- <button class="login-btn" @click="handleLogin">登录</button> -->
-     <img class="user-avatar" src="http://www.tireba.com/simurg-reader/images/author1.png" alt="">
-     <span class="user-name">田拽拽</span>
+    <NuxtLink v-if="!isLoggedIn" class="login-btn" to="/login">登录</NuxtLink>
+     <div v-else style="display: flex;">
+      <!-- <img class="user-avatar" src="http://www.tireba.com/simurg-reader/images/author1.png" alt=""> -->
+       <img class="user-avatar" :src="userAvatar" alt="">
+      <span class="user-name">{{ userName }}</span>
+     </div>
+     
   </div>
 </template>
 
@@ -42,17 +44,42 @@
       default: false
     }
   });
+
+   // 从cookie中获取用户信息
+  const userCookie = useCookie('user')
+  const accessTokenCookie = useCookie('accessToken')
+  
+  // 计算属性：是否已登录
+  const isLoggedIn = computed(() => {
+     // 更详细的调试信息
+    console.log('Checking login status:');
+    console.log('- accessTokenCookie.value:', accessTokenCookie.value);
+    console.log('- userCookie.value:', userCookie.value);
+    console.log('- !!accessTokenCookie.value:', !!accessTokenCookie.value);
+    console.log('- !!userCookie.value:', !!userCookie.value);
+    
+    const loggedIn = !!accessTokenCookie.value && !!userCookie.value;
+    console.log('- isLoggedIn result:', loggedIn);
+    return loggedIn;
+  })
+  
+  // 用户头像和名称
+  const userAvatar = computed(() => {
+    const avatar = userCookie.value?.avatar || 'http://www.tireba.com/simurg-reader/images/author1.png';
+    console.log('Computed userAvatar:', avatar);
+    return avatar;
+  })
+  
+  const userName = computed(() => {
+    const name = userCookie.value?.username || '用户';
+    console.log('Computed userName:', name);
+    return name;
+  })
+
     const handleSearch = (query) => {
     console.log('搜索内容:', query)
-    // 这里可以添加实际的搜索逻辑，如跳转到搜索结果页
     }
 
-  // // 跳转登录
-  // const handleLogin = (bookId) => {  
-  //   console.log('点击了书籍，ID:', bookId)
-  //   // 登录
-  //   router.push(`/login/${bookId}`)
-  // }
 
 </script>
 
