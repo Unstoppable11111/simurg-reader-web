@@ -27,7 +27,7 @@
         >
           <img :src="book.coverImageUrl" :alt="book.title" class="book-img" />
           <div class="book-title">{{ book.title }}</div>
-          <div class="book-cate">{{ book.title }}</div>
+          <div class="book-cate">{{ book.bookCategoryResponseList[0].categoryName }}</div>
         </div>
       </div>
     </div>
@@ -122,14 +122,14 @@
 </script>
 
 <style lang="scss" scoped>
-  $card-width: 192px;
-  $card-height: 396px;
-  $card-gap: 32px;
+  $card-width: 168px;
+  $card-height: 294px;
+  $card-gap: 24px;
   $card-part: calc($card-width / 3);
 
   .feature-card-carousel {
     // width: calc($card-width * 5 + $card-gap * 6 + $card-part * 2); // 5张完整卡片+6个间距+两侧各三分之一
-    width: 1360px;
+    width: 1200px;
     overflow: hidden;
     position: relative;
     margin: 0 auto;
@@ -137,10 +137,8 @@
 
   // 可视区域 - 固定宽度1360px，超出部分隐藏
   .view-port {
-    width: 1360px;
-    overflow: hidden;
-    margin: 0 auto;
-    margin-top: 38px;
+    width: 1200px;
+    margin-top: 66px;
   }
 
   // 书籍轨道
@@ -166,7 +164,7 @@
   }
 
   .feature-card .book-img {
-    margin-top: 28px;
+    // margin-top: 28px;
   }
 
   .active-part .book-img{
@@ -183,32 +181,33 @@
   }
 
   .active-part .book-img{
-    width: 234px;
-    height: 396px;
+    width: 216px;
+    height: 288px;
     z-index: 3;
   }
 
   .book-img {
-    width: 192px;
-    height: 256px;
+    width: 168px;
+    height: 224px;
     object-fit: cover;
     margin: 0;
   }
 
   .book-title {
-    width: 198px;
-    height: 62px;
+    height: 22px;
     font-family: PingFangSC, PingFang SC;
-    font-weight: 600;
-    font-size: 22px;
+    font-weight: 400;
+    font-size: 16px;
     color: #FFFFFF;
-    line-height: 30px;
+    line-height: 22px;
     text-align: left;
     font-style: normal;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     margin-top: 28px;
+
+    
   }
    // 鼠标悬停时的颜色变化
   .book-title:hover {
@@ -217,20 +216,19 @@
   }
 
   .book-cate {
-    width: 64px;
-    height: 22px;
+    height: 17px;
     font-family: PingFangSC, PingFang SC;
     font-weight: 400;
-    font-size: 16px;
+    font-size: 12px;
     color: #A2A0A0;
-    line-height: 22px;
+    line-height: 17px;
     text-align: left;
     font-style: normal;
   }
   // 箭头样式 - 确保能点击到
   .carousel-arrow {
     position: absolute;
-    top: 50%;
+    top: calc(50% + 24px);
     transform: translateY(-50%);
     width: 48px;
     height: 48px;

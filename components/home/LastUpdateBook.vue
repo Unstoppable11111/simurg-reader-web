@@ -10,14 +10,14 @@
       </div>
       <div class="table-body">
         <div 
-          v-for="book in recommendBooks" 
+          v-for="book in recentUpdateBooks" 
           :key="book.id" 
           class="table-row"
         >
           <div class="th-type">{{ book.type }}</div>
           <div class="th-book-name">{{ book.title }}</div>
           <div class="th-book-content-name">{{ book.latestChapter }}</div>
-          <div class="th-book-author">{{ book.author }}</div>
+          <div class="th-book-author">{{ book.authorPenName }}</div>
           <div class="th-book-update-time">{{ book.updateTime }}</div>
         </div>
       </div>
@@ -27,7 +27,7 @@
 
 <script setup>
 const props = defineProps({
-    recommendBooks: {
+    recentUpdateBooks: {
       type: Array,
       default: () => [],
       required: true

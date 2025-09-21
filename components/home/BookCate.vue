@@ -63,7 +63,7 @@ const categories = ref([
   }
   
   .cate-img {
-    width: 174px;
+    width: 154px;
     height: 185px;
     background: #979797;
     box-shadow: 0px 4px 10px 0px rgba(197,195,195,0.5);

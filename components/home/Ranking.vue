@@ -19,7 +19,7 @@
           <div class="book-info">
             <span class="book-title">{{ book.title }}</span>
             <span class="book-cate">{{ book.category }}</span>
-            <span class="book-hot">{{ book.hot }}</span>
+            <span class="book-hot">{{ book.bookViews }} 热度</span>
           </div>
         </div>
       </div>
@@ -44,7 +44,7 @@
           <div class="book-info">
             <span class="book-title">{{ book.title }}</span>
             <span class="book-cate">{{ book.category }}</span>  
-            <span class="book-hot">{{ book.hot }}</span>
+            <span class="book-hot">{{ book.bookViews }} 热度</span>
           </div>
         </div>
       </div>
@@ -135,6 +135,7 @@ const fetchRankingData = async () => {
       body: JSON.stringify(hotRankingData)
     });
     const result = response;
+    console.log('热门榜数据:', result);
     if (result.code === 200 && result.data) {
       hotBooks.value = result.data || [];
     }
@@ -196,7 +197,12 @@ onMounted(() => {
 <style lang="scss" scoped>
   .ranking-box {
     display: flex;
-    margin-top: 38px;
+  }
+  .ranking-hot-section, 
+  .ranking-new-section, 
+  .ranking-best-sellers-section { 
+    width: 400px;
+    height: 633px;
   }
   .ranking-hot-title, 
   .ranking-new-title, 
@@ -214,7 +220,7 @@ onMounted(() => {
   .ranking-new-itme, 
   .ranking-best-sellers-itme {
     display: flex;
-    width: 445px;
+    width: 400px;
     height: 96px;
     margin-top: 14px;
     margin-bottom: 18px;
@@ -228,6 +234,8 @@ onMounted(() => {
   }
   .book-info {
     display: flex;
+    width: 290px;
+    height: 96px;
     flex-direction: column;
     margin-left: 8px;
   }
@@ -251,12 +259,12 @@ onMounted(() => {
     margin-left: 8px;
   }
   .book-title {
-    height: 29px;
+    height: 22px;
     font-family: PingFangSC, PingFang SC;
     font-weight: 400;
-    font-size: 21px;
+    font-size: 16px;
     color: #FFFFFF;
-    line-height: 29px;
+    line-height: 22px;
     text-align: left;
     font-style: normal;
     /* 单行超出省略号核心样式 */
@@ -280,15 +288,15 @@ onMounted(() => {
     font-style: normal;
   }
   .book-hot {
-    height: 22px;
+    height: 17px;
     font-family: PingFangSC, PingFang SC;
     font-weight: 400;
-    font-size: 16px;
+    font-size: 12px;
     color: #DB975A;
-    line-height: 22px;
+    line-height: 17px;
     text-align: left;
     font-style: normal;
-    margin-top: 19px;
+    margin-top: 36px;
   }
 
     // 书籍图片样式及动画

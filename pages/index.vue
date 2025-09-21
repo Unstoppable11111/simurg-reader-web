@@ -178,20 +178,16 @@
 .featured-section {
   display: flex;
   flex-direction: column;
-  width: 1360px;
-  height: 540px;
+  width: 1200px;
+  height: 493px;
   align-items: center;
-  justify-content: center;
-}
-.featured-title-h2 {
-  display: flex;
-  justify-content: center;
+  margin-top: 38px;
 }
 .recommend-section {
   display: flex;
   flex-direction: column;
-  width: 1360px;
-  height: 370px;
+  width: 1200px;
+  height: 349px;
   margin-top: 38px;
 }
 .book-carousel {
@@ -201,17 +197,17 @@
 .ranking-section {
   display: flex;
   flex-direction: column;
-  width: 1360px;
-  height: 716px;
+  width: 1200px;
+  height: 704px;
   align-items: center;
   margin-bottom: 40px; /* 底部留白，避免内容贴边 */
-  margin-top: 38px;
+  margin-top: 50px;
 }
 .ranking-title-h2 {
   display: flex;
   align-items: center;
   width: 100%;
-  margin-bottom: 20px; /* 标题与内容间距 */
+  margin-bottom: 38px; /* 标题与内容间距 */
   position: relative; /* 为了定位“更多”按钮 */
 }
 .featured-title, .recommend-title, .ranking-title, .newly-signed-title, .book-cate-title {
@@ -234,6 +230,9 @@
   /* 兼容其他浏览器 */
   background-clip: text; 
   text-fill-color: transparent; 
+}
+.featured-title {
+  margin-top: 28px;
 }
 .ranking-title {
   width: 84px;
@@ -263,9 +262,9 @@
   position: relative; /* 为了定位“更多”按钮 */
 }
 .book-cate-section {
-  width: 1360px;
-  height: 267px;
-  margin-top: 38px;
+  width: 1200px;
+  height: 260px;
+  margin-top: 50px;
 }
 .last-update-book-section {
   display: flex;

@@ -12,14 +12,16 @@
             <img :src="book.coverImageUrl" alt="书籍封面" class="book-img">
             <div class="book-text">
                 <span class="book-title">{{ book.title }}</span>
-                <span class="book-hot">{{ book.bookViews }}人气</span>
-                
+                <span class="book-hot" v-if="activeIndex !== index">热度：{{ book.bookViews }}</span>
                 <!-- 额外信息：仅在active状态显示 -->
                 <div class="book-details" v-if="activeIndex === index">
                     <span class="book-author">作者：{{ book.authorPenName }}</span>
                     <div class="book-tags">
-                        <span class="tag">{{formatSerialStatus(book.serialStatus) }}</span>
-                        <span class="tag update-tag">最近更新：{{ formatTimestamp(book.publishDate) }}</span>
+                        <span class="tag">{{formatSerialStatus(book.serialStatus) }} </span>
+                        <span class="tag tag-delimiter">|</span>
+                        <span class="tag book-hot">热度：{{ book.bookViews }}</span>
+                        <span class="tag tag-delimiter">|</span>
+                        <span class="tag update-tag">最近更新：{{ formatTimestamp(book.publishDate) }} </span>
                     </div>
                     <p class="book-desc">{{ book.description }}</p>
                 </div>
@@ -57,7 +59,7 @@ const activeIndex = ref(0);
 .recommend-box {
     display: flex;
     width: 1360px;
-    padding: 20px 0;
+    padding: 38px 0;
     gap: 58px; /* 替代margin-right，更适合flex布局 */
 }
 
@@ -87,8 +89,8 @@ const activeIndex = ref(0);
   transform: translateY(-5px);
 }
 .book-recommend-active .book-img {
-  width: 210px;
-  height: 280px;
+  width: 180px;
+  height: 240px;
   box-shadow: 0 8px 16px rgba(0,0,0,0.2);
 }
 .book-recommend-active .book-text {
@@ -107,12 +109,12 @@ const activeIndex = ref(0);
 
 .book-title {
   width: 100%;
-  height: 29px;
+  height: 25px;
   font-family: PingFangSC, PingFang SC;
   font-weight: 600;
-  font-size: 21px;
+  font-size: 18px;
   color: #FFFFFF;
-  line-height: 29px;
+  line-height: 25px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -123,11 +125,14 @@ const activeIndex = ref(0);
 }
 
 .book-hot {
+  height: 17px;
   font-family: PingFangSC, PingFang SC;
   font-weight: 400;
-  font-size: 16px;
+  font-size: 12px;
   color: #DB975A;
-  line-height: 22px;
+  line-height: 17px;
+  text-align: left;
+  font-style: normal;
 }
 
 /* 额外信息样式 */
@@ -140,11 +145,11 @@ const activeIndex = ref(0);
 }
 
 .book-author {
-  height: 25px;
-  line-height: 25px;
+  height: 22px;
+  line-height: 22px;
   font-family: PingFangSC, PingFang SC;
   font-weight: 400;
-  font-size: 18px;
+  font-size: 16px;
   color: #DADADA;
   text-align: left;
   font-style: normal;
@@ -156,14 +161,17 @@ const activeIndex = ref(0);
 }
 
 .tag {
-  height: 22px;
+  height: 17px;
   font-family: PingFangSC, PingFang SC;
   font-weight: 400;
-  font-size: 16px;
+  font-size: 12px;
   color: #DB975A;
   line-height: 22px;
   text-align: left;
   font-style: normal;
+}
+.tag-delimiter {
+  padding: 0 24px;
 }
 
 .tag.update {
@@ -172,11 +180,11 @@ const activeIndex = ref(0);
 }
 
 .book-desc {
-  width: 498px;
+  width: 431px;
   height: 64px;
   font-family: PingFangSC, PingFang SC;
   font-weight: 400;
-  font-size: 16px;
+  font-size: 14px;
   color: #DADADA;
   line-height: 22px;
   text-align: left;
