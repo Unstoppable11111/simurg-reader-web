@@ -26,7 +26,7 @@
      <div v-else style="display: flex;">
       <!-- <img class="user-avatar" src="http://www.tireba.com/simurg-reader/images/author1.png" alt=""> -->
        <img class="user-avatar" :src="userAvatar" alt="">
-      <span class="user-name">{{ userName }}</span>
+       <span class="user-name">{{ userName }}</span>
      </div>
      
   </div>

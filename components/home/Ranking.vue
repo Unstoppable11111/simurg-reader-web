@@ -18,7 +18,9 @@
           />
           <div class="book-info">
             <span class="book-title">{{ book.title }}</span>
-            <span class="book-cate">{{ book.category }}</span>
+            <span class="book-cate">{{ book.bookCategoryResponseList && book.bookCategoryResponseList.length > 0 
+              ? book.bookCategoryResponseList[0].categoryName 
+              : ''  }}</span>
             <span class="book-hot">{{ book.bookViews }} 热度</span>
           </div>
         </div>
@@ -43,7 +45,9 @@
           />
           <div class="book-info">
             <span class="book-title">{{ book.title }}</span>
-            <span class="book-cate">{{ book.category }}</span>  
+            <span class="book-cate">{{ book.bookCategoryResponseList && book.bookCategoryResponseList.length > 0 
+              ? book.bookCategoryResponseList[0].categoryName 
+              : ''  }}</span>  
             <span class="book-hot">{{ book.bookViews }} 热度</span>
           </div>
         </div>
@@ -68,8 +72,10 @@
           />
           <div class="book-info">
             <span class="book-title">{{ book.title }}</span>
-            <span class="book-cate">{{ book.category }}</span>  
-            <span class="book-hot">{{ book.hot }}</span>
+            <span class="book-cate">{{ book.bookCategoryResponseList && book.bookCategoryResponseList.length > 0 
+              ? book.bookCategoryResponseList[0].categoryName 
+              : ''  }}</span>  
+            <span class="book-hot">{{ book.bookViews }}</span>
           </div>
         </div>
       </div>
@@ -82,11 +88,6 @@ import { ref } from 'vue';
 import { API_ENDPOINTS, apiRequest } from '@/utils/api'
 const router = useRouter();
 const props = defineProps({
-    books: {
-      type: Array,
-      default: () => [],
-      required: true
-    },
     apiUrl: {
     type: String,
     default: API_ENDPOINTS.RANKING_BOOKS

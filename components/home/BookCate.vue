@@ -59,7 +59,7 @@ const categories = ref([
   }
   .book-cate-list {
     display: flex;
-    gap: 24px;
+    gap: 20px;
   }
   
   .cate-img {

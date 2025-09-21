@@ -270,8 +270,9 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 1360px;
-  max-height: 837px;
+  width: 1200px;
+  max-height: 830px;
+  margin-top: 50px;
 }
 .last-update-book-title {
   width: 112px;

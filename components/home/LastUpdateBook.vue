@@ -15,10 +15,12 @@
           class="table-row"
         >
           <div class="tr th-book-name">{{ book.title }}</div>
-          <div class="tr th-book-content-name">{{ book.latestChapter }}</div>
+          <div class="tr th-book-content-name">{{ book.chapterTitle }}</div>
           <div class="tr th-book-author">{{ book.authorPenName }}</div>
-          <div class="tr th-type">{{ book.type }}</div>
-          <div class="tr th-book-update-time">{{ book.updateTime }}</div>
+          <div class="tr th-type">{{ book.bookCategoryResponseList && book.bookCategoryResponseList.length > 0 
+              ? book.bookCategoryResponseList[0].categoryName 
+              : '' }}</div>
+          <div class="tr th-book-update-time">{{ formatTimestamp(book.lastUpdateTime) }}</div>
         </div>
       </div>
     </div>
@@ -26,43 +28,22 @@
 </template>
 
 <script setup>
-const props = defineProps({
-    recentUpdateBooks: {
-      type: Array,
-      default: () => [],
-      required: true
-    }
-})
-// 定义书籍数据
-const books = ref([
-  {
-    id: 1,
-    type: '架空历史',
-    title: '穿书荒年，我靠修仙无敌了穿书荒年，我靠修仙无敌了穿书荒年，我靠修仙无敌了',
-    latestChapter: '第40章 中下主仆烙印',
-    author: '奈奈一',
-    updateTime: '2025-07-17 19:00'
-  },
-  {
-    id: 2,
-    type: '古言脑洞',
-    title: '我都成炮灰了，发颠很正常吧',
-    latestChapter: '第165章 最不可能的答案',
-    author: '清酒一杯',
-    updateTime: '2025-07-17 19:00'
-  },
-  {
-    id: 3,
-    type: '架空历史',
-    title: '穿书荒年，我靠修仙无敌了',
-    latestChapter: '第40章 中下主仆烙印',
-    author: '奈奈一',
-    updateTime: '2025-07-17 19:00'
-  }
-])
+  import { formatTimestamp } from '@/utils/dataFormatter';
+  const props = defineProps({
+      recentUpdateBooks: {
+        type: Array,
+        default: () => [],
+        required: true
+      }
+  })
+
+
 </script>
 
 <style lang="scss" scoped>
+.last-update-book-box {
+  width: 1200px;
+}
 .table-header {
   display: flex;
   flex-direction: row;
