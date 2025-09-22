@@ -6,6 +6,7 @@
 
 <script setup>
 import { useCookie } from '#app';
+import { API_ENDPOINTS } from '@/utils/api'
 const router = useRouter()
 const route = useRoute()
 
@@ -23,7 +24,7 @@ onMounted(async () => {
   try {
     // 1. 将授权码发送到后端，换取访问令牌和用户信息
     // 注意：这里必须通过后端处理，不能在前端直接调用 Google API（会暴露 client_secret）
-    const response = await $fetch('http://localhost:8082/simurg_reader_web/api/auth/callback', {
+    const response = await $fetch(API_ENDPOINTS.CALLBACK_GOOGLE, {
       method: 'POST',
       body: { 
         code,

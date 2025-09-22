@@ -172,6 +172,8 @@
 
 <script setup>
 import { ref } from 'vue'
+import { API_ENDPOINTS } from '@/utils/api'
+
 
 // 页面状态
 const activeTab = ref('sms')
@@ -188,7 +190,7 @@ const rememberEmail = ref(false)
 const handleGoogleLogin = async () => {
   console.log("点击 Google 登录按钮");
   try {
-    const response = await $fetch('http://localhost:8082/simurg_reader_web/api/auth/1', {
+    const response = await $fetch(API_ENDPOINTS.AUTH_GOOGLE, {
       method: 'GET'
     })
     // 跳转到 Google 登录页面

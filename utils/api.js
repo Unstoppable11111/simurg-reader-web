@@ -1,5 +1,6 @@
 import { useCookie } from "#app"
-const API_BASE_URL = process.env.NUXT_API_BASE_URL || 'http://localhost:8082/simurg_reader_web/api'
+// const API_BASE_URL = process.env.NUXT_API_BASE_URL || 'http://localhost:8082/simurg_reader_web/api'
+const API_BASE_URL = process.env.NUXT_API_BASE_URL || 'http://8.129.12.50:8082/simurg_reader_web/api'
 export const API_ENDPOINTS = {
   /** 首页相关接口开始 */
   BANNERS: `${API_BASE_URL}/banner/role`,
@@ -28,6 +29,7 @@ export const API_ENDPOINTS = {
 
   // 认证相关
   AUTH_GOOGLE: `${API_BASE_URL}/auth/1`,
+  CALLBACK_GOOGLE: `${API_BASE_URL}/auth/callback`,
 }
 
 // 获取存储在cookie中的accessToken
