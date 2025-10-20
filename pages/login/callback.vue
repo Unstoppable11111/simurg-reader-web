@@ -5,10 +5,11 @@
 </template>
 
 <script setup>
-import { useCookie } from '#app';
+import {useAuth} from '@/composables/auth'
 import { API_ENDPOINTS } from '@/utils/api'
 const router = useRouter()
 const route = useRoute()
+const { setAuthCookies } = useAuth()
 
 onMounted(async () => {
   // 从 URL 中获取 Google 返回的授权码（code 参数）
@@ -34,42 +35,16 @@ onMounted(async () => {
     console.log("回调响应参数",response);
     // 2. 登录成功，保存用户信息（如 Token、用户资料）
     if (response.code === 200) {
-       // 使用useCookie设置cookie，避免特殊字符被编码
-      const cookieOptions = {
-        maxAge: 60 * 60 * 24 * 7, // 7天过期
-        sameSite: true,
-        secure: process.env.NODE_ENV === 'production',
-        path: '/'
-      }
-      
-      // 设置用户信息到cookie（使用JSON序列化）
-      const userCookie = useCookie('user', cookieOptions)
-      userCookie.value = response.data.thirdPartyUserInfo || {}
-      
-      // 直接操作document.cookie来避免编码问题
-      if (process.client) {
-        const expires = new Date()
-        expires.setTime(expires.getTime() + (7 * 24 * 60 * 60 * 1000)) // 7天
-        
-        // 设置accessToken，不进行编码
-        document.cookie = `accessToken=${response.data.tokenInfo.accessToken}; expires=${expires.toUTCString()}; path=/; SameSite=Strict${process.env.NODE_ENV === 'production' ? '; Secure' : ''}`
-        
-        // 设置refreshToken，不进行编码
-        document.cookie = `refreshToken=${response.data.tokenInfo.refreshToken}; expires=${expires.toUTCString()}; path=/; SameSite=Strict${process.env.NODE_ENV === 'production' ? '; Secure' : ''}`
-        
-        // 设置过期时间
-        document.cookie = `accessTokenExpire=${response.data.tokenInfo.accessTokenExpire}; expires=${expires.toUTCString()}; path=/; SameSite=Strict${process.env.NODE_ENV === 'production' ? '; Secure' : ''}`
-        document.cookie = `refreshTokenExpire=${response.data.tokenInfo.refreshTokenExpire}; expires=${expires.toUTCString()}; path=/; SameSite=Strict${process.env.NODE_ENV === 'production' ? '; Secure' : ''}`
-      }
-
-      console.log('Cookie设置完成:', {
-        user: userCookie.value,
+      setAuthCookies({
+        user: response.data.thirdPartyUserInfo || {},
         accessToken: response.data.tokenInfo.accessToken,
-        refreshToken: response.data.tokenInfo.refreshToken
-      });
-
+        refreshToken: response.data.tokenInfo.refreshToken,
+        accessTokenExpire: response.data.tokenInfo.accessTokenExpire,
+        refreshTokenExpire: response.data.tokenInfo.refreshTokenExpire
+      })
       // 跳转到首页或之前的页面
-      router.push('/')
+      const redirectPath = route.query.redirectPath || '/'
+      router.push(redirectPath)
     } else {
       console.error('登录失败：', response)
       throw new Error('登录失败：' + response.message)

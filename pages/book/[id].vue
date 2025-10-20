@@ -29,14 +29,15 @@
             <div class="book-stats">
               <span>300万字</span>
               <span> | </span>
-              <span>{{ book.bookViews }}万次浏览</span>
+              <span>{{ book.bookViews }}次浏览</span>
               <span> | </span>
               <span>{{ book.totalFavorites }}万累计人气值</span>
             </div>
             
             <div class="book-actions">
               <!-- <NuxtLink :to="`/book/read?book=${book.bookId}&chapter=${book.tableOfContents[0].id}`" class="btn-read-now">开始阅读</NuxtLink> -->
-              <NuxtLink :to="`/book/read?book=${book.bookId}&chapter=1`" class="btn-read-now">开始阅读</NuxtLink>
+              <!-- <NuxtLink :to="`/book/read?book=${book.bookId}&chapter=1`" class="btn-read-now">开始阅读</NuxtLink> -->
+              <button class="btn-read-now" @click="startReading">开始阅读</button>
               <button class="btn-add-to-bookshelf" @click="addToBookshelf">加入书架</button>
             </div>
           </div>
@@ -73,8 +74,8 @@
         <div class="book-table-content-title-text">目录</div>
       </div>
       <div class="book-table-content">
-        <div class="book-table-item" v-for="(item, index) in book.tableOfContents" :key="index">
-          <div class="book-table-item-title">{{ item.title }}  {{ item.content }}</div>
+        <div class="book-table-item" v-for="(item, index) in chapterList" :key="index">
+          <div class="book-table-item-title">第{{ item.chapterNumber }}章：  {{ item.chapterTitle }}</div>
         </div>
       </div>
 
@@ -103,7 +104,9 @@
   import { formatTimestamp, formatSerialStatus } from '@/utils/dataFormatter';
   // 获取路由参数
   const route = useRoute()
+  const router = useRouter();
   const bookId = route.params.id
+  const chapterList = ref([]);
 
   // 模拟书籍数据（实际项目中应从API获取）
   // 在实际应用中，您可以使用 useAsyncData 或 useFetch 获取数据
@@ -112,14 +115,53 @@
   const {data: book} = await apiRequest(url);
   console.log("书籍内容",book);
 
-  const addToBookshelf = async(bookId) =>{
-    // 跳转到书籍详情页面
-    console.log("添加到我的书架", bookId);
-    const response = await apiAuthRequest(API_ENDPOINTS.LIST_FAVORITE_BOOKS, {
+  // 获取书籍的所有章节内容
+  try {
+    const chapterReq = {
+      bookId: bookId,
+      page: 1,
+      size: 20
+    }
+    // console.log("请求的参数", JSON.stringify(chapterReq));
+    const chapterResult = await apiRequest(API_ENDPOINTS.LIST_ALL_CHAPTER, {
       method: 'POST',
-      body: JSON.stringify([bookId])
+      body: JSON.stringify(chapterReq)
     });
-    console.log(response);
+    console.log("章节内容：", chapterResult);
+    if (chapterResult.code === 200) {
+      chapterList.value = chapterResult.data.records;
+    }
+  } catch (error) {
+    console.error('Error fetching book data:', error);
+  }
+  
+
+  const addToBookshelf = async() =>{
+    // 获取当前书籍的 bookId
+    const currentBookId = route.params.id;
+    const addFavoriteReq = {
+      bookIdList: [currentBookId]
+    };
+    // 跳转到书籍详情页面
+    console.log("添加到我的书架", JSON.stringify(addFavoriteReq));
+    try {
+      const response = await apiRequest(API_ENDPOINTS.ADD_BOOKS_TO_FAVORITE, {
+        method: 'POST',
+        body: JSON.stringify(addFavoriteReq)
+      });
+      console.log("添加结果",response);
+      if (response.code === 2008) {
+        router.push('/login');
+      }
+      alert('添加成功！');
+    } catch (error) {
+      console.error('Error adding book to favorite:', error);
+    }
+    
+  }
+
+  const startReading = async() => {
+      router.push(`/book/read?book=${bookId}&chapter=1`);
   }
 
   // 设置页面标题

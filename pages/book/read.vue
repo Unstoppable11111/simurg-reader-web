@@ -1,27 +1,28 @@
 <template>
   <div class="reading-page">
     <div class="reading-container">
-      <div class="back-book-detail"><NuxtLink class="">< {{ book.title }}</NuxtLink></div>
+      <div class="back-book-detail"><NuxtLink :to="`/book/${bookId}`">< {{ book.title }}</NuxtLink></div>
       <div class="book-table-content">
-        <div class="book-table-title">第{{ book.tableOfContents[0].chapterNumber }}章 {{ book.tableOfContents[0].title }}</div>
+        <div class="book-table-title">第{{ book.chapterNumber }}章 {{ book.chapterTitle }}</div>
+        <!-- <div class="book-table-title">第{{ book.tableOfContents[0].chapterNumber }}章 {{ book.tableOfContents[0].title }}</div> -->
         <div class="book-info-box">
           <label class="book-info-label">书名：</label>
           <div class="book-info-value book-title">{{ book.title }}</div>
 
           <label class="book-info-label">作者：</label>
-          <div class="book-info-value book-title">{{ book.author }}</div>
+          <div class="book-info-value book-title">{{ book.authorPenName }}</div>
 
           <label class="book-info-label">本章字数：</label>
-          <div class="book-info-value book-title">{{ book.tableOfContents[0].wordCount }}</div>
+          <div class="book-info-value book-title">{{ book.totalCharCount }}</div>
 
           <label class="book-info-label">更新时间：</label>
-          <div class="book-info-value book-title">{{ book.tableOfContents[0].updateDate }}</div>
+          <div class="book-info-value book-title">{{ book.updateDate }}</div>
         </div>
         <div class="book-delimiter"></div>
       </div>
 
       <div class="book-content">
-        <p class="book-text">{{ book.tableOfContents[0].content }}</p>
+        <p class="book-text">{{ book.chapterContent }}</p>
       </div>
 
       <!-- 悬浮按钮 -->
@@ -49,131 +50,72 @@ import { API_ENDPOINTS, apiRequest } from '@/utils/api.js'
 
 // 获取路由参数
 const route = useRoute()
-const bookId = route.params.id
+const router = useRouter()
+const bookId = route.query.book
+console.log("params:",route.query.book)
 const chapterNumber = route.query.chapter || '1'
+const book = ref({})
 
-// 使用 useAsyncData 获取书籍数据
-const { data: book } = await useAsyncData(`book-${bookId}`, () => {
-  // 模拟API延迟
-  return new Promise(resolve => {
-    setTimeout(() => {
-      resolve({
-        id: bookId,
-        title: '我在精神病院学斩神',
-        author: '三九',
-        picUrl: 'http://www.tireba.com/simurg-reader/images/bookdeatil1.png',
-        authorAvatar: 'http://www.tireba.com/simurg-reader/images/author1.png',
-        authorDescription: '用心写出不一样的故事',
-        wordCount: '426.4',
-        readCount: '229.2',
-        popularity: '1920.3',
-        description: '你是否想过，在霓虹璀璨的都市之下，潜藏着来自古老神话的怪物？...',
-        tableOfContents: [
-          { 
-            id: '1', 
-            chapterNumber: 1,
-            title: '初入精神病院', 
-            content: '炎炎八月。\n\n滴滴滴---！\n\n刺耳的蝉鸣混杂着此起彼伏的鸣笛声，回荡在人流湍急的街道上……炎炎八月。\n\n滴滴滴---！\n\n刺耳的蝉鸣混杂着此起彼伏的鸣笛声，回荡在人流湍急的街道上……炎炎八月。\n\n滴滴滴---！\n\n刺耳的蝉鸣混杂着此起彼伏的鸣笛声，回荡在人流湍急的街道上……炎炎八月。\n\n滴滴滴---！\n\n刺耳的蝉鸣混杂着此起彼伏的鸣笛声，回荡在人流湍急的街道上……炎炎八月。\n\n滴滴滴---！\n\n刺耳的蝉鸣混杂着此起彼伏的鸣笛声，回荡在人流湍急的街道上……', 
-            wordCount: '2198',
-            updateDate: '2023-01-15'
-          },
-          { 
-            id: '2', 
-            chapterNumber: 2,
-            title: '第二章 神秘的病人', 
-            content: '超级无敌大环保在是按考虑到脑立清丸驱蚊器教科文卫起来', 
-            wordCount: '1876',
-            updateDate: '2023-01-16'
-          },
-          { 
-            id: '3', 
-            chapterNumber: 3,
-            title: '第三章 斩神之术', 
-            content: '阿斯加德你去看我就恩为契机肯', 
-            wordCount: '3201',
-            updateDate: '2023-01-17'
-          },
-          { 
-            id: '4', 
-            chapterNumber: 4,
-            title: '第四章 黑暗降临', 
-            content: '阿是就能看到卡拉奇玩呢我开启金额青蛙科技恩青蛙金卡纳', 
-            wordCount: '2754',
-            updateDate: '2023-01-18'
-          },
-          { 
-            id: '5', 
-            chapterNumber: 5,
-            title: '第五章 绝境反击', 
-            content: '阿斯蒂芬规划局快乐李主席尺码手打', 
-            wordCount: '3102',
-            updateDate: '2023-01-19'
-          },
-          { 
-            id: '6', 
-            chapterNumber: 6,
-            title: '第六章 真相揭晓', 
-            content: '阿萨德几年前我肯请问hiu额青蛙你卡了，问你前两年阿萨德模拟器', 
-            wordCount: '2987',
-            updateDate: '2023-01-20'
-          },
-          { 
-            id: '7', 
-            chapterNumber: 7,
-            title: '第七章 新的开始', 
-            content: '阿斯加德你去看哦我呢亲微机课很那青蛙科技', 
-            wordCount: '3421',
-            updateDate: '2023-01-21'
-          },
-          { 
-            id: '8', 
-            chapterNumber: 8,
-            title: '第八章 绝境反击', 
-            content: '阿斯蒂芬规划局快乐李主席尺码手打', 
-            wordCount: '2876',
-            updateDate: '2023-01-22'
-          },
-          { 
-            id: '9', 
-            chapterNumber: 9,
-            title: '第九章 真相揭晓', 
-            content: '阿萨德几年前我肯请问hiu额青蛙你卡了，问你前两年阿萨德模拟器', 
-            wordCount: '3567',
-            updateDate: '2023-01-23'
-          }
-        ]
-      })
-    }, 100)
-  })
-})
-
-// 使用 useAsyncData 获取章节数据
+// try {
+//   const chapterReq = {
+//     bookId: bookId,
+//     chapterNumber: chapterNumber,
+//   }
+//   // console.log("请求的参数", JSON.stringify(chapterReq));
+//   const chapterResult = await apiRequest(API_ENDPOINTS.LIST_ALL_CHAPTER, {
+//     method: 'POST',
+//     body: JSON.stringify(chapterReq)
+//   });
+//   console.log("章节内容：", chapterResult);
+//   if (chapterResult.code === 200) {
+//     book.value = chapterResult.data.records;
+//     // chapterList.value = chapterResult.data.records;
+//     console.log(chapterResult.data.records)
+//   }
+// } catch (error) {
+//   console.error('Error fetching book data:', error);
+// }
 
 try {
-  // 调用章节详情接口
-  // const response = await apiRequest(API_ENDPOINTS.BOOK_CHAPTER_DETAIL, {
-  //   method: 'POST',
-  //   body: JSON.stringify({
-  //     bookId: bookId,
-  //     chapterNumber: chapterNumber
-  //   })
-  // });
-  const requestData = {
-    bookId: 1, // 热门榜、新书榜、畅销榜
-    chapterNumber: 1 // 获取前5名
-  };
-  const response = await apiRequest(API_ENDPOINTS.BOOK_CHAPTER_DETAIL, {
-      method: 'POST',
-      body: JSON.stringify(requestData)
+  const getChapterDetailReq = {
+    bookId: bookId,
+    chapterNumber: chapterNumber,
+  }
+  const getChapterDetailResult = await apiRequest(API_ENDPOINTS.GET_CHAPTER_DETAIL, {
+      method: "POST",
+      body: JSON.stringify(getChapterDetailReq),
   });
-  console.log("获取章节内容成功:", response);
-} catch (error) {
-  console.error('获取章节内容失败:', error)
+  console.log("获取书籍详情信息结果：｛｝", getChapterDetailResult);
+  if (getChapterDetailResult.code === 200) {
+    book.value = getChapterDetailResult.data;
+  }
+}catch (error){
 }
 
-const addToBookshelf = () => { 
-  console.log('添加到书架');
-}
+const addToBookshelf = async() =>{
+  const bookId = route.params.id
+    // 获取当前书籍的 bookId
+    console.log('当前书籍id：', bookId);
+    const addFavoriteReq = {
+      bookIdList: [bookId]
+    };
+    // 跳转到书籍详情页面
+    console.log("添加到我的书架", JSON.stringify(addFavoriteReq));
+    try {
+      const response = await apiRequest(API_ENDPOINTS.ADD_BOOKS_TO_FAVORITE, {
+        method: 'POST',
+        body: JSON.stringify(addFavoriteReq)
+      });
+      console.log("添加结果",response);
+      if (response.code === 2008) {
+        router.push('/login');
+      }
+      alert('添加成功！');
+    } catch (error) {
+      console.error('Error adding book to favorite:', error);
+    }
+    
+  }
 
 const showTableOfContents = () => { 
   console.log('显示目录');
@@ -264,6 +206,9 @@ const openSettings = () => {
 .book-content {
   width: 1212px;
   min-height: 600px;
+  word-wrap: break-word;
+  word-break: break-word;
+  white-space: normal;
 }
 .book-text {
   font-family: PingFangSC, PingFang SC;

@@ -1,17 +1,23 @@
 <template>
-  <div class="header">
+  <div class="header" :class = "{ 'scrolled': isScrolled} ">
     <img src="/public/images/simurg-reader-logo.png" alt="simurg reader" class="logo" :style="{marginLeft: marginLeft}"/>
     <img src="/public/images/simurg-reader.png" alt="simurg reader" class="simurg-reader" />
     <NuxtLink to="/" class="header-nav to-simurg-reader-index" :class="{ 'header-nav-active': $route.path === '/' }">首页</NuxtLink>
-    <NuxtLink to="/bookshelf" class="header-nav to-bookshelf" :class="{ 'header-nav-active': $route.path === '/bookshelf' }">书架</NuxtLink>
+    <!-- <NuxtLink to="/bookshelf" class="header-nav to-bookshelf" :class="{ 'header-nav-active': $route.path === '/bookshelf' }">书架</NuxtLink> -->
+    <a
+      @click="handleBookShelfClick" 
+      class="header-nav to-bookshelf"
+      :class="{ 'header-nav-active': $route.path === '/bookshelf' }"
+    >书架</a>
     <NuxtLink to="/ranking" class="header-nav to-ranking" :class="{ 'header-nav-active': $route.path === '/ranking' }">排行榜</NuxtLink>
-    <NuxtLink 
-      v-if="!isAuthor" 
+    <a
+      v-if="!isAuthor"
+      @click="handleBecomeAuthorClick" 
       to="/becomeAuthor" 
-      class="header-nav to-become-author" 
+      class="header-nav to-become-author"
       :class="{ 'header-nav-active': $route.path === '/becomeAuthor' }">
       成为作家
-    </NuxtLink>
+    </a>
     <NuxtLink 
       v-else 
       to="/author" 
@@ -33,6 +39,9 @@
 </template>
 
 <script setup>
+  import { isScroll } from 'element-plus/es/utils/index.mjs';
+  import { useAuth } from '@/composables/useAuth';
+
   const router = useRouter();
   const props = defineProps({
     marginLeft: {
@@ -44,28 +53,47 @@
       default: false
     }
   });
+  const {isLoggedIn, isAuthor, userAvatar, userName} = useAuth();
+  // 调试日志
+  console.log('Initial isLoggedIn:', isLoggedIn.value);
+  watch(isLoggedIn, (newVal) => {
+    console.log('isLoggedIn changed to:', newVal);
+  }, { immediate: true });
+  // 检查原始 cookie 值
+  const accessTokenCookie = useCookie('accessToken');
+  const userCookie = useCookie('user');
+  console.log('Raw cookies:', accessTokenCookie.value, userCookie.value);
 
-   // 从cookie中获取用户信息
-  const userCookie = useCookie('user')
-  const accessTokenCookie = useCookie('accessToken')
-  
-  // 计算属性：是否已登录
-  const isLoggedIn = computed(() => {
-    return !!accessTokenCookie.value && !!userCookie.value;
-  })
-  
-  // 用户头像和名称
-  const userAvatar = computed(() => {
-    return userCookie.value?.avatar || 'http://www.tireba.com/simurg-reader/images/author1.png';
-  })
-  
-  const userName = computed(() => {
-    return userCookie.value?.username || '用户';
-  })
-
-    const handleSearch = (query) => {
-    console.log('搜索内容:', query)
+const handleBookShelfClick = () => {
+    if (!isLoggedIn.value) {
+      router.push('/login?redirect=/bookshelf');
+    } else {
+      router.push('/bookshelf');
     }
+  }
+  const handleBecomeAuthorClick = () => {
+    if (!isLoggedIn.value) {
+      router.push('/login?redirect=/becomeAuthor');
+    } else {
+      router.push('/becomeAuthor');
+    }
+  }
+
+  const isScrolled = ref(false);
+  const handleSearch = (query) => {
+    console.log('搜索内容:', query)
+  }
+  const handleScroll = () => { 
+    isScrolled.value = window.scrollY > 84;
+  }
+
+  onMounted(() => {
+    window.addEventListener('scroll', handleScroll);
+  })
+
+  onBeforeUnmount(() => {
+    window.removeEventListener('scroll', handleScroll);
+  });
 
 
 </script>
@@ -78,6 +106,10 @@
   height: 84px;
   align-items: center;
   z-index: 1000;
+}
+.header.scrolled {
+  background-color: rgba(0, 0, 0, 0.8); // 可以根据需要调整颜色和透明度
+  backdrop-filter: blur(10px); // 添加模糊效果（可选）
 }
 .logo {
   width: 54px;

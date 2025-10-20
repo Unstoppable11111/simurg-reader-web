@@ -46,13 +46,13 @@
               :key="book.bookId"
               @click="gotoBookDetail(book.bookId)"
               class="book-item">
-              <img class="book-img" :src="book.image" :alt="book.title">
+              <img class="book-img" :src="book.coverImageUrl" :alt="book.title">
               <div class="book-title">{{ book.title }}</div>
               <div class="book-author">{{ book.author }}</div>
               <div class="book-read-history">{{ book.readHistory }}</div>
               <div class="book-operate">
                 <div class="continue-read">继续阅读</div>
-                <div class="book-delete">删除</div>
+                <div class="book-delete" @click.stop="deleteBookShelf(book.bookId)">删除</div>
               </div>
             </div>
             <!-- 添加喜欢的小说按钮 -->
@@ -74,43 +74,14 @@
 
 <script setup>
   import Header from "@/components/layout/Header.vue";
-  import { API_ENDPOINTS, apiAuthRequest } from "@/utils/api";
+  import { API_ENDPOINTS, apiRequest } from "@/utils/api";
 
   // 定义响应式数据，用于跟踪当前激活的导航项
   const activeNav = ref('bookshelf');
   const router = useRouter()
   const userInfo = ref({});
   // 定义书籍数据
-  const books = ref([
-    {
-      bookId: 1,
-      image: 'http://tireba.com/simurg-reader/images/1.jpg',
-      title: '穿书荒年，我靠修仙无敌了',
-      author: '奈奈一',
-      readHistory: '最近阅读至 第一章 飞升失败'
-    },
-    {
-      bookId: 2,
-      image: 'http://tireba.com/simurg-reader/images/1.jpg',
-      title: '穿书荒年，我靠修仙无敌了',
-      author: '奈奈一',
-      readHistory: '最近阅读至 第一章 飞升失败'
-    },
-    {
-      bookId: 3,
-      image: 'http://tireba.com/simurg-reader/images/1.jpg',
-      title: '穿书荒年，我靠修仙无敌了',
-      author: '奈奈一',
-      readHistory: '最近阅读至 第一章 飞升失败'
-    },
-    {
-      bookId: 4,
-      image: 'http://tireba.com/simurg-reader/images/1.jpg',
-      title: '穿书荒年，我靠修仙无敌了',
-      author: '奈奈一',
-      readHistory: '最近阅读至 第一章 飞升失败'
-    }
-  ]);
+  const books = ref([]);
 
   // 加载我的书架数据
   const queryMyBookShelf = async () => {
@@ -119,12 +90,19 @@
       page: 1,
       size: 10
     }
-    const response = await apiAuthRequest(API_ENDPOINTS.LIST_FAVORITE_BOOKS, {
-      method: 'POST',
-      body: JSON.stringify(reqData)
-    });
-    // 处理返回的数据
-    console.log('加载我的书架数据', response);
+    try {
+      const response = await apiRequest(API_ENDPOINTS.LIST_FAVORITE_BOOKS, {
+        method: 'POST',
+        body: JSON.stringify(reqData)
+      });
+      // 处理返回的数据
+      console.log('加载我的书架数据', response);
+      if (response.code === 200) {
+        books.value = response.data.records;
+      }
+    } catch (error) {
+      console.error('获取用户收藏的书籍失败：', error);
+    }
   };
 
   // 加载历史记录数据
@@ -142,9 +120,27 @@
     router.push(`/book/${bookId}`)
   }
 
+  const deleteBookShelf = async (bookId) => {
+    // 这里调用后端接口删除用户收藏的该书籍
+    try {
+      const deleteFavoriteReq = {
+        bookIdList: [bookId]
+      };
+      const response = await apiRequest(API_ENDPOINTS.DELETE_BOOKS_FROM_FAVORITE, {
+        method: 'POST',
+        body: JSON.stringify(deleteFavoriteReq)
+      });
+      console.log("删除用户收藏的该书籍成功", response);
+      alert("删除成功");
+      queryMyBookShelf();
+    } catch (error) {
+      console.error('删除用户收藏的该书籍失败：', error);
+    }
+  }
+
   const fetchUserInfo = async () => { 
     try {
-      const response = await apiAuthRequest(API_ENDPOINTS.USER_INFO);
+      const response = await apiRequest(API_ENDPOINTS.USER_INFO);
       if (response.code === 200) {
         userInfo.value = response.data;
       }

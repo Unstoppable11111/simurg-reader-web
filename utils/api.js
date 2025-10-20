@@ -1,6 +1,6 @@
 import { useCookie } from "#app"
-// const API_BASE_URL = process.env.NUXT_API_BASE_URL || 'http://localhost:8082/simurg_reader_web/api'
-const API_BASE_URL = process.env.NUXT_API_BASE_URL || 'http://8.129.12.50:8082/simurg_reader_web/api'
+const API_BASE_URL = process.env.NUXT_API_BASE_URL || 'http://localhost:8082/simurg_reader_web/api'
+// const API_BASE_URL = process.env.NUXT_API_BASE_URL || 'http://8.129.12.50:8082/simurg_reader_web/api'
 export const API_ENDPOINTS = {
   /** 首页相关接口开始 */
   BANNERS: `${API_BASE_URL}/banner/role`,
@@ -12,13 +12,40 @@ export const API_ENDPOINTS = {
 
   /** 首页相关接口结束*/
 
+  /** 书籍相关接口开始 */
+  CREATE_BOOK: `${API_BASE_URL}/book/oauth/create_book`,
+  UPDATE_BOOK: `${API_BASE_URL}/book/oauth/update_book`,
+  DELETE_BOOK: `${API_BASE_URL}/book/oauth/delete_book`,
+  LIST_ALL_BOOS_BY_AUTHOR: `${API_BASE_URL}/book/oauth/all_book`,
+  LIST_PUBLISHED_BOOKS: `${API_BASE_URL}/book/list/published_book/author`,
+  /** 书籍相关接口结束 */
+
+  /** 书籍分类相关接口开始 */
+  LIST_ALL_BOOK_CATEGORY: `${API_BASE_URL}/book/categories/list/all`,
+  LIST_BOOK_BY_CATEGORY: `${API_BASE_URL}/books/categories/books_by_category`,
+  /** 书籍分类相关接口结束 */
+
+  /** 书籍章节相关接口开始 */
+  CREATE_CHAPTER: `${API_BASE_URL}/chapters/create_chapter`,
+  UPDATE_CHAPTER: `${API_BASE_URL}/chapters/update_chapter`,
+  DELETE_CHAPTER: `${API_BASE_URL}/chapters/delete_chapter`,
+  PUBLISH_CHAPTER: `${API_BASE_URL}/chapters/publish_chapter`,
+  LIST_PUBLISHED_CHAPTERS: `${API_BASE_URL}/chapters/published/Chapters/list`,
+  GET_CHAPTER_DETAIL: `${API_BASE_URL}/chapters/chapter/detail`,
+  /** 书籍章节相关接口结束 */
+
   /** 书架相关接口开始 */
   BOOK_DETAIL: `${API_BASE_URL}/book/detail`,
+  LIST_ALL_CHAPTER: `${API_BASE_URL}/chapters/published/Chapters/list`,
   BOOK_CHAPTER_DETAIL: `${API_BASE_URL}/book/chapter/detail`,
   FILE_UPLOAD: `${API_BASE_URL}/file/upload`,
   USER_INFO: `${API_BASE_URL}/oauth/user/info`,
   LIST_FAVORITE_BOOKS: `${API_BASE_URL}/oauth/favorite/list`,
-  
+  ADD_BOOKS_TO_FAVORITE: `${API_BASE_URL}/oauth/favorite/add`,
+  DELETE_BOOKS_FROM_FAVORITE: `${API_BASE_URL}/oauth/favorite/cancel`,
+
+  CHAPTER_DETAIL: `${API_BASE_URL}/chapters/chapter/detail`,
+  /** 书架相关接口结束 */
   /** 书架相关接口结束 */
 
   /** 成为作者接口开始 */
@@ -30,11 +57,11 @@ export const API_ENDPOINTS = {
   // 认证相关
   AUTH_GOOGLE: `${API_BASE_URL}/auth/1`,
   CALLBACK_GOOGLE: `${API_BASE_URL}/auth/callback`,
+  AUTH_BY_ACCOUNT: `${API_BASE_URL}/auth/login`,
 }
 
 // 获取存储在cookie中的accessToken
 function getAccessToken() {
-  console.log("accessToken", document.cookie)
   if (process.client) {
     const cookies = document.cookie.split(';')
     const tokenCookie = cookies.find(cookie => cookie.trim().startsWith('accessToken='))
@@ -60,134 +87,39 @@ function redirectToLogin() {
   }
 }
 
-// 刷新token
-async function refreshAccessToken() {
-  try {
-    const refreshToken = getRefreshToken()
-    if (!refreshToken) {
-      throw new Error('No refresh token available')
-    }
-
-    const response = await fetch(API_ENDPOINTS.AUTH_REFRESH, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        refreshToken: refreshToken
-      })
-    })
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`)
-    }
-
-    const data = await response.json()
-    
-    // 更新cookie中的token
-    if (process.client) {
-      const expires = new Date()
-      expires.setDate(expires.getDate() + 7) // 7天过期
-      
-      document.cookie = `accessToken=${data.data.accessToken}; expires=${expires.toUTCString()}; path=/`
-      document.cookie = `refreshToken=${data.data.refreshToken}; expires=${expires.toUTCString()}; path=/`
-    }
-
-    return data.data
-  } catch (error) {
-    console.error('Token refresh failed:', error)
-    // 刷新失败，清除认证信息并跳转到登录页
-    clearAuthInfo()
-    redirectToLogin()
-    throw error
-  }
-}
-
-// 获取存储在cookie中的refreshToken
-function getRefreshToken() {
-  if (process.client) {
-    const cookies = document.cookie.split(';')
-    const tokenCookie = cookies.find(cookie => cookie.trim().startsWith('refreshToken='))
-    return tokenCookie ? tokenCookie.split('=')[1] : null
-  }
-  return null
-}
-
-// 需要认证的请求
-export async function apiAuthRequest(endpoint, options = {}) {
-  // 获取accessToken
-  const accessToken = getAccessToken()
-  
-  // 设置默认选项
-  const defaultOptions = {
-    headers: {
-      'Content-Type': 'application/json',
-      ...options.headers
-    }
-  }
-  
-  // 如果存在accessToken，则添加到Authorization头部
-  if (accessToken) {
-    defaultOptions.headers.Authorization = `${accessToken}`
-  }
-  
-  // 合并选项
-  const mergedOptions = {
-    ...defaultOptions,
-    ...options
-  }
-  
-  try {
-    // 发起请求
-    let response = await fetch(endpoint, mergedOptions)
-    
-    // 如果是401错误，尝试刷新token
-    if (response.status === 401) {
-      try {
-        // 尝试刷新token
-        await refreshAccessToken()
-        
-        // 刷新成功后重新发起请求
-        const newAccessToken = getAccessToken()
-        if (newAccessToken) {
-          mergedOptions.headers.Authorization = `${newAccessToken}`
-        }
-        
-        response = await fetch(endpoint, mergedOptions)
-      } catch (refreshError) {
-        // 刷新失败，清除认证信息并跳转到登录页
-        clearAuthInfo()
-        redirectToLogin()
-        throw refreshError
-      }
-    }
-    
-    if (!response.code === 200) {
-      throw new Error(`HTTP error! status: ${response.status}`)
-    }
-    
-    return await response.json()
-  } catch (error) {
-    console.error('API request failed:', error)
-    throw error
-  }
-}
-
 // 通用的fetch请求函数（不需要认证和登录）
 export async function apiRequest(endpoint, options = {}) {
   try {
-    // 获取存储在cookie中的accessToken
-    const response = await fetch(endpoint, {
+    // 获取accessToken
+    const accessToken = getAccessToken()
+    // 设置默认选项
+    const defaultOptions = {
       headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-      },
-      ...options
-    })
+      'Content-Type': 'application/json',
+      ...options.headers
+      }
+    }
     
+    // 如果存在accessToken，则添加到Authorization头部
+    
+    if (accessToken) {
+       defaultOptions.headers.Authorization = `${accessToken}`
+    }
+    
+    // 合并选项
+    const mergedOptions = {
+      ...defaultOptions,
+      ...options
+    }
+    const response = await fetch(endpoint, mergedOptions);
+    console.log("响应参数",response);
+    if (response.code === 2008) {
+      route.push('/login');
+    }
     if (!response.code === 200) {
       throw new Error(`HTTP error! status: ${response.status}`)
     }
+    // TODO: 如果返回的参数请求头有accessToken，需要替换
     return await response.json()
   } catch (error) {
     console.error('API request failed:', error)

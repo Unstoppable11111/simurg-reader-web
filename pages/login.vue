@@ -15,20 +15,24 @@
       <!-- Tab Navigation -->
       <div class="tab-navigation">
         <button 
-          class="tab-button active" 
-          @click="activeTab = 'sms'"
+          class="tab-button" 
+          :class="{ active: activeTab === 'sms' }"
+          @click="selectLoginType('sms')"
         >
           短信登录
         </button>
+
         <button 
           class="tab-button" 
-          @click="activeTab = 'account'"
+          :class="{ active: activeTab === 'account' }"
+          @click="selectLoginType('account')"
         >
           账号登录
         </button>
         <button 
           class="tab-button" 
-          @click="activeTab = 'email'"
+          :class="{ active: activeTab === 'email' }"
+          @click="selectLoginType('email')"
         >
           邮箱登录
         </button>
@@ -65,7 +69,7 @@
             <a href="#" class="terms-link">《隐私协议》</a>
           </label>
         </div>
-        <button class="submit-btn">登录/注册</button>
+        <button class="submit-btn" @click="handleLoginBySMS">登录/注册</button>
       </div>
 
       <!-- Account Login Form -->
@@ -94,7 +98,7 @@
           >
           <label for="remember-me" class="checkbox-label">记住我</label>
         </div>
-        <button class="submit-btn">登录</button>
+        <button class="submit-btn"  @click="handleLoginByAccount">登录</button>
         <div class="forgot-password">
           <a href="#" class="link-text">忘记密码？</a>
         </div>
@@ -126,7 +130,7 @@
           >
           <label for="remember-email" class="checkbox-label">记住我</label>
         </div>
-        <button class="submit-btn">登录</button>
+        <button class="submit-btn" @click="handleLoginByEmail">登录</button>
         <div class="forgot-password">
           <a href="#" class="link-text">忘记密码？</a>
         </div>
@@ -171,10 +175,13 @@
 </template>
 
 <script setup>
+import {useAuth} from '@/composables/useAuth'
 import { ref } from 'vue'
 import { API_ENDPOINTS } from '@/utils/api'
 
-
+const { setAuthCookies } = useAuth()
+const router = useRouter()
+const route = useRoute()
 // 页面状态
 const activeTab = ref('sms')
 const phoneNumber = ref('')
@@ -185,6 +192,11 @@ const email = ref('')
 const agreeTerms = ref(false)
 const rememberMe = ref(false)
 const rememberEmail = ref(false)
+
+
+const selectLoginType = (type) => {
+  activeTab.value = type;
+};
 
 // Google 登录处理
 const handleGoogleLogin = async () => {
@@ -214,6 +226,46 @@ const handleFacebookLogin = async () => {
     console.error("Facebook 登录异常：{}", error)
     return
   }
+}
+
+const handleLoginByAccount = async () => { 
+  console.log("handleLoginByAccount");
+  try {
+    const loginByAccountReq = {
+      account: username.value,
+      password: password.value
+    }
+    console.log("通过账号登录请求参数：{}", loginByAccountReq)
+    const response = await apiRequest(API_ENDPOINTS.AUTH_BY_ACCOUNT, {
+      method: 'POST',
+      body: JSON.stringify(loginByAccountReq)
+    })
+    console.log("通过账号登录结果：{}", response);
+    if (response.code === 200) {
+      setAuthCookies({
+        user: response.data.userId || {},
+        accessToken: response.data.accessToken,
+        refreshToken: response.data.refreshToken,
+        accessTokenExpire: response.data.accessTokenExpire,
+        refreshTokenExpire: response.data.refreshTokenExpire
+      })
+      const redirectPath = route.query.redirectPath || '/'
+      router.push(redirectPath)
+    } else {
+      alert(response.msg)
+    }
+  } catch (error) { 
+    console.error("登录异常：{}", error)
+    return
+  }
+}
+
+const handleLoginByEmail = async () => { 
+  console.log("handleLoginByEmail");
+}
+
+const handleLoginBySMS = async () => { 
+  console.log("handleLoginBySMS");
 }
 </script>
 

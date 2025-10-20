@@ -67,11 +67,11 @@
   
   // 榜单导航项数据
   const rankingNavItems = ref([
-    { id: 1, name: '大热榜', active: true },
-    { id: 2, name: '新书榜', active: false },
-    { id: 3, name: '完结榜', active: false },
-    { id: 4, name: '收藏榜', active: false },
-    { id: 5, name: '更新榜', active: false }
+    { id: 1, name: '大热榜', code: '1', active: true },
+    { id: 2, name: '新书榜', code: '2', active: false },
+    { id: 3, name: '完结榜', code: '4', active: false },
+    { id: 4, name: '收藏榜', code: '', active: false },
+    { id: 5, name: '更新榜', code: '', active: false }
   ]);
   
   // 当前选中的榜单

@@ -27,7 +27,7 @@
               @click="triggerFileSelect">
             <input ref="fileInput" type="file" accept="image/*" @change="handleAvatarChange" class="avatar-input" />
             <div class="avatar-preview">
-              <img v-if="avatarPreview" :src="avatarPreview" alt="预览" />
+              <img v-if="avatarPreview" :src="avatarUrl" alt="预览" />
               <div v-else class="placeholder">点击上传或拖拽头像</div>
             </div>
             <button type="button" class="upload-btn" @click.stop="triggerFileSelect">上传头像</button>
@@ -76,8 +76,8 @@
 
 <script setup>
   import Header from "@/components/layout/Header.vue";
-  import { API_ENDPOINTS, apiFileRequest } from "@/utils/api";
-import { ca } from "element-plus/es/locale/index.mjs";
+  import { API_ENDPOINTS, apiFileRequest, apiRequest } from "@/utils/api";
+  import { ca } from "element-plus/es/locale/index.mjs";
 
   const penName = ref('');
   const bio = ref('');
@@ -151,16 +151,13 @@ import { ca } from "element-plus/es/locale/index.mjs";
         method: 'POST',
         body: formData
       });
-
-      if (!response.ok) {
+      console.log("response：{}", response);
+      if (response.code != 200) {
         throw new Error('上传失败');
       }
-
-      console.log(response);
-      
       // 保存返回的图片URL
-      if (response.url) {
-        avatarUrl.value = result.url;
+      if (response.data) {
+        avatarUrl.value = response.data;
         console.log('头像上传成功，URL:', avatarUrl.value);
       }
     } catch (error) {
@@ -169,6 +166,7 @@ import { ca } from "element-plus/es/locale/index.mjs";
     }
   };
 
+  const pendingAuthorData = ref(null);
   // 添加提交处理函数
   const handleBecomeAuthor = async () => {
     // 验证必填字段
@@ -177,17 +175,30 @@ import { ca } from "element-plus/es/locale/index.mjs";
     }
 
     try {
-      
+      const becomeAuthorReq = {
+        penName: penName.value,
+        briefIntroduction: bio.value,
+        country: "tr",
+        avatarUrl: avatarUrl.value
+      }
+      const becomeAuthorResult = await apiRequest(API_ENDPOINTS.BECOME_AUTHOR, {
+        method: 'POST',
+        body: JSON.stringify(becomeAuthorReq)
+      });
+      console.log("becomeAuthorResult：{}", becomeAuthorResult);
+      if (becomeAuthorResult.code === 200) {
+        // 跳转到作者页面
+        await navigateTo('/author');
+      }
+      if (becomeAuthorResult.code === 2008) {
+        // 跳转登录页面，登录完成直接跳转
+        pendingAuthorData.value = becomeAuthorReq;
+        await navigateTo(`/login?redirect=/becomeAuthor&autoSubmit=true`)
+      }
     } catch (error) {
       console.error('提交错误:', error);
       alert('提交失败，请检查填写的表单数据');
     }
-
-    // 这里可以添加提交表单数据的逻辑
-    // 例如发送请求到后端保存作者信息
-    
-    // 跳转到作者页面
-    await navigateTo('/author');
   };
 </script>
 
