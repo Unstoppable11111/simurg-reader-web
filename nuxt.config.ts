@@ -10,7 +10,8 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   css: ['@/public/style/global.css'],
   modules: [
-    '@element-plus/nuxt'
+    '@element-plus/nuxt',
+    '@pinia/nuxt'
   ],
   elementPlus: {
     icon: 'ElIcon',

@@ -42,16 +42,16 @@
           <div class="ranking-book-list">
             <div 
               v-for="book in rankingBooks" 
-              :key="book.id"
-              @click="gotoBookDetail(book.id)"
+              :key="book.bookId"
+              @click="gotoBookDetail(book.bookId)"
               class="ranking-book-item">
-              <img class="book-img" :src="book.image" :alt="book.title">
+              <img class="book-img" :src="book.coverImageUrl" :alt="book.title">
               <div class="book-info">
                 <div class="book-title">{{ book.title }}</div>
-                <div class="book-author">{{ book.author }}</div>
+                <div class="book-author">{{ book.penName }}</div>
                 <div class="book-desc">{{ book.description }}</div>
                 <div class="book-status">
-                    {{ book.status }}
+                    {{ formatSerialStatus(book.serialStatus) }}
                 </div>
               </div>
             </div>
@@ -64,69 +64,56 @@
 
 <script setup>
   import Header from "@/components/layout/Header.vue";
+  import { formatTimestamp, formatSerialStatus } from '@/utils/dataFormatter';
   
   // 榜单导航项数据
   const rankingNavItems = ref([
-    { id: 1, name: '大热榜', code: '1', active: true },
+    { id: 1, name: '热门榜', code: '1', active: true },
     { id: 2, name: '新书榜', code: '2', active: false },
-    { id: 3, name: '完结榜', code: '4', active: false },
-    { id: 4, name: '收藏榜', code: '', active: false },
-    { id: 5, name: '更新榜', code: '', active: false }
+    { id: 3, name: '畅销榜', code: '3', active: false },
+    { id: 4, name: '完结榜', code: '4', active: false },
+    { id: 5, name: '大神榜', code: '5', active: false },
+    { id: 6, name: '热搜榜', code: '6', active: false }
   ]);
   
   // 当前选中的榜单
-  const currentRanking = ref('大热榜');
+  const currentRanking = ref('热门榜');
+  const currentRankingCode = ref('1');
   
   const router = useRouter()
   // 榜单类型（日榜、月榜）
   const rankingType = ref('日榜');
   
   // 模拟书籍数据
-  const rankingBooks = ref([
-    {
-      id: 1,
-      image: 'http://www.tireba.com/simurg-reader/images/1.jpg',
-      title: '我在60年代搞代购',
-      author: '作者一',
-      description: '这是一个关于穿越到60年代的故事，主人公通过代购改变命运...',
-      status: '连载中 | 热度: 9.8万 | 今日更新'
-    },
-    {
-      id: 2,
-      image: 'http://www.tireba.com/simurg-reader/images/2.jpg',
-      title: '恶鬼真千金在恋综摆烂后爆红了',
-      author: '作者二',
-      description: '真千金参加恋爱综艺，摆烂反而收获了人气和爱情...',
-      status: '连载中 | 热度: 8.5万 | 今日更新'
-    },
-    {
-      id: 3,
-      image: 'http://www.tireba.com/simurg-reader/images/3.jpg',
-      title: '我先贪掉九百万',
-      author: '作者三',
-      description: '现代都市题材，讲述主人公如何在金钱与道德之间选择...',
-      status: '连载中 | 热度: 7.2万 | 昨日更新'
-    },
-    {
-      id: 4,
-      image: 'http://www.tireba.com/simurg-reader/images/4.jpg',
-      title: '高考悟道手撕电磁炮',
-      author: '作者四',
-      description: '学霸穿越异世界，用科学知识征服魔法世界...',
-      status: '连载中 | 热度: 6.9万 | 昨日更新'
-    },
-    {
-      id: 5,
-      image: 'http://www.tireba.com/simurg-reader/images/5.jpg',
-      title: '天赋长生我出卖寿命成神',
-      author: '作者五',
-      description: '获得长生天赋，通过出卖寿命获得神力...',
-      status: '连载中 | 热度: 6.1万 | 前日更新'
+  const rankingBooks = ref([]);
+
+  
+  const fetchRankingData = async (rankingCode) => {
+    try {
+      // 默认查询大热榜数据
+      const rankingBookListReq = {
+        rankingType: currentRankingCode.value,
+        rankingSize: 10
+      }
+      console.log("请求参数：{}", rankingBookListReq);
+      const rankingBookResult = await apiRequest(API_ENDPOINTS.RANKING_BOOKS, {
+        method: 'POST',
+        body: JSON.stringify(rankingBookListReq)
+      });
+      console.log("rankingCode书籍榜单", rankingCode, rankingBookResult);
+      if (rankingBookResult.code === 200) {
+        rankingBooks.value = rankingBookResult.data;
+      }
+    } catch (error) {
     }
-  ]);
+  }
+
+  onMounted(() => {
+    fetchRankingData(currentRankingCode.value);
+  });
   
   // 选择榜单
-  const selectRanking = (item) => {
+  const selectRanking = async (item) => {
     // 更新导航项的激活状态
     rankingNavItems.value.forEach(navItem => {
       navItem.active = navItem.id === item.id;
@@ -134,9 +121,12 @@
     
     // 更新当前榜单名称
     currentRanking.value = item.name;
+    currentRankingCode.value = item.code;
     
     // 这里可以添加请求对应榜单数据的逻辑
     console.log(`切换到${item.name}`);
+    await fetchRankingData(currentRankingCode.value);
+    
   };
   
   // 选择榜单类型
@@ -300,6 +290,7 @@
     margin-bottom: 10px;
     &:hover {
       color: #EA7D2B;
+      cursor: pointer;
     }
   }
   .book-author {

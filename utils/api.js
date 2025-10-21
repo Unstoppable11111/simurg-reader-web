@@ -3,8 +3,8 @@ import { useCookie } from "#app"
 /**
  * 开发、测试、生产
  */
-// const API_BASE_URL = "http://localhost:8082/simurg_reader_web/api"
-const API_BASE_URL = "http://www.sr-web-test.tata.org.cn:8082/simurg_reader_web/api";
+const API_BASE_URL = "http://localhost:8082/simurg_reader_web/api"
+// const API_BASE_URL = "http://www.sr-web-test.tata.org.cn:8082/simurg_reader_web/api";
 
 // const API_BASE_URL = config.public.API_BASE_URL
 // const API_BASE_URL = process.env.NUXT_API_BASE_URL || 'http://8.129.12.50:8082/simurg_reader_web/api'
@@ -64,18 +64,19 @@ export const API_ENDPOINTS = {
   // 认证相关
   AUTH_GOOGLE: `${API_BASE_URL}/auth/1`,
   CALLBACK_GOOGLE: `${API_BASE_URL}/auth/callback`,
+  AUTH_FACEBOOK: `${API_BASE_URL}/auth/2`,
   AUTH_BY_ACCOUNT: `${API_BASE_URL}/auth/login`,
 }
 
-// 获取存储在cookie中的accessToken
-function getAccessToken() {
-  if (process.client) {
-    const cookies = document.cookie.split(';')
-    const tokenCookie = cookies.find(cookie => cookie.trim().startsWith('accessToken='))
-    return tokenCookie ? tokenCookie.split('=')[1] : null
-  }
-  return null;
-}
+// // 获取存储在cookie中的accessToken
+// function getAccessToken() {
+//   if (process.client) {
+//     const cookies = document.cookie.split(';')
+//     const tokenCookie = cookies.find(cookie => cookie.trim().startsWith('accessToken='))
+//     return tokenCookie ? tokenCookie.split('=')[1] : null
+//   }
+//   return null;
+// }
 
 // 清除认证信息
 function clearAuthInfo() {
@@ -92,6 +93,13 @@ function redirectToLogin() {
   if (process.client) {
     window.location.href = '/login'
   }
+}
+
+function getAccessToken() {
+  if (process.client) {
+    return localStorage.getItem('auth_token')
+  }
+  return null;
 }
 
 // 通用的fetch请求函数（不需要认证和登录）

@@ -14,66 +14,10 @@
 
       <!-- Tab Navigation -->
       <div class="tab-navigation">
-        <button 
-          class="tab-button" 
-          :class="{ active: activeTab === 'sms' }"
-          @click="selectLoginType('sms')"
-        >
-          短信登录
-        </button>
-
-        <button 
-          class="tab-button" 
-          :class="{ active: activeTab === 'account' }"
-          @click="selectLoginType('account')"
-        >
-          账号登录
-        </button>
-        <button 
-          class="tab-button" 
-          :class="{ active: activeTab === 'email' }"
-          @click="selectLoginType('email')"
-        >
-          邮箱登录
-        </button>
+        
       </div>
 
-      <!-- SMS Login Form -->
-      <div v-if="activeTab === 'sms'" class="login-form">
-        <div class="form-group">
-          <input 
-            type="tel" 
-            placeholder="手机号" 
-            v-model="phoneNumber"
-            class="input-field"
-          >
-          <button class="send-code-btn">获取验证码</button>
-        </div>
-        <div class="form-group">
-          <input 
-            type="text" 
-            placeholder="验证码" 
-            v-model="verificationCode"
-            class="input-field"
-          >
-        </div>
-        <div class="checkbox-group">
-          <input 
-            type="checkbox" 
-            id="agree-checkbox" 
-            v-model="agreeTerms"
-          >
-          <label for="agree-checkbox" class="checkbox-label">
-            首次登录即注册，我已同意 
-            <a href="#" class="terms-link">《用户协议》</a> 和 
-            <a href="#" class="terms-link">《隐私协议》</a>
-          </label>
-        </div>
-        <button class="submit-btn" @click="handleLoginBySMS">登录/注册</button>
-      </div>
-
-      <!-- Account Login Form -->
-      <div v-else-if="activeTab === 'account'" class="login-form">
+      <div class="login-form">
         <div class="form-group">
           <input 
             type="text" 
@@ -99,38 +43,6 @@
           <label for="remember-me" class="checkbox-label">记住我</label>
         </div>
         <button class="submit-btn"  @click="handleLoginByAccount">登录</button>
-        <div class="forgot-password">
-          <a href="#" class="link-text">忘记密码？</a>
-        </div>
-      </div>
-
-      <!-- Email Login Form -->
-      <div v-else-if="activeTab === 'email'" class="login-form">
-        <div class="form-group">
-          <input 
-            type="email" 
-            placeholder="邮箱地址" 
-            v-model="email"
-            class="input-field"
-          >
-        </div>
-        <div class="form-group">
-          <input 
-            type="password" 
-            placeholder="密码" 
-            v-model="password"
-            class="input-field"
-          >
-        </div>
-        <div class="checkbox-group">
-          <input 
-            type="checkbox" 
-            id="remember-email" 
-            v-model="rememberEmail"
-          >
-          <label for="remember-email" class="checkbox-label">记住我</label>
-        </div>
-        <button class="submit-btn" @click="handleLoginByEmail">登录</button>
         <div class="forgot-password">
           <a href="#" class="link-text">忘记密码？</a>
         </div>
@@ -176,8 +88,11 @@
 
 <script setup>
 import {useAuth} from '@/composables/useAuth'
+import { useAuthStore } from '@/stores/auth'
 import { ref } from 'vue'
 import { API_ENDPOINTS } from '@/utils/api'
+
+const authStore = useAuthStore()
 
 const { setAuthCookies } = useAuth()
 const router = useRouter()
@@ -231,24 +146,18 @@ const handleFacebookLogin = async () => {
 const handleLoginByAccount = async () => { 
   console.log("handleLoginByAccount");
   try {
-    const loginByAccountReq = {
-      account: username.value,
-      password: password.value
-    }
-    console.log("通过账号登录请求参数：{}", loginByAccountReq)
-    const response = await apiRequest(API_ENDPOINTS.AUTH_BY_ACCOUNT, {
-      method: 'POST',
-      body: JSON.stringify(loginByAccountReq)
-    })
+    // const loginByAccountReq = {
+    //   account: username.value,
+    //   password: password.value
+    // }
+    // console.log("通过账号登录请求参数：{}", loginByAccountReq)
+    const response = await authStore.loginByAccount(username.value, password.value)
+    // const response = await apiRequest(API_ENDPOINTS.AUTH_BY_ACCOUNT, {
+    //   method: 'POST',
+    //   body: JSON.stringify(loginByAccountReq)
+    // })
     console.log("通过账号登录结果：{}", response);
     if (response.code === 200) {
-      setAuthCookies({
-        user: response.data.userId || {},
-        accessToken: response.data.accessToken,
-        refreshToken: response.data.refreshToken,
-        accessTokenExpire: response.data.accessTokenExpire,
-        refreshTokenExpire: response.data.refreshTokenExpire
-      })
       const redirectPath = route.query.redirectPath || '/'
       router.push(redirectPath)
     } else {
@@ -256,6 +165,7 @@ const handleLoginByAccount = async () => {
     }
   } catch (error) { 
     console.error("登录异常：{}", error)
+    alert('登录失败, 请检查用户名和密码')
     return
   }
 }
