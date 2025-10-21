@@ -5,7 +5,7 @@
 </template>
 
 <script setup>
-import {useAuth} from '@/composables/auth'
+import {useAuth} from '@/composables/useAuth'
 import { API_ENDPOINTS } from '@/utils/api'
 const router = useRouter()
 const route = useRoute()

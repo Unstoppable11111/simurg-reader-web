@@ -4,10 +4,14 @@
   "type": "module",
   "scripts": {
     "build": "nuxt build",
-    "dev": "nuxt dev",
+    "build:test": "nuxt build --dotenv .env.test",
+    "build:prod": "nuxt build --dotenv .env.production",
+    "dev": "nuxt dev --dotenv .env.development", 
+    "dev:test": "nuxt dev --dotenv .env.test",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "nuxt prepare"
+    "postinstall": "nuxt prepare",
+    "clear": "nuxt build --clean"
   },
   "dependencies": {
     "@ckeditor/ckeditor5-vue": "^7.3.0",
