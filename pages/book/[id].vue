@@ -3,97 +3,122 @@
     <Header :margin-left="'244px'" />
     <div class="book-detail-page">
       <!-- Breadcrumb navigation -->
-      <div class="book-container">
-        <!-- Left side - Book information -->
-        <div class="breadcrumb">
-          <NuxtLink to="/">首页</NuxtLink> > 
-          <span>{{ book.title }}</span>
+      <div class="breadcrumb">
+        <NuxtLink to="/" class="to-simurg-reader-index">首页</NuxtLink> > 
+        <span>{{ book.title }}</span>
+      </div>
+      <!-- Left side - Book information -->
+      <div class="book-info">
+        <div class="book-cover">
+          <img :src="book.coverImageUrl" :alt="book.title" />
         </div>
-        <div class="book-info">
-          <div class="book-cover">
-            <img :src="book.coverImageUrl" :alt="book.title" />
+        
+        <div class="book-content">
+          <span class="book-title">{{ book.title }}</span>
+          
+          <div class="book-tags" >
+            <span class="tag book-tag">{{ formatSerialStatus(book.serialStatus) }}</span>
+            <span class="tag book-tag" v-for="(bookCate, index) in book.bookCategoryResponseList" :key="bookCate.categoryId">{{ bookCate.categoryName }}</span>
           </div>
           
-          <div class="book-content">
-            <span class="book-title">{{ book.title }}</span>
-            
-            <div class="book-tags" >
-              <span class="tag completed">{{ formatSerialStatus(book.serialStatus) }}</span>
-              <span class="tag genre book-tag" v-for="(bookCate, index) in book.bookCategoryResponseList" :key="bookCate.categoryId">{{ bookCate.categoryName }}</span>
-            </div>
-            
-            <div class="book-author">
-              <span>作者：{{ book.authorPenName }}</span>
-            </div>
-            
-            <div class="book-stats">
-              <span>300万字</span>
-              <span> | </span>
-              <span>{{ book.bookViews }}次浏览</span>
-              <span> | </span>
-              <span>{{ book.totalFavorites }}万累计人气值</span>
-            </div>
-            
-            <div class="book-actions">
-              <!-- <NuxtLink :to="`/book/read?book=${book.bookId}&chapter=${book.tableOfContents[0].id}`" class="btn-read-now">开始阅读</NuxtLink> -->
-              <!-- <NuxtLink :to="`/book/read?book=${book.bookId}&chapter=1`" class="btn-read-now">开始阅读</NuxtLink> -->
-              <button class="btn-read-now" @click="startReading">开始阅读</button>
-              <button class="btn-add-to-bookshelf" @click="addToBookshelf">加入书架</button>
-            </div>
+          <div class="book-author">
+            <span>作者：{{ book.authorPenName }}</span>
+          </div>
+          
+          <div class="book-stats">
+            <span>300万字</span>
+            <span> | </span>
+            <span>{{ book.bookViews }}次浏览</span>
+            <span> | </span>
+            <span>{{ book.totalFavorites }}万累计人气值</span>
+          </div>
+          
+          <div class="book-actions">
+            <!-- <NuxtLink :to="`/book/read?book=${book.bookId}&chapter=${book.tableOfContents[0].id}`" class="btn-read-now">开始阅读</NuxtLink> -->
+            <!-- <NuxtLink :to="`/book/read?book=${book.bookId}&chapter=1`" class="btn-read-now">开始阅读</NuxtLink> -->
+            <button class="btn-read-now" @click="startReading">开始阅读</button>
+            <button class="btn-add-to-bookshelf" @click="addToBookshelf">加入书架</button>
           </div>
         </div>
       </div>
 
+      
       <div class="divider"></div>
-
       <div class="author-info">
         <div class="author-avatar">
           <img :src="book.authorPictureUrl" alt="" />
+          <div class="author-info-container">
+            <div class="author-info-box">
+              <span class="author-name">{{ book.authorPenName }}</span>
+              <span class="author-tag">作家</span>
+            </div>
+            <span class="btn-follow">+关注</span>
+          </div>
         </div>
         
-        <div class="author-details">
-          <h3 class="author-name">{{ book.authorPenName }}</h3>
-          <p class="author-desc">{{ book.authorDescription }}</p>
+        <div class="author-creation-info">
+          <div class="creation-info-item">
+            <label class="creation-info-label">创作天数</label>
+            <span class="creation-info-value">421天</span>
+          </div>
+          
+          <div class="creation-info-item">
+            <label class="creation-info-label">作品总数</label>
+            <span class="creation-info-value">2本</span>
+          </div>
+          
+          <div class="creation-info-item">
+            <label class="creation-info-label">累计字数</label>
+            <span class="creation-info-value">88.5万</span>
+          </div>
         </div>
       </div>
+
+      
     </div>
 
     <!-- 书籍简介 -->
     <div class="book-desc-container"> 
-      <div class="book-desc-title">
-        <div class="book-desc-title-text">简介</div>
-      </div>
-      <div class="book-desc-content">
-        <p class="book-desc">{{ book.description }}</p>
+      <div class="book-desc-box">
+        <div class="book-desc-title">
+        </div>
+        <span class="book-desc-title-text">简介</span>
+        <div class="book-desc-content">
+          <p class="book-desc">{{ book.description }}</p>
+        </div>
       </div>
     </div>
 
     <!-- 书籍目录 -->
     <div class="book-table-container"> 
-      <div class="book-table-content-title">
-        <div class="book-table-content-title-text">目录</div>
-      </div>
-      <div class="book-table-content">
-        <div class="book-table-item" v-for="(item, index) in chapterList" :key="index">
-          <div class="book-table-item-title">第{{ item.chapterNumber }}章：  {{ item.chapterTitle }}</div>
+      <div class="book-table-box">
+        <div class="book-table-content-title">
         </div>
-      </div>
+        <span class="book-table-content-title-text">目录</span>
+        <div class="book-table-content">
+          <div class="book-table-item" v-for="(item, index) in chapterList" :key="index">
+            <div class="book-table-item-title">第{{ item.chapterNumber }}章：  {{ item.chapterTitle }}</div>
+          </div>
+        </div>
 
-      <div class="book-table-more-container">
-        <div class="btn-more">展开更多</div>
+        <div class="book-table-more-container">
+          <div class="btn-more">展开更多</div>
+        </div>
       </div>
     </div>
 
     <!-- 书籍内容 -->
      <div class="book-content-container"> 
-      <div class="book-content-title">
-        <div class="book-content-title-text">阅读</div>
-      </div>
       <div class="book-content-box">
-        <p class="book-text">乔绾绾被拖进灵堂，扔在棺材里的死人身上。 烛火昏暗，衬得死人的脸色更加苍白，周身萦绕着令人颤栗的恐怖气息。 乔绾绾吓得浑身哆嗦，双手撑在他冰冷坚硬的胸膛想要爬出棺材，下一秒，死人突然睁开了眼睛，一双强劲有力的手突然捁住她的腰！ “啊！”乔绾绾尖叫出声，声音颤抖，“你......你没死？” “我不会死！” 幽冷的嗓音响起，男人如觉醒的猛兽一般，掠夺了她的全部！ 疼！ 乔绾绾倒吸一口凉气，指甲狠狠扣进男人肩上的肌肉里。 恐惧和疼痛的双重折磨，她差点晕过去。 一切平息时，乔绾绾已经奄奄一息。 她听见男人贴在她的耳边说：“我会负责。” 乔绾绾抱住他的头，没等男人反应过来，就按着他的头往棺材板上狠狠一撞，“滚！去死吧你！” 她推开倒在她身上的男人，想要爬出棺材逃离，眼前却突然一黑，再也没有了知觉。 ...... 乔绾绾再次醒来的时候，有种不知今夕何夕的恍惚感。 她睁开如有千斤重的眼皮，浑身没有一个地方不难受。 网文小说诚不欺人！ 果然有种被卡车碾压过的感觉！ “醒了？” 耳边突然传来一个低沉冷冽的嗓音，吓得她一个激灵，直接惊坐而起，跟坐在轮椅上的男人四目相对。 男人一身合体剪裁的黑色西装，长着一张如鬼斧神工雕刻而出的脸。 五官深邃，鼻梁高挺，剑眉下的凤眸深不见底，精致到完美，矜贵强大的气场如同高高在上的帝王。 乔绾绾蹙眉，她怎么感觉这张脸这么眼熟呢？ 她好不容易才反应过来，急忙低头检查身上的衣服，还好，该在的都在，应该没发生什么事。 “是你把我掳来这里的？”乔绾绾质问道，“光天化日之下居然敢绑我？” 战景霆淡然道，“我接自己的妻子回家，有什么不对？” “你有病吧？谁是你的妻子！”乔绾绾掀开被子下床，强忍着身上的酸痛往外走去。 身后传来男人低沉磁性的嗓音，“看样子，昨晚我没好好尽到当丈夫的义务，才没能让你牢牢记住我。” 乔绾绾脚步一顿，猛地转头望向他。 这是昨晚棺材里的那个男人！ “原来是你！放心，你就是化成灰我也能记住你！”乔绾绾浑身的血液直冲头顶，立刻去找手机，“等着坐三年牢吧你！” 男人淡然道，“乔小姐，是你主动靠近我的。” “我是被人设计的！”乔绾绾猛然反应过来，质问道，“说，你跟乔雨琦是不是一伙的，是不是你们勾结起来害我！” “她还不配跟我勾结。”男人淡然道，“该坐牢的人应该是你。” 乔绾绾不怒反笑，“你还敢倒打一耙？” 男人不紧不慢地解开衬衫纽扣。 乔绾绾急忙捂住眼睛，“你干什么！你不要乱来啊！” “看看你的犯罪证据。”</p>
+        <div class="book-content-title">
+        </div>
+        <span class="book-content-title-text">阅读</span>
+        <div class="book-content-info">
+          <p class="book-text">乔绾绾被拖进灵堂，扔在棺材里的死人身上。 烛火昏暗，衬得死人的脸色更加苍白，周身萦绕着令人颤栗的恐怖气息。 乔绾绾吓得浑身哆嗦，双手撑在他冰冷坚硬的胸膛想要爬出棺材，下一秒，死人突然睁开了眼睛，一双强劲有力的手突然捁住她的腰！ “啊！”乔绾绾尖叫出声，声音颤抖，“你......你没死？” “我不会死！” 幽冷的嗓音响起，男人如觉醒的猛兽一般，掠夺了她的全部！ 疼！ 乔绾绾倒吸一口凉气，指甲狠狠扣进男人肩上的肌肉里。 恐惧和疼痛的双重折磨，她差点晕过去。 一切平息时，乔绾绾已经奄奄一息。 她听见男人贴在她的耳边说：“我会负责。” 乔绾绾抱住他的头，没等男人反应过来，就按着他的头往棺材板上狠狠一撞，“滚！去死吧你！” 她推开倒在她身上的男人，想要爬出棺材逃离，眼前却突然一黑，再也没有了知觉。 ...... 乔绾绾再次醒来的时候，有种不知今夕何夕的恍惚感。 她睁开如有千斤重的眼皮，浑身没有一个地方不难受。 网文小说诚不欺人！ 果然有种被卡车碾压过的感觉！ “醒了？” 耳边突然传来一个低沉冷冽的嗓音，吓得她一个激灵，直接惊坐而起，跟坐在轮椅上的男人四目相对。 男人一身合体剪裁的黑色西装，长着一张如鬼斧神工雕刻而出的脸。 五官深邃，鼻梁高挺，剑眉下的凤眸深不见底，精致到完美，矜贵强大的气场如同高高在上的帝王。 乔绾绾蹙眉，她怎么感觉这张脸这么眼熟呢？ 她好不容易才反应过来，急忙低头检查身上的衣服，还好，该在的都在，应该没发生什么事。 “是你把我掳来这里的？”乔绾绾质问道，“光天化日之下居然敢绑我？” 战景霆淡然道，“我接自己的妻子回家，有什么不对？” “你有病吧？谁是你的妻子！”乔绾绾掀开被子下床，强忍着身上的酸痛往外走去。 身后传来男人低沉磁性的嗓音，“看样子，昨晚我没好好尽到当丈夫的义务，才没能让你牢牢记住我。” 乔绾绾脚步一顿，猛地转头望向他。 这是昨晚棺材里的那个男人！ “原来是你！放心，你就是化成灰我也能记住你！”乔绾绾浑身的血液直冲头顶，立刻去找手机，“等着坐三年牢吧你！” 男人淡然道，“乔小姐，是你主动靠近我的。” “我是被人设计的！”乔绾绾猛然反应过来，质问道，“说，你跟乔雨琦是不是一伙的，是不是你们勾结起来害我！” “她还不配跟我勾结。”男人淡然道，“该坐牢的人应该是你。” 乔绾绾不怒反笑，“你还敢倒打一耙？” 男人不紧不慢地解开衬衫纽扣。 乔绾绾急忙捂住眼睛，“你干什么！你不要乱来啊！” “看看你的犯罪证据。”</p>
+        </div>
       </div>
      </div>
-  <Footer />
+    <Footer class="footer"/>
   </div>
 </template>
 
@@ -179,7 +204,7 @@
   // const { data: book } = await useFetch(`/api/books/${bookId}`)
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .book-page {
   /* max-width: 1360px;
   margin: 0 auto;
@@ -189,19 +214,28 @@
   align-items: center;
 }
 .book-detail-page {
+  position: relative;
   display: flex;
-  background: linear-gradient( 270deg, #2E163C 0%, rgba(57,42,67,0.72) 100%);
   color: white;
   height: 358px;
   /* 背景满满屏宽 */
   width: 100vw; /* 相对于视口宽度100% */
-  margin-left: calc(-50vw + 50%); /* 关键：向左偏移到屏幕边缘 */
-  margin-top: 84px;
+  /* margin-left: calc(-50vw + 50%);  */
+  /* 关键：向左偏移到屏幕边缘 */
+  margin-top: 112px;
 }
 
 .breadcrumb {
+  width: 100%;
+  display: flex;
   font-size: 14px;
+  height: 20px;
+  line-height: 20px;
   color: #bdc3c7;
+  margin: 28px 0 0 360px;
+}
+.to-simurg-reader-index {
+  font-size: 14px;
 }
 
 .breadcrumb a {
@@ -213,24 +247,24 @@
   color: #e74c3c;
 }
 
-.book-container {
+/* .book-container {
   display: flex;
-  flex-direction: column;
-  max-width: 1360px;
-  margin-left: 280px;
-  margin-top: 28px;
-}
+  max-width: 1200px;
+  margin-left: 360px;
+  margin-top: 40px;
+} */
 
 .book-info {
-  flex: 3;
+  position: absolute;
+  top: 88px;
+  left: 360px;
   display: flex;
   gap: 24px;
-  margin-top: 28px;
 }
 
 .book-cover {
-  width: 186px;
-  height: 248px;
+  width: 168px;
+  height: 244px;
   border-radius: 10px;
   overflow: hidden;
 }
@@ -247,7 +281,7 @@
 }
 
 .book-title {
-  font-size: 24px;
+  font-size: 18px;
   color: #ffffff;
 }
 
@@ -263,23 +297,14 @@
   border-radius: 4px;
   font-size: 12px;
 }
-
-.tag.completed {
-  background-color: #e74c3c;
-  color: white;
-}
-
-.tag.genre {
-  background-color: #f39c12;
-  color: white;
-}
 .book-tag {
   overflow: hidden;
+  background: linear-gradient( 224deg, rgba(253,149,19,0.82) 0%, rgba(192,69,30,0.8) 100%);
 }
 
 .book-author {
   margin-bottom: 52px;
-  font-size: 14px;
+  font-size: 12px;
   color: #bdc3c7;
 }
 
@@ -293,11 +318,12 @@
   position: absolute;
   display: flex;
   gap: 15px;
-  bottom: 32px;
+  bottom: 0;
 }
 
 .btn-read-now {
-  padding: 10px 20px;
+  width: 148px;
+  height: 36px;
   background-color: #e67e22;
   color: white;
   border: none;
@@ -312,7 +338,8 @@
 }
 
 .btn-add-to-bookshelf {
-  padding: 10px 20px;
+  width: 148px;
+  height: 36px;
   background-color: transparent;
   color: #e67e22;
   border: 1px solid #e67e22;
@@ -328,42 +355,111 @@
 }
 
 .divider {
+  position: absolute;
+  right: 760px;
+  top: 102px;
   width: 1px;
   height: 196px;
   background: #fff;
-  margin-top: 97px;
-  margin-left: 180px;
 }
 
 .author-info {
-  flex: 1;
+  position: absolute;
+  right: 360px;
+  width: 400px;
+  height: 358px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
 }
-
 .author-avatar {
-  width: 100px;
-  height: 100px;
-  border-radius: 50%;
-  overflow: hidden;
-  margin-bottom: 15px;
+  display: flex;
+  width: 240px;
+  height: 74px;
 }
 
 .author-avatar img {
-  width: 100%;
-  height: 100%;
+  width: 74px;
+  height: 74px;
+  border-radius: 50%;
   object-fit: cover;
 }
+.author-info-container {
+  display: flex;
+  flex-direction: column;
+  margin-left: 12px;
+}
+.author-info-box {
+  display: flex;
+}
 
-.author-details {
-  text-align: center;
+.author-creation-info {
+  width: 240px;
+  height: 54px;
+  display: flex;
+  gap: 54px;
+}
+.creation-info-item {
+  display: flex;
+  flex-direction: column;
+  width: 44px;
+  height: 40px;
+  margin-top: 14px;
+}
+.creation-info-label {
+  font-family: PingFangSC, PingFang SC;
+  font-weight: 400;
+  font-size: 11px;
+  color: #B2B2B2;
+  line-height: 16px;
+  text-align: left;
+  font-style: normal;
+}
+.creation-info-value {
+  font-family: PingFangSC, PingFang SC;
+  font-weight: 400;
+  font-size: 14px;
+  color: #FFFFFF;
+  line-height: 20px;
+  text-align: left;
+  font-style: normal;
 }
 
 .author-name {
+  width: 118px;
+  height: 25px;
+  white-space: nowrap;      /* 防止换行 */
+  overflow: hidden;         /* 超出部分隐藏 */
+  text-overflow: ellipsis;  /* 超出部分显示省略号 */
+  font-family: PingFangSC, PingFang SC;
+  font-weight: 400;
   font-size: 18px;
-  margin-bottom: 5px;
+  color: #FFFFFF;
+  line-height: 25px;
+  text-align: left;
+  font-style: normal;
+}
+.author-tag {
+  width: 36px;
+  height: 14px;
+  background: linear-gradient( 180deg, #FF9D3D 0%, #FF6200 100%);
+  border-radius: 2px;
+  font-size: 10px;
+}
+.btn-follow {
+  width: 58px;
+  height: 22px;
+  background: linear-gradient( 90deg, #FF9B51 0%, #ED5B00 100%);
+  border-radius: 11px;
+  font-family: PingFangSC, PingFang SC;
+  font-weight: 400;
+  font-size: 14px;
+  color: #FFFFFF;
+  line-height: 20px;
+  text-align: center;
+  font-style: normal;
+  margin-top: 9px;
 }
 
 .author-desc {
@@ -394,35 +490,50 @@
 }
 
 .book-desc-container {
-  width: 1360px;
+  position: relative;
+  width: 100vw;
   height: 150px;
 }
+.book-desc-box, .book-table-box, .book-content-box {
+  margin-left: 360px;
+}
 .book-table-container {
-  width: 1360px;
+  position: relative;
+  width: 100vw;
   margin-top: 32px;
 }
 .book-content-container { 
-  width: 1360px;
+  position: relative;
+  width: 100vw;
 }
 .book-desc-title, .book-table-content-title, .book-content-title {
-  display: flex;
+  /* display: flex;
   align-items: center;
   width: 480px;
   height: 52px;
-  background: linear-gradient( 135deg, #4B2960 0%, rgba(75,41,96,0) 100%);
+  background: linear-gradient( 270deg, rgba(254,92,84,0) 0%, #F1951E 100%);
   border-radius: 4px;
-  margin-top: 66px;
+  margin-top: 66px; */
+  width: 480px;
+  height: 48px;
+  background: linear-gradient( 270deg, rgba(254,92,84,0) 0%, #F1951E 100%);
+  border-radius: 4px;
+  opacity: 0.38;
 }
 .book-desc-title-text, .book-table-content-title-text, .book-content-title-text {
-  width: 42px;
-  height: 29px;
-  font-family: PingFangSC, PingFang SC;
+  position: absolute;
+  top: 12px;
+  left: 367px;
+  height: 25px;
+  line-height: 25px;
+  font-size: 18px;
+  font-family: TrajanPro;
   font-weight: 600;
-  font-size: 21px;
+  font-size: 24px;
   color: #FFFFFF;
-  line-height: 29px;
   text-align: left;
   font-style: normal;
+  // background: linear-gradient(0deg, #FF9B51 0%, #ED5B00 100%);
    /* 渐变背景，这里用红→橙示例，可自定义颜色、方向 */
   background: linear-gradient(0deg, #FF9B51 0%, #ED5B00 100%);
   /* 关键：让背景裁剪成文字形状 */
@@ -432,11 +543,10 @@
   /* 兼容其他浏览器 */
   background-clip: text; 
   text-fill-color: transparent; 
-  margin-left: 10px;
 }
 .book-desc-content {
   /* 必须设置宽度，否则可能不生效 */
-  width: 1290px; /* 可根据实际需求调整 */
+  width: 1200px; /* 可根据实际需求调整 */
   
   /* 核心样式 */
   display: -webkit-box;
@@ -448,6 +558,9 @@
   /* 可选样式 */
   line-height: 1.5; /* 行高，影响整体高度 */
   font-size: 16px;
+}
+.book-content-info {
+  width: 1200px
 }
 .book-desc {
   font-family: PingFangSC, PingFang SC;
