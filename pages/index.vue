@@ -209,7 +209,7 @@
   flex-direction: column;
   width: 1200px;
   height: 349px;
-  margin-top: 38px;
+  margin-top: 50px;
 }
 .book-carousel {
   width: 1360px;
@@ -236,7 +236,7 @@
   height: 40px;
   font-family: TrajanPro;
   font-weight: 600;
-  font-size: 28px;
+  font-size: 24px;
   color: #FFFFFF;
   line-height: 40px;
   text-align: left;
@@ -263,7 +263,7 @@
   right: 0;
   font-family: PingFangSC, PingFang SC;
   font-weight: 400;
-  font-size: 21px;
+  font-size: 16px;
   color: #FFFFFF;
   line-height: 29px;
   text-align: left;
@@ -301,7 +301,7 @@
   height: 40px;
   font-family: PingFangSC, PingFang SC;
   font-weight: 600;
-  font-size: 28px;
+  font-size: 24px;
   color: #FFFFFF;
   line-height: 40px;
   text-align: left;

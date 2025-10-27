@@ -187,6 +187,12 @@
     height: 288px;
     z-index: 3;
   }
+  .active-part .book-title{
+    font-size: 18px;
+  }
+  .active-part .book-cate{
+    font-size: 14px;
+  }
 
   .book-img {
     width: 168px;

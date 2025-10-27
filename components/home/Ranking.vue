@@ -212,7 +212,7 @@ onMounted(() => {
     height: 40px;
     font-family: PingFangSC, PingFang SC;
     font-weight: 400;
-    font-size: 28px;
+    font-size: 24px;
     color: #FFFFFF;
     line-height: 40px;
     text-align: left;

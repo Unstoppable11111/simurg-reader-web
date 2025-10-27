@@ -1,39 +1,39 @@
 <template>
   <div class="header" :class = "{ 'scrolled': isScrolled} ">
-    <img src="/public/images/simurg-reader-logo.png" alt="simurg reader" class="logo" :style="{marginLeft: marginLeft}"/>
-    <img src="/public/images/simurg-reader.png" alt="simurg reader" class="simurg-reader" />
-    <NuxtLink to="/" class="header-nav to-simurg-reader-index" :class="{ 'header-nav-active': $route.path === '/' }">首页</NuxtLink>
-    <!-- <NuxtLink to="/bookshelf" class="header-nav to-bookshelf" :class="{ 'header-nav-active': $route.path === '/bookshelf' }">书架</NuxtLink> -->
-    <a
-      @click="handleBookShelfClick" 
-      class="header-nav to-bookshelf"
-      :class="{ 'header-nav-active': $route.path === '/bookshelf' }"
-    >书架</a>
-    <NuxtLink to="/ranking" class="header-nav to-ranking" :class="{ 'header-nav-active': $route.path === '/ranking' }">排行榜</NuxtLink>
-    <a
-      v-if="!isAuthor"
-      @click="handleBecomeAuthorClick" 
-      to="/becomeAuthor" 
-      class="header-nav to-become-author"
-      :class="{ 'header-nav-active': $route.path === '/becomeAuthor' }">
-      成为作家
-    </a>
-    <NuxtLink 
-      v-else 
-      to="/author" 
-      class="header-nav to-become-author" 
-      :class="{ 'header-nav-active': $route.path === '/author' }">
-      作家专区
-    </NuxtLink>
-    <Search class="search" 
-      placeholder="请输入书名或作者名"
-      @search="handleSearch"/>
-    <NuxtLink v-if="!isLoggedIn" class="login-btn" to="/login">登录</NuxtLink>
-     <div v-else style="display: flex;">
-      <!-- <img class="user-avatar" src="http://www.tireba.com/simurg-reader/images/author1.png" alt=""> -->
-       <img class="user-avatar" :src="userAvatar" alt="">
-       <span class="user-name">{{ userName }}</span>
-     </div>
+    <img src="/public/images/simurg-reader-logo.svg" alt="simurg reader" class="logo" :style="{marginLeft: marginLeft}"/>
+    <div class="header-right-nav">
+      <NuxtLink to="/" class="header-nav to-simurg-reader-index" :class="{ 'header-nav-active': $route.path === '/' }">首页</NuxtLink>
+      <a
+        @click="handleBookShelfClick" 
+        class="header-nav to-bookshelf"
+        :class="{ 'header-nav-active': $route.path === '/bookshelf' }"
+      >书架</a>
+      <NuxtLink to="/ranking" class="header-nav to-ranking" :class="{ 'header-nav-active': $route.path === '/ranking' }">排行榜</NuxtLink>
+      <a
+        v-if="!isAuthor"
+        @click="handleBecomeAuthorClick" 
+        to="/becomeAuthor" 
+        class="header-nav to-become-author"
+        :class="{ 'header-nav-active': $route.path === '/becomeAuthor' }">
+        成为作家
+      </a>
+      <NuxtLink 
+        v-else 
+        to="/author" 
+        class="header-nav to-become-author" 
+        :class="{ 'header-nav-active': $route.path === '/author' }">
+        作家专区
+      </NuxtLink>
+      <Search class="search" 
+        placeholder="请输入书名或作者名"
+        @search="handleSearch"/>
+      <NuxtLink v-if="!isLoggedIn" class="login-btn" to="/login">登录</NuxtLink>
+      <div v-else style="display: flex;">
+        <!-- <img class="user-avatar" src="http://www.tireba.com/simurg-reader/images/author1.png" alt=""> -->
+        <img class="user-avatar" :src="userAvatar" alt="">
+        <span class="user-name">{{ userName }}</span>
+      </div>
+    </div>
      
   </div>
 </template>
@@ -111,10 +111,15 @@ const handleBookShelfClick = () => {
   background-color: rgba(0, 0, 0, 0.8); // 可以根据需要调整颜色和透明度
   backdrop-filter: blur(10px); // 添加模糊效果（可选）
 }
+.header-right-nav {
+  display: flex;
+  position: absolute;
+  right: 360px;
+}
 .logo {
-  width: 54px;
+  width: 192px;
   height: 30px;
-  // margin-left: 244px;
+  margin-left: 244px;
 }
 .simurg-reader {
   width: 182px;
@@ -124,34 +129,29 @@ const handleBookShelfClick = () => {
 .to-simurg-reader-index {
   margin-left: 318px;
   height: 25px;
-  font-size: 18px;
   color: #FFFFFF;
   text-align: left;
 }
 .header-nav {
   margin-right: 44px;
   color: #FFFFFF;
+  font-size: 14px;
   text-align: left;
   font-style: normal;
 }
 .to-bookshelf {
   height: 25px;
-  font-size: 18px;
 }
 .to-ranking {
   height: 25px;
-  font-size: 18px;
 }
 .to-become-author {
   height: 25px;
-  font-size: 18px;
   color: #FF9B51;
 }
 
 .header-nav-active {
-  font-size: 20px;
   font-weight: 600;
-  line-height: 28px;
 }
 .search {
   margin-right: 44px;
@@ -163,6 +163,7 @@ const handleBookShelfClick = () => {
   background: #FFFFFF;
   border-radius: 16px;
   text-align: center;
+  font-size: 14px;
 }
 .user-avatar {
   width: 28px;

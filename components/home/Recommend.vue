@@ -98,6 +98,9 @@ const activeIndex = ref(0);
   min-height: 120px;
   margin-left: 16px;
 }
+.book-recommend-active .book-title {
+  font-size: 18px;
+}
 
 .book-text {
   display: flex;
@@ -112,7 +115,7 @@ const activeIndex = ref(0);
   height: 25px;
   font-family: PingFangSC, PingFang SC;
   font-weight: 600;
-  font-size: 18px;
+  font-size: 16px;
   color: #FFFFFF;
   line-height: 25px;
   white-space: nowrap;
