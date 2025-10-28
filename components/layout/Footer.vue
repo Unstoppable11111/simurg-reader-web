@@ -36,7 +36,10 @@
       </div>
     </div>
     <div class="copyright">
-      版权归塔塔所有
+      Copyright © 2025 www.simurg-reader-test.tata.org.cn All rights reserved版权所有
+    </div>
+    <div class="backnum">
+      粤ICP备2025480951号-1
     </div>
   </footer>
 </template>
@@ -99,5 +102,10 @@
   margin-top: 30px;
   color: #bbb;
   font-size: 14px;
+}
+.backnum {
+  text-align: center;
+  color: #bbb;
+  font-size: 12px;
 }
 </style>

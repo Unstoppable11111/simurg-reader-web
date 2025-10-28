@@ -493,6 +493,7 @@
   position: relative;
   width: 100vw;
   height: 150px;
+  margin-top: 70px;
 }
 .book-desc-box, .book-table-box, .book-content-box {
   margin-left: 360px;
@@ -500,11 +501,12 @@
 .book-table-container {
   position: relative;
   width: 100vw;
-  margin-top: 32px;
+  margin-top: 50px;
 }
 .book-content-container { 
   position: relative;
   width: 100vw;
+  margin-top: 50px;
 }
 .book-desc-title, .book-table-content-title, .book-content-title {
   /* display: flex;
@@ -598,9 +600,9 @@
   text-overflow: ellipsis;
 }
 .book-table-more-container {
-  display: flex;
-  justify-content: center;
-  margin-top: 16px;
+  position: absolute;
+  bottom: -32px;
+  left: 50%;
 }
 .btn-more {
   width: 128px;
@@ -610,6 +612,9 @@
   color: #F96C05;
   text-align: center;
   line-height: 32px;
+  &:hover {
+    cursor: pointer;
+  }
 }
 .book-text {
   font-family: PingFangSC, PingFang SC;
