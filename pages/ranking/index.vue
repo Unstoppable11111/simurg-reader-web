@@ -289,6 +289,12 @@
     border-radius: 10px;
     z-index: 2;
   }
+  .ranking-book-item:hover {
+    .book-info {
+      opacity: 1 !important;
+      filter: none;
+    }
+  }
   .book-title {
     font-family: PingFangSC, PingFang SC;
     font-weight: 600;
