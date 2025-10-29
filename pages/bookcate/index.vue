@@ -164,6 +164,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    margin-top: 80px;
   }
   .book-cate-box {
     width: 1200px;

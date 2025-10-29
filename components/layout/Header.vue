@@ -102,7 +102,7 @@ const handleBookShelfClick = () => {
 .header {
   position: fixed;
   display: flex;
-  width: 1920px;
+  width: 100vw;
   height: 84px;
   align-items: center;
   z-index: 1000;
