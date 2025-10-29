@@ -39,7 +39,7 @@
       <div class="book-cate-section">
         <div class="book-cate-container">
           <span class="book-cate-title">分类</span>
-          <span class="book-cate-more">更多</span>
+          <NuxtLink to="/bookcate" class="book-cate-more">更多</NuxtLink>
         </div>
         <BookCate :bookCateList="bookCateList" />
       </div>
@@ -268,6 +268,9 @@
   line-height: 29px;
   text-align: left;
   font-style: normal;
+  &:hover {
+    cursor: pointer;
+  }
 }
 .newly-signed-section {
   width: 1360px;

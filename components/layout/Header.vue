@@ -66,14 +66,14 @@
 
 const handleBookShelfClick = () => {
     if (!isLoggedIn.value) {
-      router.push('/login?redirect=/bookshelf');
+      router.push('/login?redirectPath=/bookshelf');
     } else {
       router.push('/bookshelf');
     }
   }
   const handleBecomeAuthorClick = () => {
     if (!isLoggedIn.value) {
-      router.push('/login?redirect=/becomeAuthor');
+      router.push('/login?redirectPath=/becomeAuthor');
     } else {
       router.push('/becomeAuthor');
     }

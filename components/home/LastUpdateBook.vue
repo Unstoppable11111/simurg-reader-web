@@ -11,10 +11,10 @@
       <div class="table-body">
         <div 
           v-for="book in recentUpdateBooks" 
-          :key="book.id" 
+          :key="book.bookId" 
           class="table-row"
         >
-          <div class="tr th-book-name">{{ book.title }}</div>
+          <div class="tr th-book-name" @click="gotoBookDetail(book.bookId)">{{ book.title }}</div>
           <div class="tr th-book-content-name">{{ book.chapterTitle }}</div>
           <div class="tr th-book-author">{{ book.authorPenName }}</div>
           <div class="tr th-type">{{ book.bookCategoryResponseList && book.bookCategoryResponseList.length > 0 
@@ -29,6 +29,7 @@
 
 <script setup>
   import { formatTimestamp } from '@/utils/dataFormatter';
+  const router = useRouter();
   const props = defineProps({
       recentUpdateBooks: {
         type: Array,
@@ -37,7 +38,12 @@
       }
   })
 
-
+  // 点击书籍跳转到详情页
+  const gotoBookDetail = (bookId) => {
+    console.log('点击了书籍，ID:', bookId)
+    // 使用路由跳转到书籍详情页
+    router.push(`/book/${bookId}`)
+  }
 </script>
 
 <style lang="scss" scoped>

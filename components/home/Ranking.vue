@@ -146,7 +146,7 @@ const fetchRankingData = async () => {
   // 新书榜
   try {
     const newBookRankingData = {
-      rankingType: 2,
+      rankingType: 5,
       rankingSize: 5
     };
 

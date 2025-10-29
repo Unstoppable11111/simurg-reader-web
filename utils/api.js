@@ -19,6 +19,10 @@ export const API_ENDPOINTS = {
 
   /** 首页相关接口结束*/
 
+  /** 用户关注接口开始 */
+  CHECK_FOLLOW: `${API_BASE_URL}/oauth/user/follow/check/`,
+  /** 用户关注接口结束 */
+
   /** 书籍相关接口开始 */
   CREATE_BOOK: `${API_BASE_URL}/book/oauth/create_book`,
   UPDATE_BOOK: `${API_BASE_URL}/book/oauth/update_book`,
@@ -53,7 +57,6 @@ export const API_ENDPOINTS = {
 
   CHAPTER_DETAIL: `${API_BASE_URL}/chapters/chapter/detail`,
   /** 书架相关接口结束 */
-  /** 书架相关接口结束 */
 
   /** 成为作者接口开始 */
   BECOME_AUTHOR: `${API_BASE_URL}/oauth/user/become/author`,
@@ -67,16 +70,6 @@ export const API_ENDPOINTS = {
   AUTH_FACEBOOK: `${API_BASE_URL}/auth/2`,
   AUTH_BY_ACCOUNT: `${API_BASE_URL}/auth/login`,
 }
-
-// // 获取存储在cookie中的accessToken
-// function getAccessToken() {
-//   if (process.client) {
-//     const cookies = document.cookie.split(';')
-//     const tokenCookie = cookies.find(cookie => cookie.trim().startsWith('accessToken='))
-//     return tokenCookie ? tokenCookie.split('=')[1] : null
-//   }
-//   return null;
-// }
 
 // 清除认证信息
 function clearAuthInfo() {

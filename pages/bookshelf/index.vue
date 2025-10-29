@@ -48,7 +48,7 @@
               class="book-item">
               <img class="book-img" :src="book.coverImageUrl" :alt="book.title">
               <div class="book-title">{{ book.title }}</div>
-              <div class="book-author">{{ book.author }}</div>
+              <div class="book-author">{{ book.penName }}</div>
               <div class="book-read-history">{{ book.readHistory }}</div>
               <div class="book-operate">
                 <div class="continue-read">继续阅读</div>
@@ -350,6 +350,7 @@
   flex-wrap: wrap;
 }
 .book-item {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -368,6 +369,7 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   // 防止缩放时内容溢出
   transform-origin: center;
+  border-radius: 10px;
 }
 // 鼠标悬停时的动画效果
 .book-img:hover {
@@ -384,9 +386,10 @@
   font-size: 18px;
   color: #FFFFFF;
   line-height: 25px;
-  text-align: left;
+  text-align: center;
   font-style: normal;
   margin-top: 18px;
+  padding: 0 8.5px;
   cursor: pointer;
   &:hover {
     color: #F96E08;
@@ -421,21 +424,20 @@
 }
 .book-operate {
   display: flex;
-  position: relative;
   margin-top: 18px;
 }
 .continue-read {
   position: absolute;
-  right: 20px;
-  width: 89px;
-  height: 30px;
+  left: 20px;
+  bottom: 16px;
+  width: 80px;
+  height: 28px;
   background: linear-gradient( 90deg, #FF9B51 0%, #ED5B00 100%);
   border-radius: 18px;
   font-family: PingFangSC, PingFang SC;
-  font-weight: 600;
   font-size: 14px;
   color: #FFFFFF;
-  line-height: 30px;
+  line-height: 28px;
   text-align: center;
   font-style: normal;
   cursor: pointer;
@@ -445,16 +447,16 @@
 }
 .book-delete {
   position: absolute;
-  left: 20px;
-  width: 89px;
-  height: 30px;
+  right: 20px;
+  bottom: 16px;
+  width: 80px;
+  height: 28px;
   border-radius: 18px;
-  border: 1px solid #6F7378;
   font-family: PingFangSC, PingFang SC;
   font-weight: 400;
   font-size: 14px;
   color: #6F7378;
-  line-height: 30px;
+  line-height: 28px;
   text-align: center;
   font-style: normal;
   cursor: pointer;

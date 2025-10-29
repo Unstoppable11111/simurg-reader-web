@@ -3,25 +3,14 @@ import { useAuthStore } from '~/stores/auth'
 
 export const useAuth = () => {
   const authStore = useAuthStore()
-  
-  const setAuthCookies = (authData) => {
-    authStore.handleLoginSuccess(
-      authData.user,
-      authData.accessToken,
-      'account' // 这里根据实际登录方式调整
-    )
-  }
-  
-  const checkAuth = () => {
-    console.log('校验登录状态', authStore.isLoggedIn)
-    return authStore.isLoggedIn
-  }
-  
+
+  const userName = computed(() => authStore.user?.username || '')
+  const userAvatar = computed(() => authStore.user?.avatar || '/public/images/default-avatar.png')
+
   return {
-    setAuthCookies,
-    checkAuth,
-    logout: authStore.logout,
-    user: computed(() => authStore.user),
-    isLoggedIn: computed(() => authStore.isLoggedIn)
+    isLoggedIn: computed(() => authStore.isLoggedIn),
+    isAuthor: computed(() => authStore.isAuthor),
+    userName,
+    userAvatar,
   }
 }

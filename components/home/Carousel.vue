@@ -41,184 +41,198 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed, onUnmounted } from 'vue'
-import Swiper from 'swiper/bundle'
-import 'swiper/css/bundle'
-import { API_ENDPOINTS, apiRequest } from '@/utils/api'
-// 关键：导入Nuxt路由跳转函数
-import { navigateTo } from 'nuxt/app'
+  import { ref, onMounted, computed, onUnmounted } from 'vue'
+  import Swiper from 'swiper/bundle'
+  import 'swiper/css/bundle'
+  import { API_ENDPOINTS, apiRequest } from '@/utils/api'
+  // 关键：导入Nuxt路由跳转函数
+  import { navigateTo } from 'nuxt/app'
 
-// 组件属性（完全保留原有逻辑）
-const props = defineProps({
-  width: {
-    type: [Number, String],
-    default: '100%'
-  },
-  height: {
-    type: Number,
-    default: 500
-  },
-  apiUrl: {
-    type: String,
-    default: API_ENDPOINTS.BANNERS
-  },
-  forceDefault: {
-    type: Boolean,
-    default: false
-  },
-  carouselOptions: {
-    type: Object,
-    default: () => ({
-      loop: true,
-      autoplay: { delay: 5000 },
-      speed: 500,
-      slidesPerView: 1,
-      slidesPerGroup: 1
-    })
-  }
-})
+  const route = useRoute();
 
-// 状态管理（完全保留原有逻辑）
-const banners = ref([])
-const isLoading = ref(false)
-const hasError = ref(false)
-const swiperInstance = ref(null)
+  // 监听路由变化，当路径变为首页时重新获取数据
+  // watch(
+  //   () => route.path,
+  //   (newPath) => {
+  //     if (newPath === '/') {
+  //       if (!props.forceDefault) {
+  //         fetchBannerData()
+  //       }
+  //     }
+  //   }
+  // )
 
-// 默认备用数据（完全保留原有逻辑，确保跳转路径正确）
-const defaultBanners = ref([
-  {
-    id: 'default-1',
-    imageUrl: 'http://www.tireba.com/simurg-reader/images/banner1.png',
-    altText: '默认推荐书籍',
-    redirectUrl: 'http://localhost:3000/book/1'
-  },
-  {
-    id: 'default-2',
-    imageUrl: 'http://www.tireba.com/simurg-reader/images/banner2.png',
-    altText: '新书上架',
-    redirectUrl: 'http://localhost:3000/book/2'
-  }
-])
-
-// 决定最终展示的数据（完全保留原有逻辑）
-const displayBanners = computed(() => {
-  if (props.forceDefault || (banners.value.length === 0 && hasError.value)) {
-    return defaultBanners.value
-  }
-  return banners.value
-})
-
-// 获取轮播图数据（完全保留原有逻辑）
-const fetchBannerData = async () => {
-  if (props.forceDefault) return
-
-  isLoading.value = true
-  hasError.value = false
-  
-  try {
-    const response = await apiRequest(props.apiUrl)
-    
-    if (!response.code === 200) {
-      throw new Error(`HTTP error! status: ${response.status}`)
-    }
-    
-    const result = await response
-    
-    if (result.code === 200 && Array.isArray(result.data)) {
-      banners.value = result.data
-    } else {
-      throw new Error('接口返回格式不正确')
-    }
-  } catch (error) {
-    hasError.value = true
-  } finally {
-    isLoading.value = false
-    initSwiper()
-  }
-}
-
-// 初始化轮播（完全保留原有逻辑）
-const initSwiper = () => {
-  if (swiperInstance.value) {
-    swiperInstance.value.destroy()
-  }
-  
-  setTimeout(() => {
-    if (document.querySelector('.swiper')) {
-      swiperInstance.value = new Swiper('.swiper', {
-        ...props.carouselOptions,
-        pagination: {
-          el: '.swiper-pagination.custom-pagination',
-          clickable: true
-        },
-        loop: displayBanners.value.length > 1,
+  // 组件属性（完全保留原有逻辑）
+  const props = defineProps({
+    width: {
+      type: [Number, String],
+      default: '100%'
+    },
+    height: {
+      type: Number,
+      default: 500
+    },
+    apiUrl: {
+      type: String,
+      default: API_ENDPOINTS.BANNERS
+    },
+    forceDefault: {
+      type: Boolean,
+      default: false
+    },
+    carouselOptions: {
+      type: Object,
+      default: () => ({
+        loop: true,
+        autoplay: { delay: 5000 },
+        speed: 500,
         slidesPerView: 1,
-        slidesPerGroup: 1,
-        loopAdditionalSlides: 1
+        slidesPerGroup: 1
       })
     }
-  }, 0)
-}
+  })
 
-// 处理图片加载失败（完全保留原有逻辑）
-const handleImageError = (item) => {
-  if (!item.imageUrl || item.imageUrl.includes('picsum.photos')) {
-    item.imageUrl = 'https://picsum.photos/1920/500?random=fallback'
+  // 状态管理（完全保留原有逻辑）
+  const banners = ref([])
+  const isLoading = ref(false)
+  const hasError = ref(false)
+  const swiperInstance = ref(null)
+
+  // 默认备用数据（完全保留原有逻辑，确保跳转路径正确）
+  const defaultBanners = ref([
+    {
+      id: 'default-1',
+      imageUrl: 'http://www.tireba.com/simurg-reader/images/banner1.png',
+      altText: '默认推荐书籍',
+      redirectUrl: 'http://localhost:3000/book/1'
+    },
+    {
+      id: 'default-2',
+      imageUrl: 'http://www.tireba.com/simurg-reader/images/banner2.png',
+      altText: '新书上架',
+      redirectUrl: 'http://localhost:3000/book/2'
+    }
+  ])
+
+  // 决定最终展示的数据（完全保留原有逻辑）
+  const displayBanners = computed(() => {
+    if (props.forceDefault || (banners.value.length === 0 && hasError.value)) {
+      return defaultBanners.value
+    }
+    return banners.value
+  })
+
+  // 获取轮播图数据（完全保留原有逻辑）
+  const fetchBannerData = async () => {
+    if (props.forceDefault) return
+
+    isLoading.value = true
+    hasError.value = false
+    
+    try {
+      const response = await apiRequest(props.apiUrl)
+      
+      if (!response.code === 200) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+      
+      const result = await response
+      
+      if (result.code === 200 && Array.isArray(result.data)) {
+        banners.value = result.data
+      } else {
+        throw new Error('接口返回格式不正确')
+      }
+    } catch (error) {
+      hasError.value = true
+    } finally {
+      isLoading.value = false
+      initSwiper()
+    }
   }
-}
 
-// 新增：全局点击事件处理（核心修复，不影响原有样式/逻辑）
-const handleGlobalBannerClick = (e) => {
-  // 1. 找到点击的轮播图容器（向上查找swiper-slide）
-  const slideEl = e.target.closest('.swiper-slide')
-  if (!slideEl) return // 没点到轮播项，直接返回
-
-  // 2. 获取当前点击轮播项的索引
-  const slideIndex = slideEl.getAttribute('data-index')
-  if (slideIndex === null || !displayBanners.value[slideIndex]) {
-    console.warn('未找到对应轮播数据')
-    return
+  // 初始化轮播（完全保留原有逻辑）
+  const initSwiper = () => {
+    if (swiperInstance.value) {
+      swiperInstance.value.destroy()
+    }
+    
+    setTimeout(() => {
+      if (document.querySelector('.swiper')) {
+        swiperInstance.value = new Swiper('.swiper', {
+          ...props.carouselOptions,
+          pagination: {
+            el: '.swiper-pagination.custom-pagination',
+            clickable: true
+          },
+          loop: displayBanners.value.length > 1,
+          slidesPerView: 1,
+          slidesPerGroup: 1,
+          loopAdditionalSlides: 1
+        })
+      }
+    }, 0)
   }
 
-  // 3. 拿到对应轮播数据，执行跳转
-  const targetBanner = displayBanners.value[slideIndex]
-  console.log('点击轮播图：', targetBanner) // 此时会打印日志
-  if (!targetBanner.redirectUrl) return
-
-  // 4. 处理跳转路径（兼容原有localhost格式）
-  let jumpPath = targetBanner.redirectUrl
-  if (jumpPath.startsWith('http://localhost:3000')) {
-    jumpPath = jumpPath.replace('http://localhost:3000', '')
+  // 处理图片加载失败（完全保留原有逻辑）
+  const handleImageError = (item) => {
+    if (!item.imageUrl || item.imageUrl.includes('picsum.photos')) {
+      item.imageUrl = 'https://picsum.photos/1920/500?random=fallback'
+    }
   }
 
-  // 5. 跳转到目标页面（/pages/book/[id].vue）
-  if (jumpPath.startsWith('/')) {
-    navigateTo(jumpPath).catch(err => {
-      console.error('轮播跳转失败：', err)
-    })
-  } else {
-    window.location.href = jumpPath
-  }
-}
+  // 新增：全局点击事件处理（核心修复，不影响原有样式/逻辑）
+  const handleGlobalBannerClick = (e) => {
+    // 1. 找到点击的轮播图容器（向上查找swiper-slide）
+    const slideEl = e.target.closest('.swiper-slide')
+    if (!slideEl) return // 没点到轮播项，直接返回
 
-// 组件挂载（新增全局事件绑定，其他逻辑不变）
-onMounted(() => {
-  if (!props.forceDefault) {
-    fetchBannerData()
-  } else {
-    initSwiper()
-  }
-  // 绑定全局点击事件（捕获阶段，避免被拦截）
-  document.addEventListener('click', handleGlobalBannerClick, true)
-})
+    // 2. 获取当前点击轮播项的索引
+    const slideIndex = slideEl.getAttribute('data-index')
+    if (slideIndex === null || !displayBanners.value[slideIndex]) {
+      console.warn('未找到对应轮播数据')
+      return
+    }
 
-// 组件卸载（新增全局事件移除，避免内存泄漏）
-onUnmounted(() => {
-  if (swiperInstance.value) {
-    swiperInstance.value.destroy()
+    // 3. 拿到对应轮播数据，执行跳转
+    const targetBanner = displayBanners.value[slideIndex]
+    console.log('点击轮播图：', targetBanner) // 此时会打印日志
+    if (!targetBanner.redirectUrl) return
+
+    // 4. 处理跳转路径（兼容原有localhost格式）
+    let jumpPath = targetBanner.redirectUrl
+    if (jumpPath.startsWith('http://localhost:3000')) {
+      jumpPath = jumpPath.replace('http://localhost:3000', '')
+    }
+
+    // 5. 跳转到目标页面（/pages/book/[id].vue）
+    if (jumpPath.startsWith('/')) {
+      navigateTo(jumpPath).catch(err => {
+        console.error('轮播跳转失败：', err)
+      })
+    } else {
+      window.location.href = jumpPath
+    }
   }
-  document.removeEventListener('click', handleGlobalBannerClick, true)
-})
+
+  // 组件挂载（新增全局事件绑定，其他逻辑不变）
+  onMounted(() => {
+    if (!props.forceDefault) {
+      fetchBannerData()
+    } else {
+      initSwiper()
+    }
+    // 绑定全局点击事件（捕获阶段，避免被拦截）
+    document.addEventListener('click', handleGlobalBannerClick, true)
+  })
+
+  // 组件卸载（新增全局事件移除，避免内存泄漏）
+  onUnmounted(() => {
+    if (swiperInstance.value) {
+      swiperInstance.value.destroy()
+    }
+    document.removeEventListener('click', handleGlobalBannerClick, true)
+  })
 </script>
 
 <style scoped>

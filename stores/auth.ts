@@ -13,7 +13,7 @@ export const useAuthStore = defineStore('auth', {
     redirectPath: '/'
   }),
   getters: {
-    userName: (state) => state.user?.nickname || '未登录'
+    userName: (state) => state.user?.username || '未登录'
   },
   actions: {
     // 账号密码登录
@@ -25,7 +25,7 @@ export const useAuthStore = defineStore('auth', {
           body: { account, password }
         })
         console.log("账号登录成功:", response);
-        this.handleLoginSuccess(response.data.user, response.data.accessToken, 'account')
+        this.handleLoginSuccess(response.data.thirdPartyUserInfo, response.data.tokenInfo.accessToken, 'account')
         return response
       } catch (error) {
         
@@ -151,6 +151,6 @@ export const useAuthStore = defineStore('auth', {
 
 interface User {
   id: string
-  nickname: string
+  username: string
   avatar: string
 }
