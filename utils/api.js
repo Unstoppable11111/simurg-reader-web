@@ -3,7 +3,7 @@ import { useCookie } from "#app"
 /**
  * 开发、测试、生产
  */
-const API_BASE_URL = "http://localhost:8082/simurg_reader_web/api"
+const API_BASE_URL = "http://localhost:8082/api"
 // const API_BASE_URL = "http://www.sr-web-test.tata.org.cn:8082/simurg_reader_web/api";
 
 // const API_BASE_URL = config.public.API_BASE_URL

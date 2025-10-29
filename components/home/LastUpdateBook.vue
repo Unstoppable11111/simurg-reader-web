@@ -15,7 +15,7 @@
           class="table-row"
         >
           <div class="tr th-book-name" @click="gotoBookDetail(book.bookId)">{{ book.title }}</div>
-          <div class="tr th-book-content-name">{{ book.chapterTitle }}</div>
+          <div class="tr th-book-content-name" @click="startReading(book.bookId, book.chapterNumber)">{{ book.chapterTitle }}</div>
           <div class="tr th-book-author">{{ book.authorPenName }}</div>
           <div class="tr th-type">{{ book.bookCategoryResponseList && book.bookCategoryResponseList.length > 0 
               ? book.bookCategoryResponseList[0].categoryName 
@@ -43,6 +43,11 @@
     console.log('点击了书籍，ID:', bookId)
     // 使用路由跳转到书籍详情页
     router.push(`/book/${bookId}`)
+  }
+
+  // 点击章节开始阅读书籍
+  const startReading = async(bookId, chapterNumber) => {
+    router.push(`/book/read?book=${bookId}&chapter=${chapterNumber}`);
   }
 </script>
 

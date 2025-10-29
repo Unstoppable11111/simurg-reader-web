@@ -23,7 +23,7 @@
               {{ currentRanking }}
           </div>
         </div>
-        <div class="ranking-desc-box">
+        <!-- <div class="ranking-desc-box">
           <div class="ranking-desc-text">基于昨日书籍热度排行</div>
           <div 
             class="ranking-day"
@@ -37,7 +37,7 @@
             @click="selectRankingType('月榜')">
             月榜
           </div>
-        </div>
+        </div> -->
         <div class="ranking-book-box">
           <div class="ranking-book-list">
             <div 
@@ -148,28 +148,29 @@
   .ranking-page {
     display: flex;
     flex-direction: column;
-    align-items: center;
   }
   .ranking-container {
+    width: 1200px;
     display: flex;
-    margin-top: 122px;
+    padding-top: 122px;
   }
   .ranking-box {
     width: 200px;
     margin-right: 38px;
+    margin-left: 360px;
   }
   .ranking-nav-list {
     display: flex;
     flex-direction: column;
   }
   .ranking-nav-item {
-    width: 200px;
+    width: 180px;
     height: 82px;
     text-align: center;
     line-height: 82px;
     font-family: PingFangSC, PingFang SC;
     font-weight: 400;
-    font-size: 22px;
+    font-size: 18px;
     color: #A2A0A0;
     text-align: center;
     font-style: normal;
@@ -190,18 +191,17 @@
   }
   
   .ranking-nav-item:hover {
-    background: rgba(249,110,8,0.25);
     color: #FFFFFF;
   }
   .active {
-    background: rgba(249,110,8,0.35);
+    background: rgba(249,110,8,0.65);
     color: #FFFFFF;
   }
   
   .ranking-title-box {
-    width: 1122px;
-    height: 79px;
-    background: linear-gradient( 90deg, #2F2437 0%, #1E1B1F 100%);
+    width: 982px;
+    height: 78px;
+    background: linear-gradient( 270deg, #FE5C54 0%, #F1951E 100%);
     border-radius: 10px 10px 0px 0px;
   }
   .ranking-title {
@@ -213,7 +213,7 @@
     text-align: left;
     font-style: normal;
     color: #fff;
-    line-height: 100px;
+    line-height: 78px;
     padding-left: 34px;
   }
   .ranking-desc-box {
@@ -260,16 +260,23 @@
     color: #D8D8D8 !important;
   }
   .ranking-book-box {
-    margin-top: 34px;
+    // margin-top: 34px;
   }
   .ranking-book-item {
     display: flex;
-    padding: 20px;
-    border-radius: 10px;
+    padding: 34px;
+    // border-radius: 10px;
     margin-bottom: 20px;
-    &:hover {
-      background: rgba(47,36,55,0.7);
-    }
+    // &:hover {
+    //   /* 只改变容器背景，不影响子元素 */
+    //   background: linear-gradient(270deg, #FE5C54 0%, #F1951E 100%);
+    //   opacity: 0.4;
+    // }
+  }
+  .ranking-book-item:hover {
+    /* 只改变容器背景，不影响子元素 */
+    background: linear-gradient(270deg, #FE5C54 0%, #F1951E 100%);
+    opacity: 0.4;
   }
   .book-info {
     display: flex;
@@ -280,6 +287,7 @@
     width: 156px;
     height: 208px;
     border-radius: 10px;
+    z-index: 2;
   }
   .book-title {
     font-family: PingFangSC, PingFang SC;
@@ -297,7 +305,7 @@
     font-family: PingFangSC, PingFang SC;
     font-weight: 400;
     font-size: 16px;
-    color: #A2A0A0;
+    color: #B2B2B2;
     line-height: 22px;
     margin-bottom: 10px;
   }
