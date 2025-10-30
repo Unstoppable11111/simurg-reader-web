@@ -10,7 +10,8 @@ export const useAuthStore = defineStore('auth', {
     isLoggedIn: false,
     accessToken: '',
     refreshToken: '',
-    redirectPath: '/'
+    redirectPath: '/',
+    isAuthor: false,
   }),
   getters: {
     userName: (state) => state.user?.username || '未登录'
@@ -25,7 +26,14 @@ export const useAuthStore = defineStore('auth', {
           body: { account, password }
         })
         console.log("账号登录成功:", response);
-        this.handleLoginSuccess(response.data.thirdPartyUserInfo, response.data.tokenInfo.accessToken, 'account')
+        if (response.code === 200) {
+          this.handleLoginSuccess(response.data.thirdPartyUserInfo, response.data.tokenInfo.accessToken, 'account')
+          // 登录成功后获取用户信息
+          const userInfoResult = await apiRequest(API_ENDPOINTS.USER_INFO);
+          console.log("获取登录成功的用户信息：", userInfoResult);
+          this.isAuthor = userInfoResult.data.roles.includes('2');
+          localStorage.setItem('isAuthor', 'true');
+        }
         return response
       } catch (error) {
         
@@ -114,6 +122,7 @@ export const useAuthStore = defineStore('auth', {
         const userStr = localStorage.getItem('auth_user')
         const token = localStorage.getItem('auth_token')
         const method = localStorage.getItem('auth_method') as 'google' | 'facebook' | 'account' | null
+        const isAuthor = localStorage.getItem('isAuthor') === 'true';
         
         // 兼容处理：确保所有必需的数据都存在且有效
         if (userStr && token && method) {
@@ -125,6 +134,7 @@ export const useAuthStore = defineStore('auth', {
               this.accessToken = token
               this.loginMethod = method
               this.isLoggedIn = true
+              this.isAuthor = isAuthor;
             }
           } catch (parseError) {
             console.warn('解析用户数据失败:', parseError)

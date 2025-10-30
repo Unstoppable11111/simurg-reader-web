@@ -10,13 +10,13 @@
           <div class="book-info-value book-title">{{ book.title }}</div>
 
           <label class="book-info-label">作者：</label>
-          <div class="book-info-value book-title">{{ book.authorPenName }}</div>
+          <div class="book-info-value book-author">{{ book.authorPenName }}</div>
 
           <label class="book-info-label">本章字数：</label>
-          <div class="book-info-value book-title">{{ book.totalCharCount }}</div>
+          <div class="book-info-value book-chapter-count">{{ book.totalCharCount }}</div>
 
           <label class="book-info-label">更新时间：</label>
-          <div class="book-info-value book-title">{{ book.updateDate }}</div>
+          <div class="book-info-value book-update-time">{{ book.updateDate }}</div>
         </div>
         <div class="book-delimiter"></div>
       </div>
@@ -189,6 +189,12 @@ const openSettings = () => {
   text-align: left;
   font-style: normal;
   margin-right: 84px;
+}
+.book-title, .book-author, .book-chapter-count, .book-update-time {
+  &:hover {
+    cursor: pointer;
+    color: #F96E08;
+  }
 }
 .book-delimiter {
   width: 1212px;

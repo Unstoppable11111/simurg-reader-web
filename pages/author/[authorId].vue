@@ -7,10 +7,10 @@
         <!-- 作者信息简介开始 -->
         <div class="author-info">
           <div class="author-pen-name-box">
-            <span class="author-name">田拽拽</span>
+            <span class="author-name"> {{authorInfo.penName}} </span>
             <div class="author-tag">作家</div>
           </div>
-          <span class="author-sign">用心写出不一样的东西</span>
+          <span class="author-sign"> {{authorInfo.briefIntroduction}}</span>
         </div>
         <!-- 作者信息简介结束 -->
 
@@ -27,7 +27,7 @@
           <div class="author-detail-item">
             <label class="author-detail-item-label">作品总数</label>
             <div class="author-detail-item-value-box">
-              <span class="author-detail-item-value">2</span>
+              <span class="author-detail-item-value"> {{ authorInfo.bookCount }} </span>
               <span class="author-detail-item-unit">本</span>
             </div>
           </div>
@@ -35,7 +35,7 @@
           <div class="author-detail-item">
             <label class="author-detail-item-label">累计字数</label>
             <div class="author-detail-item-value-box">
-              <span class="author-detail-item-value">885020</span>
+              <span class="author-detail-item-value"> {{ authorInfo.totalCompletedWords }} </span>
               <span class="author-detail-item-unit">字</span>
             </div>
           </div>
@@ -58,7 +58,7 @@
     
 
     <div class="author-all-book-title">
-      全部作品（2）
+      全部作品（ {{authorInfo.bookCount}} ）
     </div>
 
     <div class="author-book-list">
@@ -139,7 +139,15 @@
 <script setup>
   import Header from "@/components/layout/Header.vue";
   import Footer from "@/components/layout/Footer.vue";
-
+  const route = useRoute();
+  const authorId = route.params.authorId;
+  const authorInfo = ref(null);
+  const getAuthorInfoUrl = `${API_ENDPOINTS.AUTHO_INFO}${authorId}`;
+  const authorInfoResult = await apiRequest(getAuthorInfoUrl, {
+    method: 'GET'
+  });
+  console.log("作者信息：", authorInfoResult);
+  authorInfo.value = authorInfoResult.data;
 
   const startRead = (bookId) => {
     console.log('开始阅读', bookId)
@@ -148,6 +156,7 @@
   const addBookShelf = (bookId) => {
     console.log('加入书架', bookId)
   }
+
 </script>
 
 <style lang="scss" scoped>
@@ -178,7 +187,7 @@
     border-radius: 50%;
   }
   .author-info {
-    width: 120px;
+    // width: 120px;
     height: 54px;
     margin-left: 18px;
   }

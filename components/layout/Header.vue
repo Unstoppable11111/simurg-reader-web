@@ -59,6 +59,9 @@
   watch(isLoggedIn, (newVal) => {
     console.log('isLoggedIn changed to:', newVal);
   }, { immediate: true });
+  watch(isAuthor, (newVal) => {
+    console.log('isAuthor changed to:', newVal);
+  }, { immediate: true });
   // 检查原始 cookie 值
   const accessTokenCookie = useCookie('accessToken');
   const userCookie = useCookie('user');
@@ -141,6 +144,9 @@ const handleBookShelfClick = () => {
 }
 .to-bookshelf {
   height: 25px;
+  &:hover {
+    cursor: pointer;
+  }
 }
 .to-ranking {
   height: 25px;
@@ -148,6 +154,9 @@ const handleBookShelfClick = () => {
 .to-become-author {
   height: 25px;
   color: #FF9B51;
+  &:hover {
+    cursor: pointer;
+  }
 }
 
 .header-nav-active {
