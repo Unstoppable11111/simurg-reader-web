@@ -50,7 +50,7 @@
     router.push(`/book/read?book=${bookId}&chapter=${chapterNumber}`);
   }
 
-  //
+  // 点击作者跳转到作者详情页
   const gotoAuthorDetail = (authorId) => {
     console.log('点击作者', authorId)
     router.push(`/author/${authorId}`)

@@ -46,10 +46,12 @@ const props = defineProps({
   .cate-img {
     width: 154px;
     height: 185px;
-    background: #979797;
     box-shadow: 0px 4px 10px 0px rgba(197,195,195,0.5);
     border-radius: 10px;
     transition: transform 0.3s ease; /* 添加过渡效果 */
+    &:not(:valid) {
+      background-color: #828282;
+    }
   }
   
   // 为分类项添加悬停效果

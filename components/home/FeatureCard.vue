@@ -199,6 +199,9 @@
     height: 224px;
     object-fit: cover;
     margin: 0;
+    &:not(:valid) {
+      background-color: #828282;
+    }
   }
 
   .book-title {

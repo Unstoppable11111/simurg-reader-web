@@ -22,7 +22,7 @@
           </div>
           
           <div class="book-author">
-            <span>作者：{{ book.authorPenName }}</span>
+            <span @click="gotoAuthorDetail(book.authorId)">作者：{{ book.authorPenName }}</span>
           </div>
           
           <div class="book-stats">
@@ -46,10 +46,10 @@
       <div class="divider"></div>
       <div class="author-info">
         <div class="author-avatar">
-          <img :src="book.authorPictureUrl" alt="" />
+          <img :src="book.authorPictureUrl" alt="" @click="gotoAuthorDetail(book.authorId)"/>
           <div class="author-info-container">
             <div class="author-info-box">
-              <span class="author-name">{{ book.authorPenName }}</span>
+              <span class="author-name" @click="gotoAuthorDetail(book.authorId)">{{ book.authorPenName }}</span>
               <span class="author-tag">作家</span>
             </div>
             <!-- <span v-if="isLoggedIn && isFollowed" class="followed">已关注</span>
@@ -246,6 +246,12 @@
       router.push(`/book/read?book=${bookId}&chapter=1`);
   }
 
+  // 点击作者跳转到作者详情页
+  const gotoAuthorDetail = (authorId) => {
+    console.log('点击作者', authorId)
+    router.push(`/author/${authorId}`)
+  }
+
   // 设置页面标题
   useHead({
     title: book.value?.title || '书籍详情',
@@ -341,6 +347,10 @@
     margin-bottom: 52px;
     font-size: 12px;
     color: #bdc3c7;
+    &:hover {
+      cursor: pointer;
+      color: #F96E08;
+    }
   }
   .book-stats {
     margin-bottom: 20px;

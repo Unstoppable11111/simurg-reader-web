@@ -78,6 +78,9 @@ const activeIndex = ref(0);
     height: 200px;
     object-fit: cover;
     transition: all 0.5s ease;
+    &:not(:valid) {
+      background-color: #828282;
+    }
 }
 
 /* Active状态样式 */

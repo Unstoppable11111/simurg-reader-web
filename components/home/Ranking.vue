@@ -311,6 +311,9 @@ onMounted(() => {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     // 防止缩放时内容溢出
     transform-origin: center;
+    &:not(:valid) {
+      background-color: #828282;
+    }
   }
 
   // 鼠标悬停时的动画效果

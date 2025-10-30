@@ -60,12 +60,94 @@
     <div class="author-all-book-title">
       全部作品（2）
     </div>
+
+    <div class="author-book-list">
+
+      <div class="author-book-item">
+        <img class="book-img" src="https://www.tata2025.xyz/uploads/2025/09/19/91f22daced2b37eab5022fe3f7a8a598.jpeg" alt="">
+        <div class="book-info-box">
+          <span class="book-title">我在精神病院学斩神</span>
+          <span class="book-author">田拽拽</span>
+          <span class="book-desc">因被渣男背刺，刚穿书就被极端CP粉一刀捅进医院。 谢弥原地发疯，在直播间口出狂言。 “来！捅我！都来捅我！我直接引爆地球——” 误入直播间的路人差点被吓晕。 好好好，见因被渣男背刺，刚穿书就被极端CP粉一刀捅进医院。 谢弥原地发疯，在直播间口出狂言。 “来！捅我！都来捅我！我直接引爆地球——” 误入直播间的路人差点被吓晕。 好好好，见</span>
+          <div class="book-tag">
+            <span class="book-status">连载中</span>
+            <div class="devier"></div>
+            <span class="book-recent-update-label">最近更新：</span>
+            <span class="book-chapter-title">诡异竹筒</span>
+          </div>
+        </div>
+        <button class="startReadBtn" @click="startRead">开始阅读</button>
+        <button class="addBookShelfBtn" @click="addBookShelf">加入书架</button>
+      </div>
+      
+      <div class="author-book-item">
+        <img class="book-img" src="https://www.tata2025.xyz/uploads/2025/09/19/91f22daced2b37eab5022fe3f7a8a598.jpeg" alt="">
+        <div class="book-info-box">
+          <span class="book-title">我在精神病院学斩神</span>
+          <span class="book-author">田拽拽</span>
+          <span class="book-desc">因被渣男背刺，刚穿书就被极端CP粉一刀捅进医院。 谢弥原地发疯，在直播间口出狂言。 “来！捅我！都来捅我！我直接引爆地球——” 误入直播间的路人差点被吓晕。 好好好，见因被渣男背刺，刚穿书就被极端CP粉一刀捅进医院。 谢弥原地发疯，在直播间口出狂言。 “来！捅我！都来捅我！我直接引爆地球——” 误入直播间的路人差点被吓晕。 好好好，见</span>
+          <div class="book-tag">
+            <span class="book-status">连载中</span>
+            <div class="devier"></div>
+            <span class="book-recent-update-label">最近更新：</span>
+            <span class="book-chapter-title">诡异竹筒</span>
+          </div>
+        </div>
+        <button class="startReadBtn" @click="startRead">开始阅读</button>
+        <button class="addBookShelfBtn" @click="addBookShelf">加入书架</button>
+      </div>
+
+      <div class="author-book-item">
+        <img class="book-img" src="https://www.tata2025.xyz/uploads/2025/09/19/91f22daced2b37eab5022fe3f7a8a598.jpeg" alt="">
+        <div class="book-info-box">
+          <span class="book-title">我在精神病院学斩神</span>
+          <span class="book-author">田拽拽</span>
+          <span class="book-desc">因被渣男背刺，刚穿书就被极端CP粉一刀捅进医院。 谢弥原地发疯，在直播间口出狂言。 “来！捅我！都来捅我！我直接引爆地球——” 误入直播间的路人差点被吓晕。 好好好，见因被渣男背刺，刚穿书就被极端CP粉一刀捅进医院。 谢弥原地发疯，在直播间口出狂言。 “来！捅我！都来捅我！我直接引爆地球——” 误入直播间的路人差点被吓晕。 好好好，见</span>
+          <div class="book-tag">
+            <span class="book-status">连载中</span>
+            <div class="devier"></div>
+            <span class="book-recent-update-label">最近更新：</span>
+            <span class="book-chapter-title">诡异竹筒</span>
+          </div>
+        </div>
+        <button class="startReadBtn" @click="startRead">开始阅读</button>
+        <button class="addBookShelfBtn" @click="addBookShelf">加入书架</button>
+      </div>
+
+      <div class="author-book-item">
+        <img class="book-img" src="https://www.tata2025.xyz/uploads/2025/09/19/91f22daced2b37eab5022fe3f7a8a598.jpeg" alt="">
+        <div class="book-info-box">
+          <span class="book-title">我在精神病院学斩神</span>
+          <span class="book-author">田拽拽</span>
+          <span class="book-desc">因被渣男背刺，刚穿书就被极端CP粉一刀捅进医院。 谢弥原地发疯，在直播间口出狂言。 “来！捅我！都来捅我！我直接引爆地球——” 误入直播间的路人差点被吓晕。 好好好，见因被渣男背刺，刚穿书就被极端CP粉一刀捅进医院。 谢弥原地发疯，在直播间口出狂言。 “来！捅我！都来捅我！我直接引爆地球——” 误入直播间的路人差点被吓晕。 好好好，见</span>
+          <div class="book-tag">
+            <span class="book-status">连载中</span>
+            <div class="devier"></div>
+            <span class="book-recent-update-label">最近更新：</span>
+            <span class="book-chapter-title">诡异竹筒</span>
+          </div>
+        </div>
+        <button class="startReadBtn" @click="startRead">开始阅读</button>
+        <button class="addBookShelfBtn" @click="addBookShelf">加入书架</button>
+      </div>
+    </div>
+
+    <Footer />
   </div>
 </template>
 
 <script setup>
   import Header from "@/components/layout/Header.vue";
+  import Footer from "@/components/layout/Footer.vue";
 
+
+  const startRead = (bookId) => {
+    console.log('开始阅读', bookId)
+  }
+
+  const addBookShelf = (bookId) => {
+    console.log('加入书架', bookId)
+  }
 </script>
 
 <style lang="scss" scoped>
@@ -171,15 +253,158 @@
     line-height: 14px;
     text-align: left;
     font-style: normal;
+    margin-left: 6px;
   }
   .author-all-book-title {
     width: 1200px;
+    height: 37px;
     font-family: PingFangSC, PingFang SC;
     font-weight: 600;
     font-size: 18px;
     color: #FFFFFF;
-    line-height: 25px;
+    line-height: 37px;
     text-align: left;
+    font-style: normal;
+    margin-top: 37px;    
+    /* 下边框宽度（仅下边框生效） */
+    border-bottom: 1px solid transparent;  
+    /* 渐变方向+颜色（从左到右，橙色→深色） */
+    border-image: linear-gradient(to right, #ff9900, #333333) 1;  
+    /* 适配圆角（若需圆角，需额外设置 border-radius） */
+    border-radius: 0 0 10px 10px; /* 仅下边角圆角 */
+  }
+  .author-book-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 32px;
+    width: 1200px;
+    margin-top: 30px;
+  }
+  .author-book-item {
+    position: relative;
+    display: flex;
+    width: 584px;
+    height: 281px;
+  }
+  .book-img {
+    width: 198px;
+    height: 264px;
+    border-radius: 10px;
+    &:not(:valid) {
+      background-color: #828282;
+    }
+  }
+  .book-info-box { 
+    display: flex;
+    flex-direction: column;
+    margin-left: 12px;
+  }
+  .book-title {
+    font-family: PingFangSC, PingFang SC;
+    font-weight: 600;
+    font-size: 16px;
+    color: #FFFFFF;
+    line-height: 22px;
+    text-align: left;
+    font-style: normal;
+    &:hover {
+      cursor: pointer;
+      color: #F96E08;
+    }
+  }
+  .book-author {
+    font-family: PingFangSC, PingFang SC;
+    font-weight: 400;
+    font-size: 12px;
+    color: #A2A0A0;
+    line-height: 17px;
+    text-align: left;
+    font-style: normal;
+    margin-top: 8px;
+    &:hover {
+      cursor: pointer;
+      color: #F96E08;
+    }
+  }
+  .book-desc {
+    font-family: PingFangSC, PingFang SC;
+    font-weight: 400;
+    font-size: 12px;
+    color: #DADADA;
+    line-height: 17px;
+    text-align: left;
+    font-style: normal;
+    margin-top: 8px;
+    /* 核心样式 */
+    display: -webkit-box;
+    -webkit-line-clamp: 3; /* 限制最多显示3行 */
+    -webkit-box-orient: vertical;
+    overflow: hidden; /* 超出部分隐藏 */
+    text-overflow: ellipsis; /* 显示省略号 */
+  }
+  .book-tag {
+    display: flex;
+    align-items: center;
+    margin-top: 62px;
+    gap: 12px;
+  }
+  .book-status, .devier, .book-recent-update-label, .book-chapter-title {
+    font-family: PingFangSC, PingFang SC;
+    font-weight: 400;
+    font-size: 12px;
+    color: #DB975A;
+    line-height: 17px;
+    text-align: left;
+    font-style: normal;
+  }
+  .devier {
+    height: 10px;
+    border: 1px solid #DB975A;
+  }
+  .startReadBtn, .addBookShelfBtn {
+    border: none;           /* 去除默认边框 */
+    background: none;       /* 去除默认背景 */
+    padding: 0;             /* 重置内边距 */
+    margin: 0;              /* 重置外边距 */
+    outline: none;          /* 去除点击时的轮廓 */
+    font-family: inherit;   /* 继承字体 */
+    font-size: inherit;     /* 继承字体大小 */
+    cursor: pointer;        /* 设置鼠标手势 */
+  }
+  .startReadBtn {
+    position: absolute;
+    left: 210px;
+    bottom: 17px;
+    width: 128px;
+    height: 36px;
+    background: linear-gradient( 90deg, #FF9B51 0%, #ED5B00 100%);
+    border-radius: 18px;
+    font-family: PingFangSC, PingFang SC;
+    font-weight: 400;
+    font-size: 12px;
+    color: #FFFFFF;
+    line-height: 17px;
+    text-align: center;
+    font-style: normal;
+  }
+  .startReadBtn:hover{
+    z-index: 2;
+    background-color: #d35400 !important;
+  }
+  .addBookShelfBtn {
+    position: absolute;
+    right: 86px;
+    bottom: 17px;
+    width: 128px;
+    height: 36px;
+    border-radius: 18px;
+    border: 1px solid #F96E08;
+    font-family: PingFangSC, PingFang SC;
+    font-weight: 400;
+    font-size: 12px;
+    color: #F96E08;
+    line-height: 17px;
+    text-align: center;
     font-style: normal;
   }
 </style>
