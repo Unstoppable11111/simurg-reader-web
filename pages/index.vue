@@ -4,7 +4,8 @@
       <Header :margin-left="'244px'"/>
       
       <!-- 轮播图（作为背景层） -->
-      <Carousel  class="carousel" />
+      <!-- <Carousel  class="carousel" /> -->
+       <BookBanner class="carousel" :banners="banners" />
 
       <!-- 精选专区 -->
       <div class="featured-section">
@@ -67,12 +68,13 @@
 <script setup>
   import Header from '@/components/layout/Header.vue';
   import Carousel from '@/components/home/Carousel.vue';
-  import FeatureCard from '~/components/home/FeatureCard.vue';
-  import Recommend from '~/components/home/Recommend.vue';
-  import Ranking from '~/components/home/Ranking.vue';
-  import NewlySigned from '~/components/home/NewlySigned.vue';
-  import BookCate from '~/components/home/BookCate.vue';
-  import LastUpdateBook from '~/components/home/LastUpdateBook.vue';
+  import BookBanner from '@/components/home/BookBanner.vue';
+  import FeatureCard from '@/components/home/FeatureCard.vue';
+  import Recommend from '@/components/home/Recommend.vue';
+  import Ranking from '@/components/home/Ranking.vue';
+  import NewlySigned from '@/components/home/NewlySigned.vue';
+  import BookCate from '@/components/home/BookCate.vue';
+  import LastUpdateBook from '@/components/home/LastUpdateBook.vue';
   import Footer from '@/components/layout/Footer.vue';
   import { API_ENDPOINTS, apiRequest } from '@/utils/api';
   import { tr } from 'element-plus/es/locale/index.mjs';
@@ -189,12 +191,9 @@
 }
 .carousel {
   width: 100vw;  /* 使用视口宽度单位，占满整个浏览器宽度 */
+  height: 420px;
   max-width: 100%; /* 确保不会超出视口 */
   /* 可选：移除可能存在的内边距或边框 */
-  padding: 0;
-  border: none;
-  margin-top: -84px;
-  z-index: -1;
 }
 .featured-section {
   display: flex;

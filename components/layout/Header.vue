@@ -1,5 +1,5 @@
 <template>
-  <div class="header" :class = "{ 'scrolled': isScrolled} ">
+  <div class="header" :class = "{ 'scrolled': isScrolled} " :key="isAuthor.toString()">
     <img src="/public/images/simurg-reader-logo.svg" alt="simurg reader" class="logo" :style="{marginLeft: marginLeft}"/>
     <div class="header-right-nav">
       <NuxtLink to="/" class="header-nav to-simurg-reader-index" :class="{ 'header-nav-active': $route.path === '/' }">首页</NuxtLink>
@@ -67,7 +67,7 @@
   const userCookie = useCookie('user');
   console.log('Raw cookies:', accessTokenCookie.value, userCookie.value);
 
-const handleBookShelfClick = () => {
+  const handleBookShelfClick = () => {
     if (!isLoggedIn.value) {
       router.push('/login?redirectPath=/bookshelf');
     } else {

@@ -12,5 +12,6 @@ export const useAuth = () => {
     isAuthor: computed(() => authStore.isAuthor),
     userName,
     userAvatar,
+    userId: computed(() => authStore.user?.uuid),
   }
 }

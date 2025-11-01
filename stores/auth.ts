@@ -32,7 +32,7 @@ export const useAuthStore = defineStore('auth', {
           const userInfoResult = await apiRequest(API_ENDPOINTS.USER_INFO);
           console.log("获取登录成功的用户信息：", userInfoResult);
           this.isAuthor = userInfoResult.data.roles.includes('2');
-          localStorage.setItem('isAuthor', 'true');
+          localStorage.setItem('isAuthor', this.isAuthor.toString());
         }
         return response
       } catch (error) {

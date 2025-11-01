@@ -67,14 +67,14 @@
         <div v-if="activeNav === 'author-home'" class="author-home-content">
           <!-- 作者信息 -->
           <div class="author-info-box">
-            <img class="author-avatar" src="http://www.tireba.com/simurg-reader/images/author1.png" alt="">
+            <img class="author-avatar" :src="userAvatar" alt="">
             <div class="author-info">
-              <div class="author-name">田拽拽，晚上好啊</div>
+              <div class="author-name"> {{userName}}，晚上好啊</div>
               <div class="welcome-author-desc">今天是你在simurg reader创作的第1天，继续努力码字吧~</div>
             </div>
             <div class="author-work-num-box">
               <label class="author-work-num-label">作品数量</label>
-              <span class="author-work-num">0</span>
+              <span class="author-work-num"> {{ authorInfo.bookCount }} </span>
             </div>
             <div class="author-reader-num-box">
               <label class="author-reader-num-label">累计读者</label>
@@ -82,7 +82,7 @@
             </div>
             <div class="author-word-num-box">
               <label class="author-word-num-label">累计字数</label>
-              <span class="author-word-num">0</span>
+              <span class="author-word-num"> {{ authorInfo.totalCompletedWords }} </span>
             </div>
           </div>
 
@@ -99,6 +99,27 @@
               <NuxtLink to="/becomeAuthor/writeBook" class="to-write-book">新建小说</NuxtLink>
             </div>
           </div>
+          <el-calendar ref="calendar" class="calendar">
+            <template #header="{ date }">
+              <span class="calendar-title">作者更新日历</span>
+              <span>{{ date }}</span>
+              <el-button-group>
+                <el-button size="small" @click="selectDate('prev-year')">
+                  Previous Year
+                </el-button>
+                <el-button size="small" @click="selectDate('prev-month')">
+                  Previous Month
+                </el-button>
+                <el-button size="small" @click="selectDate('today')">Today</el-button>
+                <el-button size="small" @click="selectDate('next-month')">
+                  Next Month
+                </el-button>
+                <el-button size="small" @click="selectDate('next-year')">
+                  Next Year
+                </el-button>
+              </el-button-group>
+            </template>
+          </el-calendar>
         </div>
 
         <!-- 作品管理内容 -->
@@ -176,15 +197,33 @@
 </template>
 
 <script setup>
-import Header from "@/components/layout/Header.vue";
+  import Header from "@/components/layout/Header.vue";
+  import { useAuth } from '@/composables/useAuth';
+  const {isLoggedIn, isAuthor, userAvatar, userName, userId} = useAuth();
+  const authorInfo = ref(null);
+  console.log("userId", userId.value);
+  // 查询作者信息
+  const getAuthorInfoUrl = `${API_ENDPOINTS.AUTHO_INFO}${userId.value}`;
+  const authorInfoResult = await apiRequest(getAuthorInfoUrl, {
+    method: 'GET'
+  });
+  console.log("作者信息：", authorInfoResult);
+  authorInfo.value = authorInfoResult.data;
 
-// 定义响应式数据，跟踪当前激活的导航项
-const activeNav = ref('author-home');
+  // 查询作者书籍列表
+  const authorBookList = await apiRequest(API_ENDPOINTS.LIST_AUTHOR_BOOKS, {
+    method: 'GET'
+  });
+  console.log("作者书籍列表：", authorBookList);
 
-// 切换导航的方法
-const switchNav = (nav) => {
-  activeNav.value = nav;
-};
+
+  // 定义响应式数据，跟踪当前激活的导航项
+  const activeNav = ref('author-home');
+
+  // 切换导航的方法
+  const switchNav = (nav) => {
+    activeNav.value = nav;
+  };
 </script>
 
 <style lang="scss" scoped>
@@ -252,17 +291,17 @@ const switchNav = (nav) => {
 .author-info-box {
   display: flex;
   align-items: center;
-  width: 100%;
+  width: 1016px;
   height: 146px;
   background: #424242;
   border-radius: 6px;
-  padding: 0 20px;
 }
 .author-avatar { 
   width: 70px;
   height: 70px;
   border-radius: 50%;
   margin-right: 12px;
+  margin-left: 38px;
 }
 .author-info {
   flex: 1;
@@ -270,18 +309,18 @@ const switchNav = (nav) => {
 .author-name {
   font-family: PingFangSC, PingFang SC;
   font-weight: 600;
-  font-size: 20px;
+  font-size: 16px;
   color: #FFFFFF;
-  line-height: 28px;
+  line-height: 22px;
   text-align: left;
   font-style: normal;
 }
 .welcome-author-desc {
   font-family: PingFangSC, PingFang SC;
   font-weight: 400;
-  font-size: 16px;
+  font-size: 12px;
   color: #A2A0A0;
-  line-height: 22px;
+  line-height: 17px;
   text-align: left;
   font-style: normal;
 }
@@ -305,10 +344,10 @@ const switchNav = (nav) => {
 .author-word-num-label { 
   font-family: PingFangSC, PingFang SC;
   font-weight: 600;
-  font-size: 18px;
+  font-size: 14px;
   color: #A2A0A0;
-  line-height: 25px;
-  text-align: left;
+  line-height: 20px;
+  text-align: center;
   font-style: normal;
 }
 .author-work-num,
@@ -316,14 +355,15 @@ const switchNav = (nav) => {
 .author-word-num { 
   font-family: PingFangSC, PingFang SC;
   font-weight: 600;
-  font-size: 16px;
+  font-size: 14px;
   color: #FFFFFF;
-  line-height: 22px;
+  line-height: 20px;
   text-align: left;
   font-style: normal;
+  margin-top: 8px;
 }
 .author-works-box {
-  width: 1116px;
+  width: 1016px;
   height: 287px;
   background: #424242;
   border-radius: 6px;
@@ -335,7 +375,7 @@ const switchNav = (nav) => {
   left: 24px;
   font-family: PingFangSC, PingFang SC;
   font-weight: 600;
-  font-size: 18px;
+  font-size: 14px;
   color: #FFFFFF;
   line-height: 25px;
   text-align: left;
@@ -387,6 +427,23 @@ const switchNav = (nav) => {
   font-style: normal;
   margin-top: 12px;
 }
+.calendar {
+  width: 625px;
+  height: 465px;
+  background: #424242;
+  border-radius: 6px;
+  margin-top: 16px;
+}
+.calendar-title { 
+  font-family: PingFangSC, PingFang SC;
+  font-weight: 600;
+  font-size: 14px;
+  color: #FFFFFF;
+  line-height: 20px;
+  text-align: left;
+  font-style: normal;
+}
+
 
 // 新增的内容区域样式
 .author-content-section {
