@@ -429,10 +429,12 @@
 }
 .calendar {
   width: 625px;
-  height: 465px;
   background: #424242;
   border-radius: 6px;
   margin-top: 16px;
+}
+.el-calendar__header {
+  display: block;
 }
 .calendar-title { 
   font-family: PingFangSC, PingFang SC;

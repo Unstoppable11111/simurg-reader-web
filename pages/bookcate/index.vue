@@ -164,7 +164,6 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-top: 80px;
   }
   .book-cate-box {
     width: 1200px;
@@ -174,6 +173,7 @@
   }
   .breadcrumb {
     color: #fff;
+    margin-top: 28px;
   }
   .to-simurg-reader-index {
     font-family: PingFangSC, PingFang SC;
