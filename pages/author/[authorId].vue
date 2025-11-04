@@ -1,6 +1,6 @@
 <template>
   <div class="author-page">
-    <Header :margin-left="'244px'"/>
+    <Header :margin-left="'360px'"/>
     <div class="author-container">
       <div class="author-box">
         <img class="author-img" src="http://www.tata2025.xyz/uploads/2025/10/21/2566ebd9-91e1-4d0c-b239-9d2e89b325de.png" alt="">

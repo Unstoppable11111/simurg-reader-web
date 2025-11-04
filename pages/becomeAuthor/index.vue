@@ -1,6 +1,6 @@
 <template>
   <div class="become-author-page">
-    <Header  :margin-left="'244px'"/>
+    <Header  :margin-left="'360px'"/>
     <div class="become-author-container">
       <!-- 推荐信息区域 -->
       <div class="become-author-recommend-box">

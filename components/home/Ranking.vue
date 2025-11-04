@@ -233,6 +233,7 @@ onMounted(() => {
   .ranking-best-sellers-itme img {
     width: 72px;
     height: 96px;
+    border-radius: 4px
   }
   .book-info {
     display: flex;

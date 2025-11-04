@@ -1,6 +1,6 @@
 <template>
   <div class="author-page">
-    <Header :margin-left="'244px'" :isAuthor="true"/>
+    <Header :margin-left="'360px'" :isAuthor="true"/>
     <div class="author-container">
       <div class="author-left-nav-box">
         <div class="nav-list">

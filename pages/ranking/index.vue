@@ -1,6 +1,6 @@
 <template>
   <div class="ranking-page">
-    <Header :margin-left="'244px'" />
+    <Header :margin-left="'360px'" />
     <div class="ranking-container">
       <div class="ranking-box">
         <div class="ranking-nav-box">

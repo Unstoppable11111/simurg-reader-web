@@ -1,7 +1,7 @@
 <template>
     <div class="home-page">
         <!-- 透明导航栏（通过绝对定位悬浮） -->
-      <Header :margin-left="'244px'"/>
+      <Header :margin-left="'360px'"/>
       
       <!-- 轮播图（作为背景层） -->
       <!-- <Carousel  class="carousel" /> -->

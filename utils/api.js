@@ -1,5 +1,4 @@
 import { useCookie } from "#app"
-
 /**
  * 开发、测试、生产
  */
@@ -35,6 +34,7 @@ export const API_ENDPOINTS = {
   /** 书籍分类相关接口开始 */
   LIST_ALL_BOOK_CATEGORY: `${API_BASE_URL}/book/categories/list/all`,
   LIST_BOOK_BY_CATEGORY: `${API_BASE_URL}/books/categories/books_by_category`,
+  LIST_LIBRARY_BOOKS: `${API_BASE_URL}/book/categories/library/book_list`,
   /** 书籍分类相关接口结束 */
 
   /** 书籍章节相关接口开始 */
@@ -123,8 +123,8 @@ export async function apiRequest(endpoint, options = {}) {
     }
     const response = await fetch(endpoint, mergedOptions);
     console.log("响应参数",response);
-    if (response.code === 2008) {
-      route.push('/login');
+    if (response.code === 2008 || response.code === 401) {
+      window.location.href = '/login'
     }
     if (!response.code === 200) {
       throw new Error(`HTTP error! status: ${response.status}`)

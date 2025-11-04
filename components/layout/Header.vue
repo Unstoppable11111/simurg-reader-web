@@ -122,7 +122,7 @@
 .logo {
   width: 192px;
   height: 30px;
-  margin-left: 244px;
+  margin-left: 360px;
 }
 .simurg-reader {
   width: 182px;

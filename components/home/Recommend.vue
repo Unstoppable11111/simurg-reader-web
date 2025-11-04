@@ -78,6 +78,7 @@ const activeIndex = ref(0);
     height: 200px;
     object-fit: cover;
     transition: all 0.5s ease;
+    border-radius: 10px;
     &:not(:valid) {
       background-color: #828282;
     }
@@ -89,7 +90,7 @@ const activeIndex = ref(0);
   flex-direction: row;
   width: 736px;
   height: 302px;
-  transform: translateY(-5px);
+  transform: translateY(0px);
 }
 .book-recommend-active .book-img {
   width: 180px;
@@ -100,6 +101,7 @@ const activeIndex = ref(0);
   /* 激活时增加文本区域高度，避免内容溢出 */
   min-height: 120px;
   margin-left: 16px;
+  margin-top: 24px;
 }
 .book-recommend-active .book-title {
   font-size: 18px;
@@ -108,9 +110,8 @@ const activeIndex = ref(0);
 .book-text {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding-top: 12px;
   transition: min-height 0.5s ease;
+  margin-top: 30px;
 }
 
 .book-title {
@@ -139,14 +140,16 @@ const activeIndex = ref(0);
   line-height: 17px;
   text-align: left;
   font-style: normal;
+  margin-top: 9px;
+}
+.book-tags .book-hot {
+  margin-top: 0;
 }
 
 /* 额外信息样式 */
 .book-details {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  margin-top: 8px;
   animation: fadeIn 0.5s ease; /* 淡入动画 */
 }
 
@@ -159,11 +162,12 @@ const activeIndex = ref(0);
   color: #DADADA;
   text-align: left;
   font-style: normal;
+  margin-top: 8px;
 }
 
 .book-tags {
   display: flex;
-  gap: 6px;
+  margin-top: 8px;
 }
 
 .tag {
@@ -195,8 +199,13 @@ const activeIndex = ref(0);
   line-height: 22px;
   text-align: left;
   font-style: normal;
-  -webkit-line-clamp: 3; /* 最多显示3行 */
+  /* 核心样式 */
+  display: -webkit-box;
+  -webkit-line-clamp: 3; /* 限制最多显示3行 */
   -webkit-box-orient: vertical;
+  overflow: hidden; /* 超出部分隐藏 */
+  text-overflow: ellipsis; /* 显示省略号 */
+  margin-top: 48px;
 }
 
 /* 淡入动画 */

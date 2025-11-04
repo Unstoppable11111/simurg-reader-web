@@ -60,7 +60,7 @@
   const activeIndex = ref(3)
   // 定义.first-part的样式状态
   const firstPartStyles = ref({
-    marginLeft: '-117px',
+    marginLeft: '-108px',
     // 可以添加其他初始样式
     transition: 'margin-left 0.5s ease-in-out' // 添加过渡动画属性
   })
@@ -138,7 +138,7 @@
   // 可视区域 - 固定宽度1360px，超出部分隐藏
   .view-port {
     width: 1200px;
-    margin-top: 66px;
+    margin-top: 28px;
   }
 
   // 书籍轨道
@@ -161,20 +161,21 @@
     flex-direction: column;
     margin-right: $card-gap;
     position: relative;
+    margin-top: 38px;
   }
 
   .feature-card .book-img {
     // margin-top: 28px;
   }
 
-  .active-part .book-img{
-    margin-top: 0;
-    position: relative;
-    top: -38px; /* 向上偏移38px，视觉上就比其他元素高出38px */
+  .active-part{
+    margin-top: 0 !important;
+    // position: relative;
+    // top: -38px; /* 向上偏移38px，视觉上就比其他元素高出38px */
   }
 
   .first-part {
-    margin-left: -117px;
+    margin-left: -108px;
     z-index: 1;
   }
 
@@ -189,16 +190,19 @@
   }
   .active-part .book-title{
     font-size: 18px;
+    margin-left: 8px;
   }
   .active-part .book-cate{
     font-size: 14px;
+    margin-left: 8px;
   }
 
   .book-img {
     width: 168px;
     height: 224px;
     object-fit: cover;
-    margin: 0;
+    margin: 0 auto;
+    border-radius: 10px;
     &:not(:valid) {
       background-color: #828282;
     }
@@ -239,7 +243,8 @@
   // 箭头样式 - 确保能点击到
   .carousel-arrow {
     position: absolute;
-    top: calc(50% + 24px);
+    // top: calc(50% + 24px);
+    top: 183px;
     transform: translateY(-50%);
     width: 48px;
     height: 48px;

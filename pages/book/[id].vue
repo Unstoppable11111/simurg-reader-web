@@ -1,6 +1,6 @@
 <template>
   <div class="book-page"> 
-    <Header :margin-left="'244px'" />
+    <Header :margin-left="'360px'" />
     <div class="book-detail-page">
       <!-- Breadcrumb navigation -->
       <div class="breadcrumb">
@@ -142,14 +142,22 @@
   const chapterContent = ref(null);
   const isFollowed = ref(false);
   const authorId = ref("");
+  const book = ref(null);
 
-  // 模拟书籍数据（实际项目中应从API获取）
-  // 在实际应用中，您可以使用 useAsyncData 或 useFetch 获取数据
-  const url = new URL(`${API_ENDPOINTS.BOOK_DETAIL}/${bookId}`);
-  console.log("请求的url地址", url);
-  const {data: book} = await apiRequest(url);
-  console.log("书籍内容",book);
-  authorId.value = book.authorId;
+  try {
+    console.log("请求的id", bookId)
+    const url = new URL(`${API_ENDPOINTS.BOOK_DETAIL}/${bookId}`);
+    console.log("请求的url地址", url);
+    const bookResult = await apiRequest(url);
+    console.log("书籍内容",bookResult);
+    if (bookResult.code === 200) {          
+      authorId.value = bookResult.data.authorId;
+      book.value = bookResult.data;
+    }
+  } catch (error) { 
+    console.error('Error fetching book data:', error);
+  }
+
   // 获取书籍的所有章节目录
   try {
     const chapterReq = {
@@ -165,7 +173,7 @@
     console.log("章节内容：", chapterResult);
     if (chapterResult.code === 200) {
       chapterList.value = chapterResult.data.records;
-      hasNextChapter = chapterResult.data.hasNext;
+      hasNextChapter.value = chapterResult.data.hasNext;
     }
   } catch (error) {
     console.error('Error fetching book data:', error);
@@ -262,7 +270,6 @@
       }
     ]
   })
-
 </script>
 
 <style lang="scss" scoped>
@@ -296,7 +303,7 @@
     text-decoration: none;
   }
   .breadcrumb a:hover {
-    color: #e74c3c;
+    // color: #e74c3c;
   }
   .book-info {
     position: absolute;
@@ -373,6 +380,7 @@
     cursor: pointer;
     font-size: 14px;
     transition: background-color 0.3s;
+    text-align: center;
   }
   .btn-read-now:hover {
     background-color: #d35400;
@@ -387,6 +395,7 @@
     cursor: pointer;
     font-size: 14px;
     transition: all 0.3s;
+    text-align: center;
   }
   .btn-add-to-bookshelf:hover {
     background-color: #e67e22;
@@ -506,7 +515,6 @@
     width: 58px;
     height: 22px;
     background: linear-gradient( 90deg, #FF9B51 0%, #ED5B00 100%);
-    // background-color: #666666;
     border-radius: 11px;
     font-family: PingFangSC, PingFang SC;
     font-weight: 400;

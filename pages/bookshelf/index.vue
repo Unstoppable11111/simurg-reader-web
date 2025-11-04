@@ -1,6 +1,6 @@
 <template>
   <div class="book-shelf-container">
-    <Header :margin-left="'244px'"/>
+    <Header :margin-left="'360px'"/>
     <div class="book-shelf-box">
       <!-- 左侧导航栏 -->
       <div class="book-shelf-left-nav-box">
@@ -49,7 +49,7 @@
               <img class="book-img" :src="book.coverImageUrl" :alt="book.title">
               <div class="book-title">{{ book.title }}</div>
               <div class="book-author">{{ book.penName }}</div>
-              <div class="book-read-history">{{ book.readHistory }}</div>
+              <div class="book-read-history">最近阅读至：第{{book.currentReadingChapterNumber}}章 {{ book.chapterTitle }}</div>
               <div class="book-operate">
                 <div class="continue-read">继续阅读</div>
                 <div class="book-delete" @click.stop="deleteBookShelf(book.bookId)">删除</div>
@@ -79,6 +79,7 @@
   // 定义响应式数据，用于跟踪当前激活的导航项
   const activeNav = ref('bookshelf');
   const router = useRouter()
+
   const userInfo = ref({});
   // 定义书籍数据
   const books = ref([]);
@@ -99,6 +100,8 @@
       console.log('加载我的书架数据', response);
       if (response.code === 200) {
         books.value = response.data.records;
+      } else if (response.code === 2008) {
+        router.push('/login');
       }
     } catch (error) {
       console.error('获取用户收藏的书籍失败：', error);
@@ -162,15 +165,16 @@
 .book-shelf-container {
   display: flex;
   flex-direction: column;
-  align-items: center;
 }
 .book-shelf-box {
   display: flex;
+  width: 1200px;
   margin-top: 122px;
 }
 .book-shelf-left-nav-box {
   width: 220px;
   height: 100vh;
+  margin-left: 360px;
 }
 
 .author-avatar-box { 
@@ -180,6 +184,7 @@
   width: 220px;
   height: 198px;
   background: #424242;
+  border-radius: 6px 6px 0px 0px;
 }
 .author-avatar {
   width: 68px;
@@ -316,8 +321,8 @@
   margin-left: 24px;
 }
 .add-book-btn-box { 
-  width: 267px;
-  height: 315px;
+  width: 228px;
+  height: 302px;
   background: #424242;
   border-radius: 6px;
   text-align: center;
@@ -354,8 +359,8 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 267px;
-  height: 315px;
+  width: 227px;
+  height: 302px;
   background: #424242;
   border-radius: 6px;
 }
@@ -381,15 +386,19 @@
   filter: brightness(1.05);
 }
 .book-title {
+  width: 168px;
   font-family: PingFangSC, PingFang SC;
   font-weight: 600;
-  font-size: 18px;
+  font-size: 14px;
   color: #FFFFFF;
-  line-height: 25px;
+  line-height: 20px;
   text-align: center;
   font-style: normal;
   margin-top: 18px;
   padding: 0 8.5px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;  
   cursor: pointer;
   &:hover {
     color: #F96E08;
@@ -398,9 +407,9 @@
 .book-author {
   font-family: PingFangSC, PingFang SC;
   font-weight: 400;
-  font-size: 14px;
+  font-size: 12px;
   color: #A2A0A0;
-  line-height: 20px;
+  line-height: 17px;
   text-align: left;
   font-style: normal;
   margin-top: 4px;
@@ -412,9 +421,9 @@
 .book-read-history {
   font-family: PingFangSC, PingFang SC;
   font-weight: 400;
-  font-size: 14px;
+  font-size: 12px;
   color: #A2A0A0;
-  line-height: 20px;
+  line-height: 17px;
   text-align: left;
   font-style: normal;
   cursor: pointer;

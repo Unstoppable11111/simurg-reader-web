@@ -1,6 +1,6 @@
 <template>
   <div class="book-cate-container">
-    <Header :margin-left="'244px'"/>
+    <Header :margin-left="'360px'"/>
     <div class="book-cate-box">
       <!-- Breadcrumb navigation -->
       <div class="breadcrumb">
@@ -15,21 +15,16 @@
           </div>
           <div class="book-cate-item-box">
             <div class="without-div"><span class="without-limit">不限</span></div>
-            <span class="book-cate-item">古言风情</span>
-            <span class="book-cate-item">现代甜宠</span>
-            <span class="book-cate-item">古言风情</span>
-            <span class="book-cate-item">古言风情</span>
-            <span class="book-cate-item">古言风情</span>
-            <span class="book-cate-item">古言风情</span>
-            <span class="book-cate-item">古言风情</span>
-            <span class="book-cate-item">现代甜宠</span>
-            <span class="book-cate-item">古言风情</span>
-            <span class="book-cate-item">古言风情</span>
-            <span class="book-cate-item">古言风情</span>
-            <span class="book-cate-item">古言风情</span>
-            <span class="book-cate-item">古言风情</span>
-            <span class="book-cate-item">现代甜宠</span>
-            <span class="book-cate-item">古言风情</span>
+            <span  
+              v-for="bookCate in bookCateList"
+              :key="bookCate.categoryId"
+              class="book-cate-item"
+              :class="{'book-cate-item-active' : selectedCategoryId === bookCate.categoryId}"
+              :data-category-id="bookCate.categoryId"
+              @click="selectCategory(bookCate.categoryId)"
+             >
+              {{bookCate.categoryName}}
+            </span>
           </div>
         </div>
 
@@ -38,10 +33,10 @@
             状态
             <div class="book-cate-content-title-shadow"></div>
           </div>
-          <div class="book-cate-item-box">
+          <div class="book-status-item-box">
             <div class="without-div"><span class="without-limit">不限</span></div>
-            <span class="book-cate-item">完结</span>
-            <span class="book-cate-item">连载</span>
+            <span class="book-status-item" :class="{'book-status-item-active' : selectedStatus === 1}" @click="selectStatus(1)">完结</span>
+            <span class="book-status-item" :class="{'book-status-item-active' : selectedStatus === 0}" @click="selectStatus(0)">连载</span>
           </div>
         </div>
 
@@ -50,13 +45,13 @@
             字数
             <div class="book-cate-content-title-shadow"></div>
           </div>
-          <div class="book-cate-item-box">
+          <div class="book-word-item-box">
             <div class="without-div"><span class="without-limit">不限</span></div>
-            <span class="book-cate-item">5万</span>
-            <span class="book-cate-item">10万</span>
-            <span class="book-cate-item">15万</span>
-            <span class="book-cate-item">20万</span>
-            <span class="book-cate-item">20万以上</span>
+            <span class="book-word-item" :class="{'book-word-item-active' : selectedWord === 50000}"  @click="selectWord(50000)">5万</span>
+            <span class="book-word-item" :class="{'book-word-item-active' : selectedWord === 100000}"  @click="selectWord(100000)">10万</span>
+            <span class="book-word-item" :class="{'book-word-item-active' : selectedWord === 150000}"  @click="selectWord(150000)">15万</span>
+            <span class="book-word-item" :class="{'book-word-item-active' : selectedWord === 200000}"  @click="selectWord(200000)">20万</span>
+            <span class="book-word-item" :class="{'book-word-item-active' : selectedWord === 200001}"  @click="selectWord(200001)">20万以上</span>
           </div>
         </div>
 
@@ -64,7 +59,25 @@
 
       <!-- 按照分类查找书籍 -->
       <div class="book-cate-book-list">
-        <div class="book-cate-book-item">
+        <div class="book-cate-book-item"
+          v-for="book in libraryBookList">
+          <img class="book-img" :src="book.coverImageUrl" :alt="book.title">
+          <div class="item-book-info">
+            <span class="book-title">{{ book.title }}</span>
+            <span class="book-desc">【穿越+爽文】穿越成年文中的炮灰女配，带全家逆袭！穿越成年文中的炮灰女配，带全家逆袭！穿越成年文中的炮灰女配，带全家逆袭！</span>
+            <span class="book-author"> 田拽拽 </span>
+            <div class="book-tag">
+              <span class="book-status"> {{ formatSerialStatus(book.serialStatus) }} </span>
+              <div class="devier"></div>
+              <span class="tag"> {{book.tag}} </span>
+              <div class="devier"></div>
+              <span class="book-hot">1.1万热度</span>
+            </div>
+          </div>
+        </div> 
+
+        
+        <!-- <div class="book-cate-book-item">
           <img class="book-img" src="https://www.tata2025.xyz/uploads/2025/09/19/91f22daced2b37eab5022fe3f7a8a598.jpeg" alt="">
           <div class="item-book-info">
             <span class="book-title">穿越七零：大佬的小作精又娇又飒</span>
@@ -112,41 +125,9 @@
               <span class="book-hot">1.1万热度</span>
             </div>
           </div>
-        </div> 
+        </div>  -->
 
         
-        <div class="book-cate-book-item">
-          <img class="book-img" src="https://www.tata2025.xyz/uploads/2025/09/19/91f22daced2b37eab5022fe3f7a8a598.jpeg" alt="">
-          <div class="item-book-info">
-            <span class="book-title">穿越七零：大佬的小作精又娇又飒</span>
-            <span class="book-desc">【穿越+爽文】穿越成年文中的炮灰女配，带全家逆袭！穿越成年文中的炮灰女配，带全家逆袭！穿越成年文中的炮灰女配，带全家逆袭！</span>
-            <span class="book-author">墨香</span>
-            <div class="book-tag">
-              <span class="book-status">已完结</span>
-              <div class="devier"></div>
-              <span class="tag">重生</span>
-              <div class="devier"></div>
-              <span class="book-hot">1.1万热度</span>
-            </div>
-          </div>
-        </div> 
-
-        
-        <div class="book-cate-book-item">
-          <img class="book-img" src="https://www.tata2025.xyz/uploads/2025/09/19/91f22daced2b37eab5022fe3f7a8a598.jpeg" alt="">
-          <div class="item-book-info">
-            <span class="book-title">穿越七零：大佬的小作精又娇又飒</span>
-            <span class="book-desc">【穿越+爽文】穿越成年文中的炮灰女配，带全家逆袭！穿越成年文中的炮灰女配，带全家逆袭！穿越成年文中的炮灰女配，带全家逆袭！</span>
-            <span class="book-author">墨香</span>
-            <div class="book-tag">
-              <span class="book-status">已完结</span>
-              <div class="devier"></div>
-              <span class="tag">重生</span>
-              <div class="devier"></div>
-              <span class="book-hot">1.1万热度</span>
-            </div>
-          </div>
-        </div> 
       </div>
 
       <div class="no-more">暂无更多内容</div>
@@ -156,6 +137,69 @@
 
 <script setup>
   import Header from "@/components/layout/Header.vue";
+  import { formatTimestamp, formatSerialStatus } from '@/utils/dataFormatter';
+  const bookCateList = ref([])
+  const selectedCategoryId = ref(null)
+  const selectedStatus = ref(null)
+  const selectedWord = ref(null)
+  const libraryBookList = ref([])
+
+   // 选择分类的处理函数
+  const selectCategory = (categoryId) => {
+    console.log(`选择了${categoryId}分类:`);
+    selectedCategoryId.value = categoryId
+    console.log(`当前分类ID${selectedCategoryId.value}`);
+  };
+
+  const selectStatus = (status) => { 
+    console.log(`选择了${status}类型:`);
+    selectedStatus.value = status
+    console.log(`当前状态${selectedStatus.value}`);
+  };
+
+  const selectWord = (word) => { 
+    console.log(`选择了${word}字数:`);
+    selectedWord.value = word
+    console.log(`当前字数${selectedWord.value}`);
+  };
+
+    // 获取书籍分类
+  try {
+    const bookCateResult = await apiRequest(API_ENDPOINTS.CATEGORIES, {
+      method: 'POST',
+      body: JSON.stringify({})
+    });
+    console.log("分类类型", bookCateResult)
+    if (!bookCateResult.code === 200) {
+      throw new Error(`HTTP error! status: ${bookCateResult.status}`)
+    }
+    
+    const result = await bookCateResult
+    
+    if (result.code === 200 && Array.isArray(result.data)) {
+      bookCateList.value = result.data;
+    }
+  } catch (error) {
+  }
+
+  // 根据选择类型，获取分类书籍列表
+  try {
+    const libraryBookListReq = {
+      categoryId: selectedCategoryId.value,
+      status: selectedStatus.value,
+      word: selectedWord.value,
+      page: 1,
+      size: 10
+    }
+    const libraryBookListResult = await apiRequest(API_ENDPOINTS.LIST_LIBRARY_BOOKS, {
+      method: 'POST',
+      body: JSON.stringify(libraryBookListReq)
+    });
+    console.log("根据分类获取书籍列表内容", libraryBookListResult);
+    libraryBookList.value = libraryBookListResult.data.records;
+  } catch (error) { 
+  }
+
 </script>
 
 <style lang="scss" scoped>
@@ -163,13 +207,13 @@
   .book-cate-container {
     display: flex;
     flex-direction: column;
-    align-items: center;
   }
   .book-cate-box {
     width: 1200px;
     height: 292px;
-    margin: 0 auto;
+    // margin: 0 auto;
     padding-top: 80px;
+    margin-left: 360px;
   }
   .breadcrumb {
     color: #fff;
@@ -215,10 +259,10 @@
     background: rgba(246,78,5,0.6);
     filter: blur(5px);
   }
-  .book-cate-item-box {
+  .book-cate-item-box, .book-status-item-box, .book-word-item-box {
     display: flex;
     flex-wrap: wrap;
-    justify-content: center;
+    // justify-content: center;
     // gap: 24px;
   }
   .without-div {
@@ -248,8 +292,12 @@
     background-clip: text; 
     text-fill-color: transparent; 
   }
-  .book-cate-item {
-    width: 90px;
+  .book-cate-item-box .book-cate-item ~ .book-cate-item,
+  .book-status-item-box .book-status-item ~ .book-status-item,
+  .book-word-item-box .book-word-item ~ .book-word-item{
+    margin-left: 58px;
+  }
+  .book-cate-item, .book-status-item, .book-word-item {
     height: 30px;
     border-radius: 15px;
     font-family: PingFangSC, PingFang SC;
@@ -259,8 +307,52 @@
     line-height: 30px;
     text-align: center;
     font-style: normal;
-    margin-left: 24px;
+    margin-left: 41px;
     margin-bottom: 29px;
+    &:hover {
+      cursor: pointer;
+    }
+  }
+  
+  .book-cate-item-active , .book-word-item-active {
+    font-family: PingFangSC, PingFang SC;
+    font-weight: 600;
+    font-size: 14px;
+    color: #F96E08;
+    line-height: 30px;
+    text-align: center;
+    font-style: normal;
+    // background: linear-gradient(0deg, #FF9B51 0%, #ED5B00 100%);
+    /* 渐变背景，这里用红→橙示例，可自定义颜色、方向 */
+    background: linear-gradient(0deg, #FF9B51 0%, #ED5B00 100%);
+    /* 关键：让背景裁剪成文字形状 */
+    -webkit-background-clip: text; 
+    /* 文字填充色设透明，让渐变背景透出来 */
+    -webkit-text-fill-color: transparent; 
+    /* 兼容其他浏览器 */
+    background-clip: text; 
+    text-fill-color: transparent; 
+  }
+  .book-status-item-active {
+    width: 58px;
+    height: 30px;
+    font-family: PingFangSC, PingFang SC;
+    font-weight: 600;
+    font-size: 14px;
+    color: #F96E08;
+    line-height: 30px;
+    text-align: center;
+    font-style: normal;
+    // background: linear-gradient(0deg, #FF9B51 0%, #ED5B00 100%);
+    /* 渐变背景，这里用红→橙示例，可自定义颜色、方向 */
+    background: linear-gradient(0deg, #FF9B51 0%, #ED5B00 100%);
+    /* 关键：让背景裁剪成文字形状 */
+    -webkit-background-clip: text; 
+    /* 文字填充色设透明，让渐变背景透出来 */
+    -webkit-text-fill-color: transparent; 
+    /* 兼容其他浏览器 */
+    background-clip: text; 
+    text-fill-color: transparent; 
   }
   .book-cate-book-list {
     display: flex;
@@ -337,7 +429,6 @@
     font-style: normal;
   }
   .devier {
-    width: 1px;
     height: 10px;
     border: 1px solid #A2A0A0;
   }
@@ -353,5 +444,6 @@
     text-align: center;
     font-style: normal;
     margin-top: 30px;
+    padding-bottom: 60px;
   }
 </style>
