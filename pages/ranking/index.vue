@@ -274,7 +274,6 @@
     // }
   }
   .ranking-book-item:hover {
-    /* 只改变容器背景，不影响子元素 */
     background: linear-gradient(270deg, #FE5C54 0%, #F1951E 100%);
     opacity: 0.4;
   }

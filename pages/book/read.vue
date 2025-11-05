@@ -1,15 +1,10 @@
 <template>
-  <div class="reading-page" :class="{'blur-effect' : showToc}" @click="handlePageClick">
+  <div class="reading-page" ref="pageRef" :class="{'blur-effect' : showToc}" @click="handlePageClick">
     <div class="reading-container" ref="mainContentRef">
       <div class="back-book-detail"><a :href="`/book/${bookId}`">< {{ book.title }}</a></div>
       <div class="book-table-content">
         <div class="book-table-title">第{{ book.chapterNumber }}章 {{ book.chapterTitle }}</div>
-        <!-- <div class="book-table-title">第{{ book.tableOfContents[0].chapterNumber }}章 {{ book.tableOfContents[0].title }}</div> -->
         <div class="book-info-box">
-          <!-- <div class="boo-info-box-div">
-            <label class="book-info-label">书名：</label>
-            <span class="book-info-value book-title">{{ book.title }}</span>
-          </div> -->
 
           <div class="boo-info-box-div">
             <label class="book-info-label">作者：</label>
@@ -29,7 +24,7 @@
         <div class="book-delimiter"></div>
       </div>
 
-      <div class="book-content">
+      <div class="book-content" ref="bookContentRef">
         <p class="book-text">{{ book.chapterContent }}</p>
       </div>
 
@@ -57,18 +52,20 @@
   <!-- 目录侧边栏 -->
   <div v-if="showToc" class="toc-sidebar" :style="{ left: sidebarLeft + 'px' }" @click.stop>
     <div class="toc-header">
-      <img class="book-img" src="https://www.tata2025.xyz/uploads/2025/09/19/91f22daced2b37eab5022fe3f7a8a598.jpeg" alt="">
+      <img class="book-img" :src="book.coverImageUrl" alt="">
       <div class="table-info-box">
-        <span class="table-info-book-title">我不是戏神</span>
-        <span class="table-info-book-status">连载中·2小时前更新</span>
-        <span class="table-info-book-author">田拽拽</span>
+        <span class="table-info-book-title"> {{ book.title }} </span>
+        <span class="table-info-book-status"> {{ formatSerialStatus(book.serialStatus) }} </span>
+        <span class="table-info-book-author"> {{ book.authorPenName }} </span>
       </div>
     </div>
     <div class="toc-list">
       <div class="table-of-box">
         <span class="table-of-title">目录 ·  {{ chapterCount }}</span>
-        <button class="sort-asc-btn" @click="sortAsc" @click.stop>正序</button>
-        <button class="sort-desc-btn" @click="sortDesc" @click.stop>倒序</button>
+        <div class="sort-btn">
+          <button class="sort-asc-btn" :class="{'active' : sortOrder === 'asc'}" @click="sortAsc" @click.stop>正序</button>
+          <button class="sort-desc-btn" :class="{'active' : sortOrder === 'desc'}" @click="sortDesc" @click.stop>倒序</button>
+        </div>
       </div>
       <div class="table-of-content-list">
         <div class="table-of-content-item"
@@ -83,15 +80,44 @@
       </div>
     </div>
   </div>
-
   <!-- 蒙层遮罩 -->
   <div v-if="showToc" class="overlay" @click="closeToc"></div>
+  <!-- 设置侧边栏 -->
+  <div v-if="showSettings" class="settings-sidebar" :style="{ left: settingsSidebarLeft + 'px' }" @click.stop>
+    <div class="close-settings" @click="closeSettings">
+      x
+    </div>
+    <div class="settings-sidebar-title">
+      设置
+    </div>
+    <div class="settings-bg-box">
+      <div class="settings-bg-title">阅读背景</div>
+      <div class="bg-one" :class="{'active-bg' : activeBackground === 'bg-one'}" @click="setBackground('bg-one')"></div>
+      <div class="bg-two" :class="{'active-bg' : activeBackground === 'bg-two'}" @click="setBackground('bg-two')"></div>
+      <div class="bg-three" :class="{'active-bg' : activeBackground === 'bg-three'}" @click="setBackground('bg-three')"></div>
+      <div class="bg-fore" :class="{'active-bg' : activeBackground === 'bg-fore'}" @click="setBackground('bg-fore')"></div>
+      <div class="bg-five" :class="{'active-bg' : activeBackground === 'bg-five'}" @click="setBackground('bg-five')"></div>
+      <div class="bg-default" :class="{'active-bg' : activeBackground === 'bg-default'}" @click="setBackground('bg-default')"></div>
+    </div>
+    <div class="settings-font-size">
+      <div class="settings-font-size-title">字体大小</div>
+      <button class="settings-font-reduce" @click="decreaseFontSize">A-</button>
+      <button class="settings-font-eighteen"> {{fontSize}} </button>
+      <button class="settings-font-increase" @click="increaseFontSize">A+</button>
+    </div>
+    <div class="settings-font">
+      <div class="settings-font-title">正文字体</div>
+      <button class="system-font" :class="{'active-font' : activeFont === 'system'}" @click="setFont('system')">系统</button>
+      <button class="black-font" :class="{'active-font' : activeFont === 'black'}" @click="setFont('black')">黑体</button>
+      <button class="song-font" :class="{'active-font' : activeFont === 'song'}" @click="setFont('song')">宋体</button>
+    </div>
+  </div>
 </template>
 
 <script setup>
-import { NuxtLink } from '#components'
 import { API_ENDPOINTS, apiRequest } from '@/utils/api.js'
-import { formatTimestamp, formatSerialStatus } from '@/utils/dataFormatter';
+import { formatSerialStatus } from '@/utils/dataFormatter';
+
 
 
 // 获取路由参数
@@ -102,11 +128,60 @@ const bookId = route.query.book
 const chapterNumber = computed(() => route.query.chapter || '1')
 const book = ref({})
 const showToc = ref(false)
+const showSettings = ref(false)
 const mainContentRef = ref(null)
+const pageRef = ref(null)
+const bookContentRef = ref(null)
 const sidebarLeft = ref(0)
+const settingsSidebarLeft = ref(0)
 const chapterCount = ref(0)
 const chapterList = ref([])
+const sortOrder = ref('asc')
+const activeBackground = ref('bg-default')
+const backgroundColors = {
+  'bg-one': '#2D2D2D',
+  'bg-two': '#C3D1D9',
+  'bg-three': '#DACE',
+  'bg-fore': '#DDEAD7',
+  'bg-five': '#F0CDCE',
+  'bg-default': '#171617'
+}
+const activeFont = ref('system')
+const fontFamilies = {
+  'system': 'PingFangSC, PingFang SC',
+  'black': '黑体, SimHei',
+  'song': '宋体, SimSun'
+}
+const fontSize = ref(18)
+const minFontSize = 12
+const maxFontSize = 48
+const fontSizeStep = 2
 
+// 增加字体大小
+const increaseFontSize = () => { 
+  if (fontSize.value < maxFontSize) {
+    fontSize.value = Math.min(fontSize.value + fontSizeStep, maxFontSize)
+    applyFontSize()
+  }
+}
+
+// 减少字体大小
+const decreaseFontSize = () => {
+  if (fontSize.value > minFontSize) {
+    fontSize.value = Math.max(fontSize.value - fontSizeStep, minFontSize)
+    applyFontSize()
+  }
+}
+
+// 应用字体大小到阅读内容
+const applyFontSize = () => {
+  if (mainContentRef.value) {
+    const bookTextElements = mainContentRef.value.querySelectorAll('.book-text')
+    bookTextElements.forEach(element => {
+      element.style.fontSize = `${fontSize.value}px`
+    })
+  }
+}
 
 const fetchChapterContent = async (chapterNum) => { 
   try {
@@ -131,23 +206,26 @@ fetchChapterContent(chapterNumber.value)
 /**
  * 获取所有已发布的章节信息
  */
-try {
-  const listPublishedChaptersReq = {
-    bookId: bookId,
-    page: 1,
-    size: 10
+const fetchAllPublishedChapters = async () => { 
+  try {
+    const listPublishedChaptersReq = {
+      bookId: bookId,
+      orderDirection: sortOrder.value,
+      page: 1,
+      size: 10
+    }
+    const listPublishedChaptersResult = await apiRequest(API_ENDPOINTS.LIST_PUBLISHED_CHAPTERS, {
+        method: "POST",
+        body: JSON.stringify(listPublishedChaptersReq),
+    });
+    console.log("获取所有已发布的章节信息结果：｛｝", listPublishedChaptersResult);
+    console.log("获取所有已发布的章节信息结果records：｛｝", listPublishedChaptersResult.data.records);
+    if (listPublishedChaptersResult.code === 200) {
+      chapterCount.value = listPublishedChaptersResult.data.records.length;
+      chapterList.value = listPublishedChaptersResult.data.records;
+    }
+  } catch (error){
   }
-  const listPublishedChaptersResult = await apiRequest(API_ENDPOINTS.LIST_PUBLISHED_CHAPTERS, {
-      method: "POST",
-      body: JSON.stringify(listPublishedChaptersReq),
-  });
-  console.log("获取所有已发布的章节信息结果：｛｝", listPublishedChaptersResult);
-  console.log("获取所有已发布的章节信息结果records：｛｝", listPublishedChaptersResult.data.records);
-  if (listPublishedChaptersResult.code === 200) {
-    chapterCount.value = listPublishedChaptersResult.data.records.length;
-    chapterList.value = listPublishedChaptersResult.data.records;
-  }
-} catch (error){
 }
 const nextPage = async() => { 
   console.log("获取下一页内容");
@@ -188,10 +266,23 @@ const closeToc = () => {
   console.log('关闭目录');
 }
 
+// 点击设置
+const openSettings = () => { 
+  showSettings.value = true
+}
+
+// 关闭设置
+const closeSettings = () => { 
+  showSettings.value = false
+}
+
 const handlePageClick = (event) => { 
   console.log('点击页面');
   if (showToc.value) {
     closeToc();
+  }
+  if (showSettings.value) {
+    closeSettings();
   }
 }
 
@@ -202,16 +293,36 @@ const goToChapter = async (chapterNumber) => {
   await fetchChapterContent(chapterNumber);
   closeToc();
 }
-const openSettings = () => { 
-  console.log('打开设置');
-}
 
-const sortAsc = () => {
+const sortAsc = async () => {
   console.log("获取章节内容升序");
+  sortOrder.value = 'asc'
+  await fetchAllPublishedChapters();
 }
 
-const sortDesc = () => { 
+const sortDesc = async () => { 
   console.log("获取章节内容降序");
+  sortOrder.value = 'desc'
+  await fetchAllPublishedChapters();
+}
+
+const setBackground = (bgClass) => { 
+  activeBackground.value = bgClass
+  // 应用背景色到阅读容器
+  if (pageRef.value) {
+    pageRef.value.style.backgroundColor = backgroundColors[bgClass]
+  }
+}
+
+const setFont = (fontClass) => { 
+  activeFont.value = fontClass
+  // 应用字体到阅读内容
+  if (mainContentRef.value) {
+    const bookTextElements = mainContentRef.value.querySelectorAll('.book-text')
+    bookTextElements.forEach(element => {
+      element.style.fontFamily = fontFamilies[fontClass]
+    })
+  }
 }
 
 // 判断当前章节是否为当前章节
@@ -224,7 +335,9 @@ const setSidebarPosition = async() => {
   if (mainContentRef.value) {
     const mainRect = mainContentRef.value.getBoundingClientRect();
     sidebarLeft.value = mainRect.right - 400; // 目录左侧 = 主视图右侧
+    settingsSidebarLeft.value = mainRect.right - 336;
     console.log("目录位置：", sidebarLeft.value);
+    console.log("目录位置：", settingsSidebarLeft.value);
   }
 };
 
@@ -250,6 +363,7 @@ onMounted(async () => {
   }catch (error){
   }
   await fetchChapterContent(chapterNumber);
+  await fetchAllPublishedChapters();
   nextTick(setSidebarPosition); // 确保 DOM 渲染完成后执行
   // 监听滚动和 resize 事件
   // window.addEventListener('scroll', setSidebarPosition);
@@ -438,7 +552,7 @@ watch(
   text-align: left;
   font-style: normal;
   padding: 0 50px;
-  line-height: 40px;
+  line-height: 48px;
 }
 
 .pagination {
@@ -587,6 +701,7 @@ watch(
   height: 72px;
   object-fit: cover;
   margin-left: 30px;
+  border-radius: 4px;
 }
 .table-info-box {
   display: flex;
@@ -601,6 +716,7 @@ watch(
   line-height: 20px;
   text-align: left;
   font-style: normal;
+  margin-top: 4px;
 }
 .table-info-book-status {
   font-family: PingFangSC, PingFang SC;
@@ -610,6 +726,7 @@ watch(
   line-height: 14px;
   text-align: left;
   font-style: normal;
+  margin-top: 7px;
 }
 .table-info-book-author {
   font-family: PingFangSC, PingFang SC;
@@ -619,6 +736,7 @@ watch(
   line-height: 17px;
   text-align: left;
   font-style: normal;
+  margin-top: 6px;
 }
 .toc-list {
   margin-top: 40px;
@@ -636,38 +754,42 @@ watch(
   text-align: center;
   font-style: normal;
 }
-.sort-asc-btn {
-  position: absolute;
-  right: 72px;
-  width: 44px;
-  height: 24px;
-  background: linear-gradient( 90deg, #FF9B51 0%, #ED5B00 100%);
-  border-radius: 16px;
-  font-family: PingFangSC, PingFang SC;
-  font-weight: 400;
-  font-size: 12px;
-  color: #000000;
-  line-height: 24px;
-  text-align: center;
-  font-style: normal;
-  z-index: 2;
-}
-.sort-desc-btn {
+.sort-btn {
   position: absolute;
   right: 30px;
   width: 86px;
   height: 24px;
   background: #242424;
   border-radius: 16px;
+  text-align: center;
+}
+.sort-asc-btn, .sort-desc-btn {
+  position: absolute;
+  width: 44px;
+  height: 24px;
+  border-radius: 16px;
   font-family: PingFangSC, PingFang SC;
   font-weight: 400;
   font-size: 12px;
   color: #A2A0A0;
   line-height: 24px;
-  text-align: right;
+  text-align: center;
   font-style: normal;
-  z-index: 1;
-  padding-right: 10px;
+  z-index: 2;
+  border: none;
+  cursor: pointer;
+  
+  &.active {
+    background: linear-gradient(90deg, #FF9B51 0%, #ED5B00 100%);
+    color: #000000;
+  }
+}
+.sort-asc-btn {
+  right: 42px;
+}
+
+.sort-desc-btn {
+  right: 0px;
 }
 .table-of-content-list {
   display: flex;
@@ -770,6 +892,188 @@ watch(
   color: #f96e08;
 }
 
+// 设置样式
+.settings-sidebar { 
+  width: 336px;
+  height: 260px;
+  background: #343434;
+  position: fixed;
+  top: 416px;
+}
+.close-settings {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 12px;
+  height: 12px;
+  line-height: 8px;
+  text-align: center;
+  background: #535353;
+  color: #979797;
+  border-radius: 50%;
+  &:hover {
+    cursor: pointer;
+  }
+}
+.settings-sidebar-title {
+  font-family: PingFangSC, PingFang SC;
+  font-weight: 400;
+  font-size: 16px;
+  color: #A2A0A0;
+  line-height: 22px;
+  text-align: left;
+  font-style: normal;
+  margin: 42px 0 0 30px;
+}
+.settings-bg-box {
+  width: 252px;
+  height: 24px;
+  display: flex;
+  margin: 32px 0 0 30px;
+}
+.settings-bg-title {
+  width: 48px;
+  height: 17px;
+  font-family: PingFangSC, PingFang SC;
+  font-weight: 400;
+  font-size: 12px;
+  color: #A2A0A0;
+  line-height: 24px;
+  text-align: left;
+  font-style: normal;
+}
+.bg-one, .bg-two, .bg-three, .bg-fore, .bg-five, .bg-default {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  margin-left: 8px;
+}
+.bg-one {
+  background: #2D2D2D;
+  margin-left: 18px;
+}
+.bg-two {
+  background: #C3D1D9;
+}
+.bg-three {
+  background: #DACE
+}
+.bg-fore {
+  background: #DDEAD7;
+}
+.bg-five {
+  background: #F0CDCE;
+}
+.bg-default {
+  background: #171617;
+}
+.active-bg {
+  border: 1px solid #F96E08;
+  text-align: center;
+  &:after {
+    content: "✓";
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 12px;
+    color: #F96E08;
+    font-weight: bold;
+    line-height: 1;
+  }
+}
+.settings-font-size {
+  width: 250px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  margin: 20px 0 0 30px;
+}
+.settings-font-size-title {
+  width: 48px;
+  height: 17px;
+  font-family: PingFangSC, PingFang SC;
+  font-weight: 400;
+  font-size: 12px;
+  color: #A2A0A0;
+  line-height: 17px;
+  text-align: left;
+  font-style: normal;
+}
+.settings-font-reduce {
+  width: 60px;
+  height: 30px;
+  border-radius: 6px 0px 0px 6px;
+  border: 1px solid #646261;
+  font-family: PingFangSC, PingFang SC;
+  font-weight: 600;
+  font-size: 12px;
+  color: #A2A0A0;
+  line-height: 17px;
+  text-align: center;
+  font-style: normal;
+  margin-left: 18px;
+}
+.settings-font-eighteen {
+  width: 64px;
+  height: 30px;
+  border: 1px solid #646261;
+  font-family: PingFangSC, PingFang SC;
+  font-weight: 600;
+  font-size: 12px;
+  color: #A2A0A0;
+  line-height: 17px;
+  text-align: center;
+  font-style: normal;
+}
+.settings-font-increase {
+  width: 60px;
+  height: 30px;
+  border-radius: 0px 6px 6px 0px;
+  border: 1px solid #646261;
+  font-family: PingFangSC, PingFang SC;
+  font-weight: 600;
+  font-size: 12px;
+  color: #A2A0A0;
+  line-height: 17px;
+  text-align: center;
+  font-style: normal;
+}
+.settings-font {
+  width: 250px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  margin: 20px 0 0 30px;
+}
+.settings-font-title {
+  font-family: PingFangSC, PingFang SC;
+  font-weight: 400;
+  font-size: 12px;
+  color: #A2A0A0;
+  line-height: 17px;
+  text-align: left;
+  font-style: normal;
+}
+.system-font, .black-font, .song-font {
+  width: 56px;
+  height: 30px;
+  border-radius: 6px;
+  border: 1px solid #646261;
+  font-family: PingFangSC, PingFang SC;
+  font-weight: 400;
+  font-size: 12px;
+  color: #A2A0A0;
+  text-align: center;
+  font-style: normal;
+  margin-left: 8px;
+}
+.system-font {
+  margin-left: 18px;
+}
+.active-font {
+  border: 1px solid #F96E08;
+  color: #F96E08;
+}
 /* 蒙层 */
  overlay {
   position: fixed;
