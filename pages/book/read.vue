@@ -1,6 +1,6 @@
 <template>
   <div class="reading-page" ref="pageRef" :class="{'blur-effect' : showToc}" @click="handlePageClick">
-    <div class="reading-container" ref="mainContentRef">
+    <div class="reading-container" ref="mainContentRef" :style="{ marginRight: containerMarginRight} ">
       <div class="back-book-detail"><a :href="`/book/${bookId}`">< {{ book.title }}</a></div>
       <div class="book-table-content">
         <div class="book-table-title">第{{ book.chapterNumber }}章 {{ book.chapterTitle }}</div>
@@ -24,15 +24,24 @@
         <div class="book-delimiter"></div>
       </div>
 
-      <div class="book-content" ref="bookContentRef">
-        <p class="book-text">{{ book.chapterContent }}</p>
+      <!-- <div class="book-content" ref="bookContentRef" @mouseup="handleTextSelection" @selectstart.prevent> -->
+      <div class="book-content" ref="bookContentRef" @mouseup="handleTextSelection">
+        <!-- <p class="book-text">{{ chapterContent }}</p> -->
+        <p
+          v-for="bookParagraph in chapterContent"
+          :key="bookParagraph.id"
+          class="book-text"
+          @click="handleParagraphClick(bookParagraph)"
+        >
+          {{ bookParagraph.content }}
+        </p>
       </div>
 
       <button class="next-page-btn" @click="nextPage" @click.stop>下一页</button>
 
 
       <!-- 悬浮按钮 -->
-      <div class="floating-buttons">
+      <div class="floating-buttons" :style="floatingButtonStyle">
         <button class="floating-btn" @click="addToBookshelf" @click.stop>
           <span class="btn-icon">📚</span>
           <span class="btn-text">加入书架</span>
@@ -82,6 +91,7 @@
   </div>
   <!-- 蒙层遮罩 -->
   <div v-if="showToc" class="overlay" @click="closeToc"></div>
+
   <!-- 设置侧边栏 -->
   <div v-if="showSettings" class="settings-sidebar" :style="{ left: settingsSidebarLeft + 'px' }" @click.stop>
     <div class="close-settings" @click="closeSettings">
@@ -112,13 +122,71 @@
       <button class="song-font" :class="{'active-font' : activeFont === 'song'}" @click="setFont('song')">宋体</button>
     </div>
   </div>
+
+  <!-- 评论框展示 -->
+  <div v-if="showComment" class="comment-container" :style="{ left: commentLeft + 'px' }">
+    <div class="comment-box">
+      <!-- 评论列表展示框 -->
+      <div class="comment-list-box" v-if="haveComment">
+        <div class="close-comment-box" @click="closeCommentBox">x</div>
+        <div class="comment-title">评论<span class="comment-count">{{paragraphCommentList.length}}条</span></div>
+        <div class="comment-item"
+              v-for="(comment, index) in paragraphCommentList"
+              :key="comment.commentId || index">
+          <div class="author-info">
+            <img class="commenter-img" src="http://www.tata2025.xyz/uploads/2025/10/21/2566ebd9-91e1-4d0c-b239-9d2e89b325de.png" alt="">
+            <span class="commenter-name">通天大道</span>
+          </div>
+          <p class="comment-content">{{comment.commentText}}</p>
+          <div class="comment-bottom-box">
+            <span class="comment-time"> {{ formatTimestamp(comment.commentDate) }} </span>
+            <button class="reply-btn">回复</button>
+            <span class="like-icon">❤</span>
+            <button class="like-btn">点赞</button>
+            <span class="unlike-icon">○</span>
+          </div>
+        </div>
+      </div>
+      <!-- 无评论展示框 -->
+      <div class="no-comment-box" v-else>
+        <div class="comment-title">评论</div>
+        <div class="no-comment-text">还没有人发表评论</div>
+      </div>
+      <!--  替换原有的 write-comment-box 部分 -->
+      <div class="write-comment-container">
+        <div class="write-comment-box">
+          <img class="writor-img" src="http://www.tata2025.xyz/uploads/2025/10/21/2566ebd9-91e1-4d0c-b239-9d2e89b325de.png" alt=""/>
+          <div class="textarea-container">
+            <textarea 
+              class="write-input" 
+              placeholder="请写下你的想法~" 
+              @input="handleCommentInput"
+              :class="{ 'expanded': showSubmitBox }"
+              v-model="commentText"
+            ></textarea>
+            
+            <div class="submit-comment-box" v-show="showSubmitBox">
+              <span class="emoji-box"></span>
+              <span class="upload-img"></span>
+              <span class="submit-word-count">{{ commentCount }}/500</span>
+              <button class="cancel-btn">取消</button>
+              <button class="submit-btn" @click="handleCommentSubmit(commentText)">发表</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup>
+import CryptoJS from 'crypto-js';
 import { API_ENDPOINTS, apiRequest } from '@/utils/api.js'
-import { formatSerialStatus } from '@/utils/dataFormatter';
+import { formatTimestamp, formatSerialStatus } from '@/utils/dataFormatter';
+import { useAuth } from '@/composables/useAuth';
 
 
+const DEFAULT_SECRET_KEY = 'JTDDnc1mrUf7TOfuX+9I4A==';
 
 // 获取路由参数
 const route = useRoute()
@@ -127,24 +195,59 @@ const bookId = route.query.book
 // const chapterNumber = route.query.chapter || '1'
 const chapterNumber = computed(() => route.query.chapter || '1')
 const book = ref({})
+const chapterContent = ref('')
 const showToc = ref(false)
 const showSettings = ref(false)
+const showComment = ref(false)
+const haveComment = ref(false)
+const paragraphCommentList = ref([])
 const mainContentRef = ref(null)
 const pageRef = ref(null)
 const bookContentRef = ref(null)
 const sidebarLeft = ref(0)
 const settingsSidebarLeft = ref(0)
+const commentLeft = ref(0)
 const chapterCount = ref(0)
 const chapterList = ref([])
 const sortOrder = ref('asc')
 const activeBackground = ref('bg-default')
-const backgroundColors = {
-  'bg-one': '#2D2D2D',
-  'bg-two': '#C3D1D9',
-  'bg-three': '#DACE',
-  'bg-fore': '#DDEAD7',
-  'bg-five': '#F0CDCE',
-  'bg-default': '#171617'
+const backgroundConfigs = {
+  'bg-one': {
+    pageBg: '#e3dada',
+    contentBg: '#ede1e1',
+    textColor: '#343434'
+  },
+  
+  'bg-two': {
+    pageBg: '#c3d1d9',
+    contentBg: '#D5E2E9',
+    textColor: '#343434'
+  },
+
+  'bg-three': {
+    pageBg: '#DACEAE',
+    contentBg: '#EADFC1',
+    textColor: '#343434'
+  },
+
+  'bg-fore': {
+    pageBg: '#C5D9BB',
+    contentBg: '#D2E3CA',
+    textColor: '#343434'
+  },
+
+  'bg-five': {
+    pageBg: '#E0BCBD',
+    contentBg: '#F0CDCE',
+    textColor: '#343434'
+  },
+
+  'bg-default': {
+    pageBg: '#171617',
+    contentBg: '#262626',
+    textColor: '#A2A0A0'
+  }
+
 }
 const activeFont = ref('system')
 const fontFamilies = {
@@ -156,6 +259,81 @@ const fontSize = ref(18)
 const minFontSize = 12
 const maxFontSize = 48
 const fontSizeStep = 2
+// 添加段评相关状态
+const selectedParagraph = ref(null);
+const showParagraphComment = ref(false);
+const selectedText = ref('')
+const selectionStart = ref(0)
+const selectionEnd = ref(0)
+const showCommentBox = ref(false)
+const commentContent = ref('')
+const showSubmitBox = ref(true);
+const commentText = ref('');
+const commentCount = computed(() => {
+  return commentText.value.length
+})
+const {isLoggedIn, isAuthor, userAvatar, userName} = useAuth();
+watch(isLoggedIn, (newVal) => {
+  console.log('isLoggedIn changed to:', newVal);
+}, { immediate: true });
+
+// 解密章节内容数据
+function decryptData(encryptedText) {
+  if (!encryptedText) return null;
+
+  try {
+    const parts = encryptedText.split(':');
+    if (parts.length !== 2) {
+      throw new Error('Invalid encrypted text format');
+    }
+    const ivBase64 = parts[0];
+    const encryptedDataBase64 = parts[1];
+    const iv = CryptoJS.enc.Base64.parse(ivBase64);
+    const encryptedData = CryptoJS.enc.Base64.parse(encryptedDataBase64);
+    // 1. 确保密钥是 Base64 解码后的字节数组
+    const key = CryptoJS.enc.Utf8.parse(DEFAULT_SECRET_KEY);
+    
+    // 2. 使用 ECB 模式 + PKCS7 填充
+    const decrypted = CryptoJS.AES.decrypt(
+      {ciphertext : encryptedData}, 
+      key, 
+      {
+        iv: iv,
+        mode: CryptoJS.mode.CBC,
+        padding: CryptoJS.pad.Pkcs7
+      }
+    );
+    console.log(decrypted)
+    console.log(decrypted.toString(CryptoJS.enc.Utf8))
+    // 3. 转换为 UTF-8 字符串
+    return decrypted.toString(CryptoJS.enc.Utf8);
+  } catch (e) {
+    console.error('解密失败:', e);
+    throw new Error('字符串解密失败');
+  }
+}
+
+// 章节内容分割函数
+function splitChapterContent(content) { 
+  if (!content) return [];
+  // 按照段落分隔符分割内容（设立假设段落之间有换行符)
+  const paragraphs = content.split('\\n');
+  console.log("分割后的段落========");
+  console.log(paragraphs)
+  let currentPosition = 0;
+  return paragraphs.map((text, index) => {
+    const paragraph = {
+      id: index,
+      content: text,
+      startIndex: currentPosition,
+      endIndex: currentPosition + text.length
+    };
+    // 更新位置指针，包括换行符的长度
+    currentPosition += text.length + 1;
+    return paragraph;
+  });
+
+}
 
 // 增加字体大小
 const increaseFontSize = () => { 
@@ -196,6 +374,8 @@ const fetchChapterContent = async (chapterNum) => {
     console.log("获取书籍详情信息结果：｛｝", getChapterDetailResult);
     if (getChapterDetailResult.code === 200) {
       book.value = getChapterDetailResult.data;
+      const decryptedContent = decryptData(book.value.chapterContent);
+      chapterContent.value = splitChapterContent(decryptedContent);
     }
     return book.value;
   }catch (error){
@@ -227,34 +407,130 @@ const fetchAllPublishedChapters = async () => {
   } catch (error){
   }
 }
+
+// 处理文本选择事件
+const handleTextSelection = (event) => {
+  const selection = window.getSelection()
+  if (selection && selection.toString().trim()) {
+    selectedText.value = selection.toString()
+    const range = selection.getRangeAt(0)
+    
+    // 获取选中文本在父元素中的相对位置
+    const bookTextElement = bookContentRef.value.querySelector('.book-text')
+    if (bookTextElement) {
+      const preSelectionRange = document.createRange()
+      preSelectionRange.selectNodeContents(bookTextElement)
+      preSelectionRange.setEnd(range.startContainer, range.startOffset)
+      
+      selectionStart.value = preSelectionRange.toString().length
+      selectionEnd.value = selectionStart.value + selectedText.value.length
+      console.log(`selectedText=${selectedText.value}, selectionStart=${selectionStart.value}, selectionEnd=${selectionEnd.value}`);
+      showCommentBox.value = true
+    }
+  }
+}
+
+const handleParagraphClick = (paragraph) => {
+  console.log('点击段落:', paragraph);
+  console.log(`段落范围: ${paragraph.startIndex} - ${paragraph.endIndex}`);
+  selectedParagraph.value = paragraph;
+  showParagraphComment.value = true;
+  // 打开评论弹框
+  showComment.value = true;
+  // TODO: 获取当前段落评论数据
+  fetchParagraphComments(selectedParagraph.value);
+}
+
+const fetchParagraphComments = async (paragraph) => { 
+  // api=/comment/list_with_paragraph
+  try {
+    const listWithParagraphReq = {
+      "bookId": bookId,
+      "chapterId": book.value.chapterId,
+      "paragraphStartPos": paragraph.startIndex,
+      "paragraphEndPos": paragraph.endIndex,
+      "page": 1,
+      "size": 10
+    }
+    console.log("获取段落评论请求参数：", listWithParagraphReq);
+    const listWithParagraphResult = await apiRequest(API_ENDPOINTS.LIST_COMMENTS, {
+      method: "POST",
+      body: JSON.stringify(listWithParagraphReq),
+    });
+    console.log("获取段落评论结果：｛｝", listWithParagraphResult);
+    if (listWithParagraphResult.code === 200 && listWithParagraphResult.data) {
+      if (listWithParagraphResult.data.size > 0) {
+        paragraphCommentList.value = listWithParagraphResult.data.records
+        haveComment.value = true;
+      } else {
+        paragraphCommentList.value = [];
+        haveComment.value = false;
+      }
+    } else {
+      paragraphCommentList.value = [];
+      haveComment.value = false;
+    }
+  } catch (error) { 
+    console.error("获取段落评论失败：", error);
+    paragraphCommentList.value = [];
+    haveComment.value = false;
+  }
+}
+
 const nextPage = async() => { 
   console.log("获取下一页内容");
 }
 
-const addToBookshelf = async() =>{
-  const bookId = route.params.id
-    // 获取当前书籍的 bookId
-    console.log('当前书籍id：', bookId);
-    const addFavoriteReq = {
-      bookIdList: [bookId]
+const floatingButtonStyle = computed(() => {
+  if (showComment.value) {
+    // 当评论框显示时，悬浮按钮应在评论框右边20px
+    return {
+      right: '-488px',
+      top: '50%',
+      transform: 'translateY(-50%)'
     };
-    // 跳转到书籍详情页面
-    console.log("添加到我的书架", JSON.stringify(addFavoriteReq));
-    try {
-      const response = await apiRequest(API_ENDPOINTS.ADD_BOOKS_TO_FAVORITE, {
-        method: 'POST',
-        body: JSON.stringify(addFavoriteReq)
-      });
-      console.log("添加结果",response);
-      if (response.code === 2008) {
-        router.push('/login');
-      }
-      alert('添加成功！');
-    } catch (error) {
-      console.error('Error adding book to favorite:', error);
-    }
-    
+  } else {
+    // 当评论框不显示时，使用原来的位置
+    return {
+      right: '-88px',
+      top: '50%',
+      transform: 'translateY(-50%)'
+    };
   }
+})
+
+const addToBookshelf = async() =>{
+  console.log(isLoggedIn.value)
+  if (!isLoggedIn.value) {
+    const currentPath = router.currentRoute.value.fullPath;
+    console.log(isLoggedIn.value);
+    console.log('当前路径：', currentPath);
+    router.push(`/login?redirectPath=${encodeURIComponent(currentPath)}`);
+    return;
+  }
+  // 获取当前书籍的 bookId
+  console.log('当前书籍id：', bookId);
+  const addFavoriteReq = {
+    bookIdList: [bookId]
+  };
+  // 跳转到书籍详情页面
+  console.log("添加到我的书架", JSON.stringify(addFavoriteReq));
+  try {
+    const response = await apiRequest(API_ENDPOINTS.ADD_BOOKS_TO_FAVORITE, {
+      method: 'POST',
+      body: JSON.stringify(addFavoriteReq)
+    });
+    console.log("添加结果",response);
+    if (response.code === 2008) {
+      router.push(`/login?redirectPath=${encodeURIComponent(router.currentRoute.value.fullPath)}`);
+    } else if (response.code === 200) {
+      alert("已添加到书架");
+    }
+  } catch (error) {
+    console.error('Error adding book to favorite:', error);
+  }
+  
+}
 
 const showTableOfContents = () => { 
   showToc.value = true
@@ -286,6 +562,10 @@ const handlePageClick = (event) => {
   }
 }
 
+const containerMarginRight = computed(() => { 
+  // return showComment.value ? '400px' : '0'
+})
+
 const goToChapter = async (chapterNumber) => { 
   console.log("跳转到章节：", chapterNumber);
   const newUrl = `/book/read?book=${bookId}&chapter=${chapterNumber}`
@@ -308,9 +588,23 @@ const sortDesc = async () => {
 
 const setBackground = (bgClass) => { 
   activeBackground.value = bgClass
+  const config = backgroundConfigs[bgClass]
   // 应用背景色到阅读容器
   if (pageRef.value) {
-    pageRef.value.style.backgroundColor = backgroundColors[bgClass]
+    pageRef.value.style.backgroundColor = config.pageBg
+  }
+
+  // 应用主视图背景色
+  if (mainContentRef.value) {
+    mainContentRef.value.style.backgroundColor = config.contentBg
+  }
+
+  // 应用字体颜色
+  if (mainContentRef.value) {
+    const bookTextElements = mainContentRef.value.querySelectorAll('.book-text')
+    bookTextElements.forEach(element => {
+      element.style.color = config.textColor
+    })
   }
 }
 
@@ -324,6 +618,43 @@ const setFont = (fontClass) => {
     })
   }
 }
+const closeCommentBox = () => { 
+  showComment.value = false
+}
+const handleCommentInput = (event) => { 
+  commentText.value = event.target.value
+}
+
+const handleCommentSubmit = async (userComment) => { 
+  console.log("提交评论：", userComment);
+  try {
+    const addCommentReq = {
+      bookId: bookId,
+      chapterId: book.value.chapterId,
+      commentText: userComment,
+      paragraphStartPos: selectedParagraph.value.startIndex,
+      paragraphEndPos: selectedParagraph.value.endIndex,
+      quotedText: selectedParagraph.value.content
+    }
+    console.log("添加评论请求参数：", addCommentReq);
+    const addCommentResult = await apiRequest(API_ENDPOINTS.ADD_COMMENT, {
+      method: "POST",
+      body: JSON.stringify(addCommentReq),
+    });
+    console.log("添加评论结果：",addCommentResult);
+    if (addCommentResult.code === 2008) {
+      router.push(`/login?redirectPath=${encodeURIComponent(router.currentRoute.value.fullPath)}`);
+    }
+    if (addCommentResult.code === 200) {
+      alert("评论添加成功");
+      commentText.value = ''
+      await fetchChapterContent(book.value.chapterNumber)
+    } else {
+      alert("评论添加失败");
+    }
+  } catch (error) { 
+  }
+}
 
 // 判断当前章节是否为当前章节
 const isCurrentChapter = (chapterNum) => { 
@@ -334,10 +665,12 @@ const isCurrentChapter = (chapterNum) => {
 const setSidebarPosition = async() => {
   if (mainContentRef.value) {
     const mainRect = mainContentRef.value.getBoundingClientRect();
-    sidebarLeft.value = mainRect.right - 400; // 目录左侧 = 主视图右侧
-    settingsSidebarLeft.value = mainRect.right - 336;
+    sidebarLeft.value = mainRect.right - 407; // 目录左侧 = 主视图右侧
+    settingsSidebarLeft.value = mainRect.right - 343;
+    commentLeft.value = mainRect.right;
     console.log("目录位置：", sidebarLeft.value);
-    console.log("目录位置：", settingsSidebarLeft.value);
+    console.log("设置位置：", settingsSidebarLeft.value);
+    console.log("评论位置：", commentLeft.value);
   }
 };
 
@@ -604,9 +937,9 @@ watch(
 /* 悬浮按钮样式 */
 .floating-buttons {
   position: absolute;
-  right: -88px;
-  top: 50%;
-  transform: translateY(-50%);
+  // right: -88px;
+  // top: 50%;
+  // transform: translateY(-50%);
   display: flex;
   flex-direction: column;
   gap: 15px;
@@ -949,14 +1282,14 @@ watch(
   margin-left: 8px;
 }
 .bg-one {
-  background: #2D2D2D;
+  background: #E3DADA;
   margin-left: 18px;
 }
 .bg-two {
   background: #C3D1D9;
 }
 .bg-three {
-  background: #DACE
+  background: #DACEAE
 }
 .bg-fore {
   background: #DDEAD7;
@@ -1086,6 +1419,266 @@ watch(
   backdrop-filter: blur(2px);
 }
 
+.comment-container {
+  position: fixed;
+  top: 0;
+  width: 400px;
+  height: 100vh;
+  background: #262626;
+  border-left: 1px solid #636363;
+}
+.comment-box {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+.comment-list-box {
+  flex: 1;
+  overflow-y: auto;
+  padding-bottom: 120px; // 为底部评论输入框留出空间
+  margin-bottom: 120px; // 避免被底部输入框遮挡
+}
+.close-comment-box {
+  position: absolute;
+  top: 20px;
+  right: 32px;
+  width: 18px;
+  height: 18px;
+  background: #535353;
+  text-align: center;
+  line-height: 18px;
+  background: #D8D8D8;
+  border-radius: 1px;
+  border: 1px solid #979797;
+  border-radius: 50%;
+  &:hover {
+    cursor: pointer;
+  }
+}
+.no-comment-box {
+  width: 400px;
+  height: 100vh;
+}
+.comment-title {
+  font-family: PingFangSC, PingFang SC;
+  font-weight: 400;
+  font-size: 18px;
+  color: #D5D5D5;
+  line-height: 25px;
+  text-align: left;
+  font-style: normal;
+  margin: 44px 0 0 32px;
+}
+.comment-count {
+  font-family: PingFangSC, PingFang SC;
+  font-weight: 400;
+  font-size: 12px;
+  color: #737373;
+  line-height: 17px;
+  text-align: left;
+  font-style: normal;
+  margin-left: 6px;
+}
+.comment-item {
+  position: relative;
+  width: 321px;
+  margin: 32px 0 0 32px;
+}
+.author-info {
+  display: flex;
+  align-items: center;
+}
+.commenter-img {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+}
+.commenter-name {
+  font-family: PingFangSC, PingFang SC;
+  font-weight: 400;
+  font-size: 12px;
+  color: #A2A0A0;
+  line-height: 17px;
+  text-align: left;
+  font-style: normal;
+  margin-left: 10px;
+}
+.comment-bottom-box {
+  padding-bottom: 12px;
+  margin-left: 36px;
+}
+.comment-content {
+  margin-left: 36px;
+  font-family: PingFangSC, PingFang SC;
+  font-weight: 400;
+  font-size: 12px;
+  color: #D5D5D5;
+  line-height: 17px;
+  text-align: left;
+  font-style: normal;
+}
+.comment-time {
+  font-family: PingFangSC, PingFang SC;
+  font-weight: 400;
+  font-size: 10px;
+  color: #A2A0A0;
+  line-height: 14px;
+  text-align: left;
+  font-style: normal;
+}
+.reply-btn {
+  font-family: PingFangSC, PingFang SC;
+  font-weight: 400;
+  font-size: 10px;
+  color: rgba(249,110,8,0.65);
+  line-height: 14px;
+  text-align: left;
+  font-style: normal;
+  margin-left: 10px;
+}
+.like-icon {
+  position: absolute;
+  right: 62px;
+  bottom: 12px;
+  line-height: 14px;
+}
+.like-btn {
+  position: absolute;
+  right: 38px;
+  bottom: 12px;
+  font-family: PingFangSC, PingFang SC;
+  font-weight: 400;
+  font-size: 10px;
+  color: #A2A0A0;
+  line-height: 14px;
+  text-align: left;
+  font-style: normal;
+}
+.unlike-icon {
+  position: absolute;
+  right: 0;
+  bottom: 12px;
+  line-height: 14px;
+}
+.no-comment-text { 
+  font-family: PingFangSC, PingFang SC;
+  font-weight: 400;
+  font-size: 14px;
+  color: #A2A0A0;
+  line-height: 75vh;
+  text-align: center;
+  font-style: normal;
+}
+.write-comment-container {
+  position: absolute;
+  bottom: 0;
+  width: 400px;
+  height: 120px;
+  background: #414141;
+}
+.write-comment-box { 
+  display: flex;
+  align-items: center;
+}
+.textarea-container {
+  position: relative;
+  width: 286px;
+  margin: 18px 0 0 12px;
+}
+.writor-img {
+  width: 38px;
+  height: 38px;
+  margin: 18px 0 0 32px;
+  border-radius: 50%;
+}
+.write-input {
+  width: 100%;
+  min-height: 38px; // 改为最小高度
+  line-height: 17px;
+  background: #656565;
+  border-radius: 8px;
+  color: #D5D5D5;
+  padding: 10px; // 添加内边距
+  box-sizing: border-box;
+  resize: none; // 禁止用户手动调整大小
+  border: none;
+  outline: none;
+  
+  &.expanded {
+    min-height: 80px; // 焦点时的高度，可容纳三行文字
+  }
+  
+  &::placeholder {
+    font-family: PingFangSC, PingFang SC;
+    font-weight: 400;
+    font-size: 12px;
+    color: #D5D5D5;
+    line-height: 17px;
+    text-align: left;
+    font-style: normal;
+  }
+}
+
+.submit-comment-box {
+  position: absolute;
+  bottom: 10px; // 距离底部的距离
+  right: 10px; // 距离右边的距离
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  
+  // span {
+  //   font-size: 12px;
+  //   color: #A2A0A0;
+  // }
+  
+  // button {
+  //   border-radius: 4px;
+  //   border: none;
+  //   background: #555;
+  //   color: #D5D5D5;
+  //   cursor: pointer;
+    
+  //   &:hover {
+  //     background: #666;
+  //   }
+  // }
+}
+.submit-word-count {
+  font-family: PingFangSC, PingFang SC;
+  font-weight: 400;
+  font-size: 10px;
+  color: #D5D5D5;
+  line-height: 14px;
+  text-align: left;
+  font-style: normal;
+}
+.cancel-btn {
+  width: 44px;
+  height: 22px;
+  background: rgba(174,174,174,0.6);
+  border-radius: 4px;
+  font-family: PingFangSC, PingFang SC;
+  font-weight: 400;
+  font-size: 10px;
+  color: #E9E9E9;
+  line-height: 22px;
+  text-align: center;
+  font-style: normal;
+}
+.submit-btn {
+  width: 44px;
+  height: 22px;
+  background: rgba(249,110,8,0.65);
+  border-radius: 4px;
+  font-family: PingFangSC, PingFang SC;
+  font-weight: 400;
+  font-size: 10px;
+  color: #D5D5D5;
+  line-height: 22px;
+  text-align: center;
+  font-style: normal;
+}
 
 /* 滚动条整体宽度（垂直滚动条） */
 ::-webkit-scrollbar {

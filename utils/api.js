@@ -31,6 +31,12 @@ export const API_ENDPOINTS = {
   LIST_AUTHOR_BOOKS: `${API_BASE_URL}/book/oauth/all_book`,
   /** 书籍相关接口结束 */
 
+  /** 书籍评论相关接口开始 */
+  LIST_COMMENTS: `${API_BASE_URL}/comment/list_with_paragraph`,
+  ADD_COMMENT: `${API_BASE_URL}/comment/oauth/add`,
+
+  /** 书籍评论相关接口结束 */
+
   /** 书籍分类相关接口开始 */
   LIST_ALL_BOOK_CATEGORY: `${API_BASE_URL}/book/categories/list/all`,
   LIST_BOOK_BY_CATEGORY: `${API_BASE_URL}/books/categories/books_by_category`,
@@ -86,6 +92,8 @@ function clearAuthInfo() {
 // 跳转到登录页
 function redirectToLogin() {
   if (process.client) {
+    const currentPath = window.location.pathname + window.location.search
+    localStorage.setItem('redirectAfterLogin', currentPath)
     window.location.href = '/login'
   }
 }

@@ -92,8 +92,8 @@ import { useAuthStore } from '@/stores/auth'
 import { ref } from 'vue'
 import { API_ENDPOINTS } from '@/utils/api'
 
-const authStore = useAuthStore()
 
+const authStore = useAuthStore()
 const { setAuthCookies } = useAuth()
 const router = useRouter()
 const route = useRoute()
@@ -107,12 +107,9 @@ const email = ref('')
 const agreeTerms = ref(false)
 const rememberMe = ref(false)
 const rememberEmail = ref(false)
-
-
 const selectLoginType = (type) => {
   activeTab.value = type;
 };
-
 // Google 登录处理
 const handleGoogleLogin = async () => {
   console.log("点击 Google 登录按钮");
