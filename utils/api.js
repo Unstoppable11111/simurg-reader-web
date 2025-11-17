@@ -27,8 +27,9 @@ export const API_ENDPOINTS = {
   UPDATE_BOOK: `${API_BASE_URL}/book/oauth/update_book`,
   DELETE_BOOK: `${API_BASE_URL}/book/oauth/delete_book`,
   LIST_ALL_BOOS_BY_AUTHOR: `${API_BASE_URL}/book/oauth/all_book`,
-  LIST_PUBLISHED_BOOKS: `${API_BASE_URL}/book/list/published_book/author`,
+  LIST_PUBLISHED_BOOKS: `${API_BASE_URL}/book/list/published_book/author/`,
   LIST_AUTHOR_BOOKS: `${API_BASE_URL}/book/oauth/all_book`,
+  
   /** 书籍相关接口结束 */
 
   /** 书籍评论相关接口开始 */

@@ -3,7 +3,7 @@
     <Header :margin-left="'360px'"/>
     <div class="author-container">
       <div class="author-box">
-        <img class="author-img" src="http://www.tata2025.xyz/uploads/2025/10/21/2566ebd9-91e1-4d0c-b239-9d2e89b325de.png" alt="">
+        <img class="author-img" :src="authorInfo.pictureUrl" alt="">
         <!-- 作者信息简介开始 -->
         <div class="author-info">
           <div class="author-pen-name-box">
@@ -63,71 +63,23 @@
 
     <div class="author-book-list">
 
-      <div class="author-book-item">
-        <img class="book-img" src="https://www.tata2025.xyz/uploads/2025/09/19/91f22daced2b37eab5022fe3f7a8a598.jpeg" alt="">
+      <div class="author-book-item"
+          v-for="book in authorBookList"
+          :key="book.bookId">
+        
+        <img class="book-img" :src="book.coverImageUrl" alt="">
         <div class="book-info-box">
-          <span class="book-title">我在精神病院学斩神</span>
-          <span class="book-author">田拽拽</span>
-          <span class="book-desc">因被渣男背刺，刚穿书就被极端CP粉一刀捅进医院。 谢弥原地发疯，在直播间口出狂言。 “来！捅我！都来捅我！我直接引爆地球——” 误入直播间的路人差点被吓晕。 好好好，见因被渣男背刺，刚穿书就被极端CP粉一刀捅进医院。 谢弥原地发疯，在直播间口出狂言。 “来！捅我！都来捅我！我直接引爆地球——” 误入直播间的路人差点被吓晕。 好好好，见</span>
+          <span class="book-title">{{ book.title }}</span>
+          <span class="book-author">{{ authorInfo.penName }}</span>
+          <span class="book-desc">{{ book.description }}</span>
           <div class="book-tag">
-            <span class="book-status">连载中</span>
+            <span class="book-status">{{ formatSerialStatus(book.serialStatus) }}</span>
             <div class="devier"></div>
             <span class="book-recent-update-label">最近更新：</span>
-            <span class="book-chapter-title">诡异竹筒</span>
+            <span class="book-chapter-title">{{ book.currentChapterTitle }}</span>
           </div>
         </div>
-        <button class="startReadBtn" @click="startRead">开始阅读</button>
-        <button class="addBookShelfBtn" @click="addBookShelf">加入书架</button>
-      </div>
-      
-      <div class="author-book-item">
-        <img class="book-img" src="https://www.tata2025.xyz/uploads/2025/09/19/91f22daced2b37eab5022fe3f7a8a598.jpeg" alt="">
-        <div class="book-info-box">
-          <span class="book-title">我在精神病院学斩神</span>
-          <span class="book-author">田拽拽</span>
-          <span class="book-desc">因被渣男背刺，刚穿书就被极端CP粉一刀捅进医院。 谢弥原地发疯，在直播间口出狂言。 “来！捅我！都来捅我！我直接引爆地球——” 误入直播间的路人差点被吓晕。 好好好，见因被渣男背刺，刚穿书就被极端CP粉一刀捅进医院。 谢弥原地发疯，在直播间口出狂言。 “来！捅我！都来捅我！我直接引爆地球——” 误入直播间的路人差点被吓晕。 好好好，见</span>
-          <div class="book-tag">
-            <span class="book-status">连载中</span>
-            <div class="devier"></div>
-            <span class="book-recent-update-label">最近更新：</span>
-            <span class="book-chapter-title">诡异竹筒</span>
-          </div>
-        </div>
-        <button class="startReadBtn" @click="startRead">开始阅读</button>
-        <button class="addBookShelfBtn" @click="addBookShelf">加入书架</button>
-      </div>
-
-      <div class="author-book-item">
-        <img class="book-img" src="https://www.tata2025.xyz/uploads/2025/09/19/91f22daced2b37eab5022fe3f7a8a598.jpeg" alt="">
-        <div class="book-info-box">
-          <span class="book-title">我在精神病院学斩神</span>
-          <span class="book-author">田拽拽</span>
-          <span class="book-desc">因被渣男背刺，刚穿书就被极端CP粉一刀捅进医院。 谢弥原地发疯，在直播间口出狂言。 “来！捅我！都来捅我！我直接引爆地球——” 误入直播间的路人差点被吓晕。 好好好，见因被渣男背刺，刚穿书就被极端CP粉一刀捅进医院。 谢弥原地发疯，在直播间口出狂言。 “来！捅我！都来捅我！我直接引爆地球——” 误入直播间的路人差点被吓晕。 好好好，见</span>
-          <div class="book-tag">
-            <span class="book-status">连载中</span>
-            <div class="devier"></div>
-            <span class="book-recent-update-label">最近更新：</span>
-            <span class="book-chapter-title">诡异竹筒</span>
-          </div>
-        </div>
-        <button class="startReadBtn" @click="startRead">开始阅读</button>
-        <button class="addBookShelfBtn" @click="addBookShelf">加入书架</button>
-      </div>
-
-      <div class="author-book-item">
-        <img class="book-img" src="https://www.tata2025.xyz/uploads/2025/09/19/91f22daced2b37eab5022fe3f7a8a598.jpeg" alt="">
-        <div class="book-info-box">
-          <span class="book-title">我在精神病院学斩神</span>
-          <span class="book-author">田拽拽</span>
-          <span class="book-desc">因被渣男背刺，刚穿书就被极端CP粉一刀捅进医院。 谢弥原地发疯，在直播间口出狂言。 “来！捅我！都来捅我！我直接引爆地球——” 误入直播间的路人差点被吓晕。 好好好，见因被渣男背刺，刚穿书就被极端CP粉一刀捅进医院。 谢弥原地发疯，在直播间口出狂言。 “来！捅我！都来捅我！我直接引爆地球——” 误入直播间的路人差点被吓晕。 好好好，见</span>
-          <div class="book-tag">
-            <span class="book-status">连载中</span>
-            <div class="devier"></div>
-            <span class="book-recent-update-label">最近更新：</span>
-            <span class="book-chapter-title">诡异竹筒</span>
-          </div>
-        </div>
-        <button class="startReadBtn" @click="startRead">开始阅读</button>
+        <button class="startReadBtn" @click="startRead(book.bookId)">开始阅读</button>
         <button class="addBookShelfBtn" @click="addBookShelf">加入书架</button>
       </div>
     </div>
@@ -139,9 +91,14 @@
 <script setup>
   import Header from "@/components/layout/Header.vue";
   import Footer from "@/components/layout/Footer.vue";
+  import { formatSerialStatus, formatTimestamp } from "@/utils/dataFormatter";
+  const router = useRouter()
+  
   const route = useRoute();
   const authorId = route.params.authorId;
   const authorInfo = ref(null);
+  const authorBookList = ref([]);
+
   const getAuthorInfoUrl = `${API_ENDPOINTS.AUTHO_INFO}${authorId}`;
   const authorInfoResult = await apiRequest(getAuthorInfoUrl, {
     method: 'GET'
@@ -149,8 +106,22 @@
   console.log("作者信息：", authorInfoResult);
   authorInfo.value = authorInfoResult.data;
 
+  // 获取指定作者书籍信息
+  try { 
+    const getAuthorBooksUrl = `${API_ENDPOINTS.LIST_PUBLISHED_BOOKS}${authorId}`;
+    const authorBooksResult = await apiRequest(getAuthorBooksUrl, {
+      method: 'GET'
+    });
+    console.log("作者书籍信息：", authorBooksResult);
+    if (authorBooksResult.code === 200) {          
+      authorBookList.value = authorBooksResult.data;
+    }
+  } catch (error) {
+    console.error('Error fetching author info:', error);
+  }
+
   const startRead = (bookId) => {
-    console.log('开始阅读', bookId)
+    router.push(`/book/read?book=${bookId}&chapter=1`);
   }
 
   const addBookShelf = (bookId) => {

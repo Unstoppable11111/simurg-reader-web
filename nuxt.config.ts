@@ -9,6 +9,23 @@ export default defineNuxtConfig({
   ssr: true,
   devtools: { enabled: true },
   css: ['@/public/style/global.css'],
+  // postcss: {
+  //   plugins: {
+  //     'postcss-px-to-viewport': {
+  //       unitToConvert: 'px',
+  //       viewportWidth: 1920,
+  //       viewportHeight: 1080,
+  //       unitPrecision: 5,
+  //       propList: ['*'],
+  //       viewportUnit: 'vw',
+  //       fontViewportUnit: 'vw',
+  //       selectorBlackList: [],
+  //       minPixelValue: 1,
+  //       mediaQuery: false
+  //     },
+  //     autoprefixer: {}
+  //   }
+  // },
   modules: [
     '@element-plus/nuxt',
     '@pinia/nuxt'

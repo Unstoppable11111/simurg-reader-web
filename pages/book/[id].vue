@@ -52,9 +52,9 @@
               <span class="author-name" @click="gotoAuthorDetail(book.authorId)">{{ book.authorPenName }}</span>
               <span class="author-tag">作家</span>
             </div>
-            <!-- <span v-if="isLoggedIn && isFollowed" class="followed">已关注</span>
-            <span v-else class="btn-follow">+关注</span> -->
-            <span class="followed">已关注</span>
+            <span v-if="isLoggedIn && isFollowed" class="followed">已关注</span>
+            <span v-else class="btn-follow" @click="followAuthor(authorId)">+关注</span>
+            <!-- <span class="followed">已关注</span> -->
           </div>
         </div>
         
@@ -116,7 +116,7 @@
         </div>
         <span class="book-content-title-text">阅读</span>
         <div class="book-content-info">
-          <p class="book-text"> {{ chapterContent.chapterContent }} </p>
+          <p class="book-text"> {{ decryptData(chapterContent.chapterContent) }} </p>
         </div>
       </div>
      </div>
@@ -130,6 +130,8 @@
   import { API_ENDPOINTS , apiRequest} from '@/utils/api';
   import { formatTimestamp, formatSerialStatus } from '@/utils/dataFormatter';
   import { useAuth } from '@/composables/useAuth';
+  import { decryptData } from '@/utils/crypto';
+
   const {isLoggedIn} = useAuth();
   console.log("isLoggedIn", isLoggedIn);
   // 获取路由参数
@@ -258,6 +260,9 @@
   const gotoAuthorDetail = (authorId) => {
     console.log('点击作者', authorId)
     router.push(`/author/${authorId}`)
+  }
+
+  const followAuthor = (authorId) => { 
   }
 
   // 设置页面标题

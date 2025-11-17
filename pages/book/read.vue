@@ -134,16 +134,13 @@
               v-for="(comment, index) in paragraphCommentList"
               :key="comment.commentId || index">
           <div class="author-info">
-            <img class="commenter-img" src="http://www.tata2025.xyz/uploads/2025/10/21/2566ebd9-91e1-4d0c-b239-9d2e89b325de.png" alt="">
-            <span class="commenter-name">通天大道</span>
+            <img class="commenter-img" :src="comment.pictureUrl" alt="">
+            <span class="commenter-name">{{ comment.username }}</span>
           </div>
           <p class="comment-content">{{comment.commentText}}</p>
           <div class="comment-bottom-box">
             <span class="comment-time"> {{ formatTimestamp(comment.commentDate) }} </span>
-            <button class="reply-btn">回复</button>
-            <span class="like-icon">❤</span>
-            <button class="like-btn">点赞</button>
-            <span class="unlike-icon">○</span>
+            <!-- <button class="reply-btn">回复</button> -->
           </div>
         </div>
       </div>
@@ -184,6 +181,7 @@ import CryptoJS from 'crypto-js';
 import { API_ENDPOINTS, apiRequest } from '@/utils/api.js'
 import { formatTimestamp, formatSerialStatus } from '@/utils/dataFormatter';
 import { useAuth } from '@/composables/useAuth';
+import { decryptData } from '@/utils/crypto';
 
 
 const DEFAULT_SECRET_KEY = 'JTDDnc1mrUf7TOfuX+9I4A==';
@@ -276,42 +274,6 @@ const {isLoggedIn, isAuthor, userAvatar, userName} = useAuth();
 watch(isLoggedIn, (newVal) => {
   console.log('isLoggedIn changed to:', newVal);
 }, { immediate: true });
-
-// 解密章节内容数据
-function decryptData(encryptedText) {
-  if (!encryptedText) return null;
-
-  try {
-    const parts = encryptedText.split(':');
-    if (parts.length !== 2) {
-      throw new Error('Invalid encrypted text format');
-    }
-    const ivBase64 = parts[0];
-    const encryptedDataBase64 = parts[1];
-    const iv = CryptoJS.enc.Base64.parse(ivBase64);
-    const encryptedData = CryptoJS.enc.Base64.parse(encryptedDataBase64);
-    // 1. 确保密钥是 Base64 解码后的字节数组
-    const key = CryptoJS.enc.Utf8.parse(DEFAULT_SECRET_KEY);
-    
-    // 2. 使用 ECB 模式 + PKCS7 填充
-    const decrypted = CryptoJS.AES.decrypt(
-      {ciphertext : encryptedData}, 
-      key, 
-      {
-        iv: iv,
-        mode: CryptoJS.mode.CBC,
-        padding: CryptoJS.pad.Pkcs7
-      }
-    );
-    console.log(decrypted)
-    console.log(decrypted.toString(CryptoJS.enc.Utf8))
-    // 3. 转换为 UTF-8 字符串
-    return decrypted.toString(CryptoJS.enc.Utf8);
-  } catch (e) {
-    console.error('解密失败:', e);
-    throw new Error('字符串解密失败');
-  }
-}
 
 // 章节内容分割函数
 function splitChapterContent(content) { 
