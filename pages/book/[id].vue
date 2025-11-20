@@ -252,8 +252,10 @@
     console.error('Error fetching book data:', error);
   }
 
+  // 开始阅读
   const startReading = async() => {
-      router.push(`/book/read?book=${bookId}&chapter=1`);
+    // 获取用户阅读记录，用于跳转
+    router.push(`/book/read?book=${bookId}&chapter=1`);
   }
 
   // 点击作者跳转到作者详情页

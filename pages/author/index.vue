@@ -124,13 +124,96 @@
 
         <!-- 作品管理内容 -->
         <div v-if="activeNav === 'work-management'" class="author-content-section">
-          <h2>作品管理</h2>
-          <p>在这里管理你的作品</p>
-          <div class="content-placeholder">
-            <img src="/public/images/simurg-reader-logo.png" alt="Placeholder" class="placeholder-image">
-            <p>功能开发中...</p>
+          <div class="work-management-title-box">
+            <span class="author-work-title">我的小说</span>
+            <span class="create-novel" @click="createBook">创建小说</span>
           </div>
+          
+          <div v-if="!showCreateBookFlag">
+            <div class="work-item-list">
+              <div class="work-item">
+                <img class="work-book-img" src="https://www.tata2025.xyz/uploads/2025/09/19/ed9bd8e3-3eee-494c-a890-068b6cce18f7.png" alt="">
+                <div class="work-book-info">
+                  <span class="work-book-title">穿越七零：大佬的小作精又娇又飒</span>
+                  <span class="work-update-info">最近更新：暂未发布章节</span>
+                  <div class="work-book-detail-info">
+                    <span class="work-book-chapter">0章</span>
+                    <div class="divider"></div>
+                    <span class="work-book-count">0字</span>
+                    <div class="divider"></div>
+                    <span class="work-status">连载中</span>
+                  </div>
+                </div>
+                <button class="work-chapter-manage-btn" @click="manageChapter">章节管理</button>
+                <button class="work-create-chapter-btn" @click="createChapter">创建章节</button>
+              </div>
+            </div>
+            <div class="content-placeholder">
+              <img src="/public/images/simurg-reader-logo.png" alt="Placeholder" class="placeholder-image">
+              <p>功能开发中...</p>
+            </div>
+          </div>
+
+          <div v-else class="create-book-form-box">
+            <el-form
+              ref="ruleFormRef"
+              style="max-width: 600px"
+              :model="ruleForm"
+              :rules="rules"
+              label-width="auto"
+            >
+              <el-form-item class="create-book-label" label="书本名称" prop="bookName">
+                <el-input class="create-book-input" v-model="ruleForm.bookName" placeholder="请输入作品名称，2-30字内"/>
+              </el-form-item>
+
+              <el-form-item class="create-book-label" label="作品分类" prop="bookCategoryList">
+                <el-select class="create-book-select" v-model="ruleForm.bookCategoryList" placeholder="请选择作品类型" multiple>
+                  <el-option label="科技末世" value="1" />
+                  <el-option label="历史脑洞" value="2" />
+                  <el-option label="悬疑脑洞" value="3" />
+                  <el-option label="传统玄幻" value="4" />
+                </el-select>
+              </el-form-item>
+
+              <el-form-item class="create-book-label" label="作品标签" prop="bookTagList">
+                <el-select class="create-book-select" v-model="ruleForm.bookTagList" placeholder="请选择标签" multiple>
+                  <el-option label="历史脑洞" value="2" />
+                  <el-option label="悬疑脑洞" value="3" />
+                  <el-option label="传统玄幻" value="4" />
+                </el-select>
+              </el-form-item>
+
+              <el-form-item class="create-book-label" label="主角介绍" prop="bookProtagonist">
+                <el-input class="create-book-input" v-model="ruleForm.bookProtagonist" placeholder="请输入主角介绍"/>
+              </el-form-item>
+              
+              <el-form-item class="create-book-label" label="作品简介" prop="bookDesc">
+                <el-input 
+                    class="create-book-input" 
+                    v-model="ruleForm.bookDesc" 
+                    placeholder="请输入50-500字以内的作品简介，不可出现低俗、暴力、血腥等不符合法律法规的内容"
+                    type="textarea"/>
+              </el-form-item>
+
+              <!--  -->
+               <el-form-item class="agree-protocol-checkbox" label="" prop="agreeProtocol">
+                  <el-checkbox class="agree-protocol-label" v-model="ruleForm.agreeProtocol">我已阅读并同意</el-checkbox>
+                  <NuxtLink to="/" class="personal-info-protection">《个人信息保护声明》</NuxtLink>
+              </el-form-item>
+
+              <el-form-item class="create-book-btn-box">
+                <el-button class="cancel-create-book-btn" @click="cancle">取消</el-button>
+                <el-button class="create-book-btn" @click="submitForm(ruleFormRef)">确认创建</el-button>
+              </el-form-item>
+            </el-form>
+            
+          </div>
+          
+          
+          
         </div>
+
+        
 
         <!-- 作品数据内容 -->
         <div v-if="activeNav === 'work-data'" class="author-content-section">
@@ -196,11 +279,80 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
   import Header from "@/components/layout/Header.vue";
   import { useAuth } from '@/composables/useAuth';
+  import type { FormInstance, FormRules } from 'element-plus'
   const {isLoggedIn, isAuthor, userAvatar, userName, userId} = useAuth();
   const authorInfo = ref(null);
+  const showCreateBookFlag = ref(false)
+  const ruleFormRef = ref<FormInstance>()
+  interface RuleForm {
+    bookName: string
+    bookCategoryList: String[]
+    bookTagList: string[]
+    bookProtagonist: string
+    bookDesc: string
+    agreeProtocol: boolean
+  }
+  const ruleForm = reactive<RuleForm>({
+    bookName: '',
+    bookCategoryList: [],
+    bookTagList: [],
+    bookProtagonist: '',
+    bookDesc: '',
+    agreeProtocol: false
+  })
+  const locationOptions = ['Home', 'Company', 'School']
+  const rules = reactive<FormRules<RuleForm>>({
+    bookName: [
+      { required: true, message: 'Please input Book name', trigger: 'blur' },
+      { min: 3, max: 20, message: 'Length should be 3 to 20', trigger: 'blur' },
+    ],
+    bookCategoryList: [
+      { required: true, message: 'Please select Book category', trigger: 'change' },
+    ],
+    bookTagList: [
+      { required: true, message: 'Please select Book tag', trigger: 'change' },
+    ],
+    bookProtagonist: [
+      { required: true, message: 'Please input Book protagonist', trigger: 'blur' },
+      { min: 3, max: 20, message: 'Length should be 3 to 20', trigger: 'blur' },
+    ],
+    bookDesc: [
+      { required: true, message: 'Please input Book description', trigger: 'blur' },
+      { min: 50, max: 500, message: 'Length should be 50 to 500', trigger: 'blur' },
+    ],
+    agreeProtocol: [
+      { required: true, message: 'Please agree to the protocol', trigger: 'change' },
+      { type: 'boolean', message: 'Please agree to the protocol', trigger: 'change' },
+    ],
+  })
+  const submitForm = async (formEl: FormInstance | undefined) => {
+    if (!formEl) return
+    await formEl.validate((valid, fields) => {
+      if (valid) {
+        console.log('submit!')
+      } else {
+        console.log('error submit!', fields)
+      }
+    })
+  }
+  const resetForm = (formEl: FormInstance | undefined) => {
+    if (!formEl) return
+    formEl.resetFields()
+  }
+  const options = Array.from({ length: 10000 }).map((_, idx) => ({
+    value: `${idx + 1}`,
+    label: `${idx + 1}`,
+  }))
+
+  // 获取分类书籍
+  const bookCateResult = await apiRequest(API_ENDPOINTS.LIST_ALL_BOOK_CATEGORY, {
+    method: 'POST',
+  });
+  console.log("分类书籍响应数据：", bookCateResult);
+
   console.log("userId", userId.value);
   // 查询作者信息
   const getAuthorInfoUrl = `${API_ENDPOINTS.AUTHO_INFO}${userId.value}`;
@@ -224,6 +376,14 @@
   const switchNav = (nav) => {
     activeNav.value = nav;
   };
+
+  const createBook = () => {
+    console.log("创建小说");
+    showCreateBookFlag.value = true;
+    nextTick(() => {
+      console.log('DOM 更新完成')
+    })
+  }
 </script>
 
 <style lang="scss" scoped>
@@ -281,7 +441,7 @@
   border-top-right-radius: 0;
 }
 .author-right-content-box {
-  width: 1116px;
+  width: 1016px;
   margin-left: 24px;
 }
 .author-home-content {
@@ -445,26 +605,124 @@
   text-align: left;
   font-style: normal;
 }
-
-
+.work-management-title-box {
+  position: relative;
+}
+.create-novel {
+  position: absolute;
+  top: 26px;
+  right: 40px;
+  font-family: PingFangSC, PingFang SC;
+  font-weight: 400;
+  font-size: 12px;
+  color: #A2A0A0;
+  text-align: left;
+  font-style: normal;
+  &:hover { 
+    cursor: pointer;
+    color: #F96E08;
+  }
+}
+.work-item-list {
+  padding: 68px 0 0 24px;
+}
+.work-item {
+  position: relative;
+  display: flex;
+  width: 968px;
+  height: 144px;
+  border-bottom: 1px solid #a2a0a0;
+}
+.work-book-img {
+  width: 90px;
+  height: 120px;
+  border-radius: 8px;
+  margin: 12px 0 0 12px;
+}
+.work-book-info {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  margin: 12px 0 0 12px;
+}
+.work-book-title {
+  font-family: PingFangSC, PingFang SC;
+  font-weight: 400;
+  font-size: 16px;
+  color: #FFFFFF;
+  line-height: 22px;
+  text-align: left;
+  font-style: normal;
+}
+.work-update-info {
+  font-family: PingFangSC, PingFang SC;
+  font-weight: 400;
+  font-size: 12px;
+  color: #A2A0A0;
+  line-height: 17px;
+  text-align: left;
+  font-style: normal;
+  margin-top: 12px;
+}
+.work-book-detail-info {
+  position: absolute;
+  bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.work-book-chapter, .work-book-count, .work-status{
+  font-family: PingFangSC, PingFang SC;
+  font-weight: 400;
+  font-size: 12px;
+  color: #A2A0A0;
+  line-height: 17px;
+  text-align: left;
+  font-style: normal;
+}
+.divider {
+  height: 10px;
+  border: 1px solid #a2a0a0
+}
+.work-chapter-manage-btn, .work-create-chapter-btn {
+  position: absolute;
+  width: 148px;
+  height: 38px;
+  background: linear-gradient( 90deg, #FF9B51 0%, #ED5B00 100%);
+  border-radius: 24px;
+  font-family: PingFangSC, PingFang SC;
+  font-weight: 600;
+  font-size: 14px;
+  color: #FFFFFF;
+  line-height: 20px;
+  text-align: center;
+  font-style: normal;
+}
+.work-chapter-manage-btn {
+  right: 184px;
+  bottom: 12px;
+}
+.work-create-chapter-btn {
+  right: 12px;
+  bottom: 12px;
+}
 // 新增的内容区域样式
 .author-content-section {
   width: 100%;
   background: #424242;
   border-radius: 6px;
-  padding: 30px;
-  
-  h2 {
-    font-size: 24px;
-    margin-bottom: 20px;
-    color: #fff;
-  }
-  
-  p {
-    color: #ccc;
-    font-size: 16px;
-    margin-bottom: 30px;
-  }
+}
+
+.author-work-title {
+  position: absolute;
+  top: 24px;
+  left: 24px;
+  font-family: PingFangSC, PingFang SC;
+  font-weight: 600;
+  font-size: 14px;
+  color: #FFFFFF;
+  text-align: left;
+  font-style: normal;
 }
 
 .content-placeholder {
@@ -480,10 +738,107 @@
     opacity: 0.5;
     margin-bottom: 20px;
   }
+}
+.create-book-form-box {
+  height: 640px;
+  padding: 76px 0 0 188px;
+}
+.create-book-label {
+  ::v-deep(.el-form-item__label) {
+    color: #a2a0a0;
+  }
+  font-family: PingFangSC, PingFang SC;
+  font-weight: 400;
+  font-size: 14px;
+  color: #ED5B00;
+  line-height: 20px;
+  text-align: left;
+  font-style: normal;
+}
+.create-book-input {
+  ::v-deep(.el-input__wrapper) {
+    background: #424242;
+    border-radius: 6px;
+    border: 1px solid transparent;
+
+    &:focus-within {
+      box-shadow: 1px 1px 2px 0px rgba(249,110,8,0.3), -1px -1px 2px 0px rgba(249,110,8,0.3);
+      border: 1px solid #F96E08;
+    }
+  }
   
-  p {
-    font-size: 18px;
-    color: #aaa;
+  ::v-deep(.el-input__inner) {
+    background: #424242;
+    color: #FFFFFF;
+    border: none;
+  }
+}
+.create-book-input {
+  ::v-deep(.el-textarea__wrapper) {
+    background: #424242;
+    border-radius: 6px;
+    border: 1px solid transparent;
+
+    &:focus-within {
+      box-shadow: 1px 1px 2px 0px rgba(249,110,8,0.3), -1px -1px 2px 0px rgba(249,110,8,0.3);
+      border: 1px solid #F96E08;
+    }
+  }
+  
+  ::v-deep(.el-textarea__inner) {
+    height: 200px;
+    background: #424242;
+    color: #FFFFFF;
+    border: none;
+  }
+}
+.agree-protocol-checkbox {
+  margin-left: 78px;
+}
+.agree-protocol-label {
+  font-family: PingFangSC, PingFang SC;
+  font-weight: 400;
+  font-size: 12px;
+  color: #A2A0A0;
+  line-height: 17px;
+  text-align: left;
+  font-style: normal;
+}
+.personal-info-protection {
+  color: #F96E08;
+}
+.create-book-btn-box {
+  display: flex;
+}
+.cancel-create-book-btn, .create-book-btn {
+  width: 168px;
+  height: 42px;
+  background: #646261;
+  border-radius: 24px;
+  font-family: PingFangSC, PingFang SC;
+  font-weight: 600;
+  font-size: 14px;
+  color: #FFFFFF;
+  line-height: 20px;
+  text-align: center;
+  font-style: normal;
+  border: none;
+}
+.cancel-create-book-btn {
+  margin: 54px 0 0 228px;
+}
+.create-book-btn {
+  background: linear-gradient( 90deg, #FF9B51 0%, #ED5B00 100%);
+  margin: 54px 0 0 32px;
+}
+::v-deep(.create-book-select .el-select__wrapper) {
+  font-size: 14px;
+  background: #424242;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  &:focus-within { 
+    box-shadow: 1px 1px 2px 0px rgba(249,110,8,0.3), -1px -1px 2px 0px rgba(249,110,8,0.3);
+    border: 1px solid #F96E08;
   }
 }
 

@@ -274,8 +274,8 @@
     // }
   }
   .ranking-book-item:hover {
-    background: linear-gradient(270deg, #FE5C54 0%, #F1951E 100%);
-    opacity: 0.4;
+    background: linear-gradient(270deg, #783535 0%, #734C1F 100%);
+    // opacity: 0.4;
   }
   .book-info {
     display: flex;
@@ -318,7 +318,7 @@
     font-family: PingFangSC, PingFang SC;
     font-weight: 400;
     font-size: 14px;
-    color: #828282;
+    color: #B2B2B2;
     line-height: 20px;
     margin-bottom: 10px;
   }

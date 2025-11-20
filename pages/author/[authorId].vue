@@ -264,13 +264,16 @@
     position: relative;
     display: flex;
     width: 584px;
-    height: 281px;
+    height: 180px;
   }
   .book-img {
-    width: 198px;
-    height: 264px;
+    width: 135px;
+    height: 180px;
     border-radius: 10px;
     &:not(:valid) {
+      width: 135px;
+      height: 180px;
+      border-radius: 10px;
       background-color: #828282;
     }
   }
@@ -317,7 +320,7 @@
     margin-top: 8px;
     /* 核心样式 */
     display: -webkit-box;
-    -webkit-line-clamp: 3; /* 限制最多显示3行 */
+    -webkit-line-clamp: 2; /* 限制最多显示3行 */
     -webkit-box-orient: vertical;
     overflow: hidden; /* 超出部分隐藏 */
     text-overflow: ellipsis; /* 显示省略号 */
@@ -325,7 +328,7 @@
   .book-tag {
     display: flex;
     align-items: center;
-    margin-top: 62px;
+    margin-top: 24px;
     gap: 12px;
   }
   .book-status, .devier, .book-recent-update-label, .book-chapter-title {
@@ -353,17 +356,17 @@
   }
   .startReadBtn {
     position: absolute;
-    left: 210px;
-    bottom: 17px;
+    left: 149px;
+    bottom: 0;
     width: 128px;
-    height: 36px;
+    height: 28px;
     background: linear-gradient( 90deg, #FF9B51 0%, #ED5B00 100%);
     border-radius: 18px;
     font-family: PingFangSC, PingFang SC;
     font-weight: 400;
     font-size: 12px;
     color: #FFFFFF;
-    line-height: 17px;
+    line-height: 28px;
     text-align: center;
     font-style: normal;
   }
@@ -373,17 +376,17 @@
   }
   .addBookShelfBtn {
     position: absolute;
-    right: 86px;
-    bottom: 17px;
+    right: 147px;
+    bottom: 0;
     width: 128px;
-    height: 36px;
+    height: 28px;
     border-radius: 18px;
     border: 1px solid #F96E08;
     font-family: PingFangSC, PingFang SC;
     font-weight: 400;
     font-size: 12px;
     color: #F96E08;
-    line-height: 17px;
+    line-height: 28px;
     text-align: center;
     font-style: normal;
   }

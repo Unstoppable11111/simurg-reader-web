@@ -18,9 +18,10 @@ export const API_ENDPOINTS = {
 
   /** 首页相关接口结束*/
 
-  /** 用户关注接口开始 */
+  /** 用户相关接口开始 */
   CHECK_FOLLOW: `${API_BASE_URL}/oauth/user/follow/check/`,
-  /** 用户关注接口结束 */
+  USER_READING_HISTORY: `${API_BASE_URL}/oauth/reading-record/list`,
+  /** 用户相关接口结束 */
 
   /** 书籍相关接口开始 */
   CREATE_BOOK: `${API_BASE_URL}/book/oauth/create_book`,
