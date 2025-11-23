@@ -96,7 +96,7 @@
             <div class="empty-box">
               <img class="empty-img" src="" alt="">
               <label class="empty-label">你还没有作品，快去创建你的新作品吧～</label>
-              <NuxtLink to="/becomeAuthor/writeBook" class="to-write-book">新建小说</NuxtLink>
+              <NuxtLink to="/author/writeBook" class="to-write-book">新建小说</NuxtLink>
             </div>
           </div>
           <el-calendar ref="calendar" class="calendar">
@@ -124,12 +124,13 @@
 
         <!-- 作品管理内容 -->
         <div v-if="activeNav === 'work-management'" class="author-content-section">
-          <div class="work-management-title-box">
-            <span class="author-work-title">我的小说</span>
-            <span class="create-novel" @click="createBook">创建小说</span>
-          </div>
+         
           
           <div v-if="!showCreateBookFlag">
+            <div class="work-management-title-box">
+              <span class="author-work-title">我的小说</span>
+              <span class="create-novel" @click="createBook">创建小说</span>
+            </div>
             <div class="work-item-list">
               <div class="work-item">
                 <img class="work-book-img" src="https://www.tata2025.xyz/uploads/2025/09/19/ed9bd8e3-3eee-494c-a890-068b6cce18f7.png" alt="">
@@ -203,13 +204,11 @@
 
               <el-form-item class="create-book-btn-box">
                 <el-button class="cancel-create-book-btn" @click="cancle">取消</el-button>
-                <el-button class="create-book-btn" @click="submitForm(ruleFormRef)">确认创建</el-button>
+                <el-button class="create-book-btn" @click="continueCreateChapter(ruleFormRef)">确认创建</el-button>
               </el-form-item>
             </el-form>
             
           </div>
-          
-          
           
         </div>
 
@@ -284,6 +283,7 @@
   import { useAuth } from '@/composables/useAuth';
   import type { FormInstance, FormRules } from 'element-plus'
   const {isLoggedIn, isAuthor, userAvatar, userName, userId} = useAuth();
+  const router = useRouter();
   const authorInfo = ref(null);
   const showCreateBookFlag = ref(false)
   const ruleFormRef = ref<FormInstance>()
@@ -328,13 +328,14 @@
       { type: 'boolean', message: 'Please agree to the protocol', trigger: 'change' },
     ],
   })
-  const submitForm = async (formEl: FormInstance | undefined) => {
+  const continueCreateChapter = async (formEl: FormInstance | undefined) => {
     if (!formEl) return
     await formEl.validate((valid, fields) => {
       if (valid) {
         console.log('submit!')
       } else {
         console.log('error submit!', fields)
+        router.push('/author/writeBook')
       }
     })
   }

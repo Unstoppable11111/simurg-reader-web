@@ -163,7 +163,10 @@
             ></textarea>
             
             <div class="submit-comment-box" v-show="showSubmitBox">
-              <span class="emoji-box"></span>
+              <!-- <button class="emoji-box" @click="showEmoji = !showEmoji">😀</button> -->
+              <ClientOnly>
+               <V3Emoji ref="emojiRef" class="emoji-box" @click-emoji="onClickEmoji" :recent="true" theme="dark" :visibel="showEmojiPanel"/>
+              </ClientOnly>
               <span class="upload-img"></span>
               <span class="submit-word-count">{{ commentCount }}/500</span>
               <button class="cancel-btn">取消</button>
@@ -182,6 +185,8 @@ import { API_ENDPOINTS, apiRequest } from '@/utils/api.js'
 import { formatTimestamp, formatSerialStatus } from '@/utils/dataFormatter';
 import { useAuth } from '@/composables/useAuth';
 import { decryptData } from '@/utils/crypto';
+import V3Emoji from 'vue3-emoji';
+import 'vue3-emoji/dist/style.css'
 
 
 const DEFAULT_SECRET_KEY = 'JTDDnc1mrUf7TOfuX+9I4A==';
@@ -271,6 +276,8 @@ const commentCount = computed(() => {
   return commentText.value.length
 })
 const {isLoggedIn, isAuthor, userAvatar, userName} = useAuth();
+const emojiRef = ref(null)
+const showEmojiPanel = ref(true)
 watch(isLoggedIn, (newVal) => {
   console.log('isLoggedIn changed to:', newVal);
 }, { immediate: true });
@@ -585,6 +592,18 @@ const closeCommentBox = () => {
 }
 const handleCommentInput = (event) => { 
   commentText.value = event.target.value
+}
+
+const onClickEmoji = (val) => {
+  commentText.value += val
+   // 尝试通过 ref 调用组件的关闭方法
+  if (emojiRef.value && typeof emojiRef.value.hide === 'function') {
+    emojiRef.value.hide()
+  }
+  // 或者尝试其他可能的关闭方法
+  if (emojiRef.value && typeof emojiRef.value.close === 'function') {
+    emojiRef.value.close()
+  }
 }
 
 const handleCommentSubmit = async (userComment) => { 
@@ -1583,30 +1602,19 @@ watch(
 
 .submit-comment-box {
   position: absolute;
+  left: 12px;
   bottom: 10px; // 距离底部的距离
-  right: 10px; // 距离右边的距离
   display: flex;
   align-items: center;
   gap: 10px;
-  
-  // span {
-  //   font-size: 12px;
-  //   color: #A2A0A0;
-  // }
-  
-  // button {
-  //   border-radius: 4px;
-  //   border: none;
-  //   background: #555;
-  //   color: #D5D5D5;
-  //   cursor: pointer;
-    
-  //   &:hover {
-  //     background: #666;
-  //   }
-  // }
+}
+.emoji-box {
+  width: 16px;
 }
 .submit-word-count {
+  position: absolute;
+  left: 121px;
+  bottom: 7px;
   font-family: PingFangSC, PingFang SC;
   font-weight: 400;
   font-size: 10px;
@@ -1616,6 +1624,8 @@ watch(
   font-style: normal;
 }
 .cancel-btn {
+  position: absolute;
+  left: 162px;
   width: 44px;
   height: 22px;
   background: rgba(174,174,174,0.6);
@@ -1629,6 +1639,8 @@ watch(
   font-style: normal;
 }
 .submit-btn {
+  position: absolute;
+  left: 230px;
   width: 44px;
   height: 22px;
   background: rgba(249,110,8,0.65);
