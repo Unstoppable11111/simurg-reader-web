@@ -72,13 +72,14 @@ export const API_ENDPOINTS = {
   AUTHO_INFO: `${API_BASE_URL}/author/info/`,
   /** 成为作者接口结束 */
 
-
-
   // 认证相关
   AUTH_GOOGLE: `${API_BASE_URL}/auth/1`,
   CALLBACK_GOOGLE: `${API_BASE_URL}/auth/callback`,
   AUTH_FACEBOOK: `${API_BASE_URL}/auth/2`,
   AUTH_BY_ACCOUNT: `${API_BASE_URL}/auth/login`,
+
+  // 公共接口
+  LIST_DICT: `${API_BASE_URL}/common/dictionary/list`,
 }
 
 // 清除认证信息
