@@ -15,7 +15,7 @@
 
     <div class="wirte-book-main-box">
       <div class="write-book-chapter-box">
-        <span class="chapter-info">第 <input class="chapter-num-input" type="number"> 章</span>
+        <span class="chapter-info">第 <input class="chapter-num-input" type="number" v-model="chapterNumber"> 章</span>
         <input class="chapter-title-input" type="text" placeholder="请输入标题" v-model="chapterTitle" @input="onContentChange">
       </div>
       <textarea class="write-book-textarea" placeholder="请输入内容" v-model="chapterContent" @input="onContentChange"></textarea>
@@ -27,12 +27,27 @@
       <div class="write-book-footer-box">
         <button class="undo-btn" @click="undo">←</button>
         <button class="redo-btn" @click="redo">→</button>
+         <el-select class="font-size-reset" v-model="fontSize" placeholder="16px" style="width: 90px;">
+          <el-option-group
+            v-for="group in options"
+            :key="group.label"
+            :label="group.label"
+          >
+            <el-option
+              v-for="item in group.options"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            />
+          </el-option-group>
+        </el-select>
       </div>
     </div>
   </div>
 </template>
 
-<script setup>    
+<script setup lang="ts">    
+  const chapterNumber = ref(1);
   const chapterContent = ref('');
   const chapterTitle = ref('');
   const authorNote = ref('');
@@ -41,7 +56,87 @@
   const maxHistory = 50;
   // 添加防抖函数避免频繁保存历史记录
   const debounceTimer = ref(null)
+  const fontSize = ref('16px')
+  const route = useRoute();
   const router = useRouter();
+
+  const options = [
+  {
+    options: [
+      {
+        value: '12',
+        label: '12px',
+      },
+      {
+        value: '14',
+        label: '14px',
+      },
+      {
+        value: '16',
+        label: '16px',
+      },
+      {
+        value: '18',
+        label: '18px',
+      },
+      {
+        value: '20',
+        label: '20px',
+      },
+      {
+        value: '22',
+        label: '22px',
+      },
+      {
+        value: '24',
+        label: '24px',
+      },
+    ],
+  }
+  ]
+
+  const bookData = ref({})
+
+  const validateChapterData = (): boolean => {
+    const chapterNum = Number(chapterNumber.value)
+    const title = chapterTitle.value.trim()
+
+    if (isNaN(chapterNum) || chapterNum < 1) {
+      alert('章节序号必须为大于0的整数')
+      return false
+    }
+
+    if (!title) {
+      alert('章节标题不能为空')
+      return false
+    }
+
+    // 可选：正文内容校验（发布时）
+    if (!chapterContent.value.trim() && isPublishing.value) {
+      alert('正文内容不能为空')
+      return false
+    }
+
+    return true
+  }
+
+  const mergeChapterData = () => {
+    // 构建新的章节对象
+    const chapterInfo = {
+      chapterNumber: chapterNumber.value,
+      chapterTitle: chapterTitle.value,
+      authorNote: authorNote.value,
+      content: chapterContent.value, // 可选：正文内容
+      timestamp: Date.now()
+    }
+
+    // 将章节信息挂载到 bookData 上
+    bookData.value.chapterInfo = chapterInfo
+    console.log('bookData:', chapterInfo)
+    console.log('bookData:', typeof(chapterInfo))
+    console.log('bookData:', typeof(bookData.value))
+    
+  }
   
   const goBack = () => {
     router.back();
@@ -49,10 +144,14 @@
 
   const saveDraft = () => {
     console.log('saveDraft')
+    if (!validateChapterData()) return
+    mergeChapterData()
+    console.log('草稿已保存:', bookData.value)
   }
 
   const publishBook = () => {
     console.log('publishBook')
+    mergeChapterData() // 合并章节数据
   }
 
   const onContentChange = () => {
@@ -116,6 +215,40 @@
     authorNote.value = state.authorNote || ''
   }
 
+  // 监听 fontSize 变化并应用到文本区域
+  watch(fontSize, (newFontSize) => {
+    const textArea = document.querySelector('.write-book-textarea')
+    const authorNoteArea = document.querySelector('.author-note-textarea')
+    
+    if (textArea) {
+      textArea.style.fontSize = newFontSize + 'px'
+    }
+    if (authorNoteArea) {
+      authorNoteArea.style.fontSize = newFontSize + 'px'
+    }
+  }, { immediate: true }) // immediate: true 确保初始值也应用
+
+  onMounted(() => {
+    try {
+      if (route.query && route.query.bookData) {
+        const encodedData = route.query.bookData as string
+        // 先 decodeURIComponent 再 base64 解码
+        const decodedData = decodeURIComponent(atob(encodedData))
+        bookData.value = JSON.parse(decodedData)
+        console.log('接收到的书籍数据:', bookData.value)
+      }
+    } catch (e) {
+      console.error('解析书籍数据失败:', e)
+      // 设置默认值避免后续错误
+      bookData.value = {
+        bookName: '',
+        bookCategoryList: [],
+        bookTagList: [],
+        bookProtagonist: '',
+        bookDesc: ''
+      }
+    }
+  })
 </script>
 
 <style scoped lang="scss">
@@ -184,13 +317,13 @@
   .wirte-book-main-box {
     margin-top: 24px;
     width: 800px;
-    height: 998px;
+    height: 100vh;
     background: #262626;
     border-radius: 10px 10px 0px 0px;
   }
-  .write-book-textarea, .author-note-textarea {
+  .write-book-textarea {
     width: 100%;
-    height: 100%;
+    height: calc(100vh - 370px);
     background: #262626;
     border: none;
     outline: none;
@@ -201,7 +334,38 @@
     padding: 20px;
     box-sizing: border-box;
   }
-
+  .author-note-textarea {
+    width: 100%;
+    background: #424242;
+    border: none;
+    outline: none;
+    resize: none;
+    color: #D5D5D5;
+    font-family: PingFangSC, PingFang SC;
+    font-size: 14px;
+    padding: 8px 18px 8px 18px;
+    box-sizing: border-box;
+  }
+  .author-note-box {
+    display: flex;
+    flex-direction: column;
+    width: 640px;
+    height: 200px;
+    background: #424242;
+    border-radius: 6px;
+    margin: 0 auto;
+    // margin-top: 430px;
+  }
+  .author-note-title {
+    font-family: PingFangSC, PingFang SC;
+    font-weight: 400;
+    font-size: 14px;
+    color: #D5D5D5;
+    line-height: 20px;
+    text-align: left;
+    font-style: normal;
+    margin: 18px 0 0 18px;
+  }
   .write-book-chapter-box {
     display: flex;
     align-items: center;
@@ -268,8 +432,12 @@
   .write-book-footer-box {
     position: fixed;
     bottom: 0;
+    display: flex;
+    align-items: center;
     width: 800px;
     height: 48px;
+    background: #262626;
+    border-top: 1px solid #6F7378;
   }
   .undo-btn, .redo-btn { 
     background: #4D4D4D;
@@ -285,5 +453,29 @@
       opacity: 0.5;
       cursor: not-allowed;
     }
+  }
+  ::v-deep(.font-size-reset .el-select__wrapper) {
+    font-size: 14px;
+    background: #424242;
+    border-radius: 6px;
+    border: 1px solid #6F7378;
+    color: #A2A0A0;
+    &:focus-within { 
+      box-shadow: 1px 1px 2px 0px rgba(249,110,8,0.3), -1px -1px 2px 0px rgba(249,110,8,0.3);
+      border: 1px solid #F96E08;
+    }
+     // 下拉选项文字颜色
+    .el-select__selected-item {
+      color: #A2A0A0;
+    }
+  }
+  .font-size-reset { 
+    font-family: PingFangSC, PingFang SC;
+    font-weight: 400;
+    font-size: 14px;
+    color: #A2A0A0;
+    line-height: 20px;
+    text-align: center;
+    font-style: normal;
   }
 </style>

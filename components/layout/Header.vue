@@ -83,8 +83,22 @@
   }
 
   const isScrolled = ref(false);
-  const handleSearch = (query) => {
+  const handleSearch = async (query) => {
     console.log('搜索内容:', query)
+    try {
+      const bookSearchUrl = {
+        keyword: query, // 获取书籍数量
+      };
+      const bookSearchResult = await apiRequest(API_ENDPOINTS.BOOK_SEARCH_BY_KEYWORDS, {
+        method: 'POST',
+        body: JSON.stringify(bookSearchUrl)
+      });
+      if (bookSearchResult.code === 200 && Array.isArray(bookSearchResult.data)) {
+        
+      }
+      console.log("最近更新书籍", bookSearchResult)
+    } catch (error) {
+    }
   }
   const handleScroll = () => { 
     isScrolled.value = window.scrollY > 84;
@@ -116,6 +130,7 @@
 }
 .header-right-nav {
   display: flex;
+  align-items: center;
   position: absolute;
   right: 360px;
 }

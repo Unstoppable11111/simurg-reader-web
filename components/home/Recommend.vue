@@ -1,57 +1,63 @@
 <template>
-    <div class="recommend-box">
-        <div 
-            class="recommend-book-item"
-            :class="{ 'book-recommend-active': activeIndex === index }"
-            @mouseenter="activeIndex = index"
-            @mousemouseleave="activeIndex = -1"
-            v-for="(book, index) in recommendBooks" 
-            :key="index"
-            @click="gotoBookDetail(book.bookId)"
-        >
-            <img :src="book.coverImageUrl" alt="书籍封面" class="book-img">
-            <div class="book-text">
-                <span class="book-title">{{ book.title }}</span>
-                <span class="book-hot" v-if="activeIndex !== index">热度：{{ book.bookViews }}</span>
-                <!-- 额外信息：仅在active状态显示 -->
-                <div class="book-details" v-if="activeIndex === index">
-                    <span class="book-author">作者：{{ book.authorPenName }}</span>
-                    <div class="book-tags">
-                        <span class="tag">{{formatSerialStatus(book.serialStatus) }} </span>
-                        <span class="tag tag-delimiter">|</span>
-                        <span class="tag book-hot">热度：{{ book.bookViews }}</span>
-                        <span class="tag tag-delimiter">|</span>
-                        <span class="tag update-tag">最近更新：{{ formatTimestamp(book.publishDate) }} </span>
-                    </div>
-                    <p class="book-desc">{{ book.description }}</p>
-                </div>
-            </div>
-        </div>
+  <div class="recommend-box">
+    <div 
+      class="recommend-book-item"
+      :class="{ 'book-recommend-active': activeIndex === index }"
+      @mouseenter="activeIndex = index"
+      @mousemouseleave="activeIndex = -1"
+      v-for="(book, index) in recommendBooks" 
+      :key="index"
+      @click="gotoBookDetail(book.bookId)"
+    >
+      <img :src="book.coverImageUrl" alt="书籍封面" class="book-img">
+      <div class="book-text">
+        <span class="book-title">{{ book.title }}</span>
+        <span class="book-hot" v-if="activeIndex !== index">热度：{{ book.bookViews }}</span>
+        <!-- 额外信息：仅在active状态显示 -->
+        <div class="book-details" v-if="activeIndex === index">
+          <span class="book-author" @click="gotoAuthorDetail(book.authorId)" @click.stop>作者：{{ book.authorPenName }}</span>
+          <div class="book-tags">
+            <span class="tag">{{formatSerialStatus(book.serialStatus) }} </span>
+            <span class="tag tag-delimiter">|</span>
+            <span class="tag book-hot">热度：{{ book.bookViews }}</span>
+            <span class="tag tag-delimiter">|</span>
+            <span class="tag update-tag">最近更新：{{ formatTimestamp(book.publishDate) }} </span>
+          </div>
+          <p class="book-desc">{{ book.description }}</p>
+          </div>
+      </div>
     </div>
+  </div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import { formatTimestamp, formatSerialStatus } from '@/utils/dataFormatter';
+  import { ref } from 'vue';
+  import { formatTimestamp, formatSerialStatus } from '@/utils/dataFormatter';
 
-const router = useRouter();
-const props = defineProps({
-    recommendBooks: {
-      type: Array,
-      default: () => [],
-      required: true
-    }
-})
+  const router = useRouter();
+  const props = defineProps({
+      recommendBooks: {
+        type: Array,
+        default: () => [],
+        required: true
+      }
+  })
 
-// 点击书籍跳转到详情页
-const gotoBookDetail = (bookId) => {
-  console.log('点击了书籍，ID:', bookId)
-  // 使用路由跳转到书籍详情页
-  router.push(`/book/${bookId}`)
-}
+  // 点击书籍跳转到详情页
+  const gotoBookDetail = (bookId) => {
+    console.log('点击了书籍，ID:', bookId)
+    // 使用路由跳转到书籍详情页
+    router.push(`/book/${bookId}`)
+  }
 
-// 当前激活的书籍索引
-const activeIndex = ref(0);
+  // 点击作者跳转到作者详情页
+  const gotoAuthorDetail = (authorId) => {
+    console.log('点击作者', authorId)
+    router.push(`/author/${authorId}`)
+  }
+
+  // 当前激活的书籍索引
+  const activeIndex = ref(0);
 
 </script>
 

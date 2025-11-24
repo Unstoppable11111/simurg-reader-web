@@ -262,6 +262,8 @@ const fontSize = ref(18)
 const minFontSize = 12
 const maxFontSize = 48
 const fontSizeStep = 2
+const lineHeight = ref(25); // 初始行高值
+const lineHeightStep = 2; // 行高步进值
 // 添加段评相关状态
 const selectedParagraph = ref(null);
 const showParagraphComment = ref(false);
@@ -308,15 +310,19 @@ function splitChapterContent(content) {
 const increaseFontSize = () => { 
   if (fontSize.value < maxFontSize) {
     fontSize.value = Math.min(fontSize.value + fontSizeStep, maxFontSize)
-    applyFontSize()
+    lineHeight.value = Math.min(lineHeight.value + lineHeightStep, maxFontSize + 7); // 保持一定的行高间距
+    applyFontSize();
+    applyFontSizeAndLineHeight();
   }
 }
 
 // 减少字体大小
 const decreaseFontSize = () => {
   if (fontSize.value > minFontSize) {
-    fontSize.value = Math.max(fontSize.value - fontSizeStep, minFontSize)
-    applyFontSize()
+    fontSize.value = Math.max(fontSize.value - fontSizeStep, minFontSize);
+    lineHeight.value = Math.max(lineHeight.value - lineHeightStep, minFontSize + 10); // 最小行高限制
+    applyFontSize();
+    applyFontSizeAndLineHeight();
   }
 }
 
@@ -329,6 +335,17 @@ const applyFontSize = () => {
     })
   }
 }
+
+// 修改 applyFontSize 函数为 applyFontSizeAndLineHeight
+const applyFontSizeAndLineHeight = () => {
+  if (mainContentRef.value) {
+    const bookTextElements = mainContentRef.value.querySelectorAll('.book-text');
+    bookTextElements.forEach(element => {
+      element.style.fontSize = `${fontSize.value}px`;
+      element.style.lineHeight = `${lineHeight.value}px`;
+    });
+  }
+};
 
 const fetchChapterContent = async (chapterNum) => { 
   try {
@@ -814,6 +831,7 @@ watch(
   word-wrap: break-word;
   word-break: break-word;
   white-space: normal;
+  background: #262626;
 }
 .book-text {
   font-family: PingFangSC, PingFang SC;
@@ -866,7 +884,7 @@ watch(
   text-align: left;
   font-style: normal;
   padding: 0 50px;
-  line-height: 48px;
+  line-height: 20px;
 }
 
 .pagination {

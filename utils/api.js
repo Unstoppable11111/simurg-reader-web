@@ -15,6 +15,7 @@ export const API_ENDPOINTS = {
   RANKING_BOOKS: `${API_BASE_URL}/ranking/books`,
   RECENT_UPDATE_BOOKS: `${API_BASE_URL}/book/recent-update`,
   CATEGORIES: `${API_BASE_URL}/book/categories/list/all`,
+  BOOK_SEARCH_BY_KEYWORDS: `${API_BASE_URL}/book/search`,
 
   /** 首页相关接口结束*/
 

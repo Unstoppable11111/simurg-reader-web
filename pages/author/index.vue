@@ -333,9 +333,16 @@
     await formEl.validate((valid, fields) => {
       if (valid) {
         console.log('submit!')
+        const bookDataStr = JSON.stringify(ruleForm);
+        const encodedBookData = btoa(encodeURIComponent(bookDataStr)) // 先 encodeURIComponent 防止特殊字符问题
+        router.push({
+          path: '/author/writeBook',
+          query: {
+            bookData: encodedBookData,
+          }
+        })
       } else {
-        console.log('error submit!', fields)
-        router.push('/author/writeBook')
+         ElMessage.error('缺少必填字段！')
       }
     })
   }

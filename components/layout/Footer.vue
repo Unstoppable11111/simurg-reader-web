@@ -4,15 +4,15 @@
       <div class="footer-column">
         <h3>关于</h3>
         <ul>
-          <li><NuxtLink to="/about-us">关于我们</NuxtLink></li>
-          <li><NuxtLink to="/contact-us">联系我们</NuxtLink></li>
-          <li><NuxtLink to="/resources">资源</NuxtLink></li>
+          <li><NuxtLink to="/footer-common?section=about">关于我们</NuxtLink></li>
+          <li><NuxtLink to="/footer-common?section=contact">联系我们</NuxtLink></li>
+          <li><NuxtLink to="/footer-common?section=resources">资源</NuxtLink></li>
         </ul>
       </div>
       <div class="footer-column">
         <h3>支持</h3>
         <ul>
-          <li><NuxtLink to="/help">帮助</NuxtLink></li>
+          <li><NuxtLink to="//footer-common?section=help">帮助</NuxtLink></li>
           <li><NuxtLink to="/feedback">反馈</NuxtLink></li>
           <li><NuxtLink to="/copyright-complaint">版权投诉</NuxtLink></li>
           <li><NuxtLink to="/partners">合作伙伴</NuxtLink></li>
@@ -21,8 +21,8 @@
       <div class="footer-column">
         <h3>合法的</h3>
         <ul>
-          <li><NuxtLink to="/terms-of-use">使用条款</NuxtLink></li>
-          <li><NuxtLink to="/privacy-policy">隐私政策</NuxtLink></li>
+          <li><NuxtLink to="/footer-common?section=terms">使用条款</NuxtLink></li>
+          <li><NuxtLink to="/footer-common?section=privacy">隐私政策</NuxtLink></li>
           <li><NuxtLink to="/settings">设置</NuxtLink></li>
         </ul>
       </div>
