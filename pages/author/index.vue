@@ -104,17 +104,17 @@
               <span class="calendar-title">作者更新日历</span>
               <span>{{ date }}</span>
               <el-button-group>
-                <el-button size="small" @click="selectDate('prev-year')">
+                <el-button size="small" @click="selectDate('prev-year')" class="calendar-btn">
                   Previous Year
                 </el-button>
-                <el-button size="small" @click="selectDate('prev-month')">
+                <el-button size="small" @click="selectDate('prev-month')" class="calendar-btn">
                   Previous Month
                 </el-button>
-                <el-button size="small" @click="selectDate('today')">Today</el-button>
-                <el-button size="small" @click="selectDate('next-month')">
+                <el-button size="small" @click="selectDate('today')" class="calendar-btn">Today</el-button>
+                <el-button size="small" @click="selectDate('next-month')" class="calendar-btn">
                   Next Month
                 </el-button>
-                <el-button size="small" @click="selectDate('next-year')">
+                <el-button size="small" @click="selectDate('next-year')" class="calendar-btn">
                   Next Year
                 </el-button>
               </el-button-group>
@@ -124,8 +124,6 @@
 
         <!-- 作品管理内容 -->
         <div v-if="activeNav === 'work-management'" class="author-content-section">
-         
-          
           <div v-if="!showCreateBookFlag">
             <div class="work-management-title-box">
               <span class="author-work-title">我的小说</span>
@@ -156,13 +154,34 @@
           </div>
 
           <div v-else class="create-book-form-box">
+            <div class="create-book-title-box"><
+              <span class="create-book-title">创建小说</span>
+            </div>
             <el-form
+              class="create-book-form"
               ref="ruleFormRef"
               style="max-width: 600px"
               :model="ruleForm"
               :rules="rules"
               label-width="auto"
             >
+              <el-upload
+                class="create-book-img-upload"
+                action="http://localhost:8082/api/file/upload"
+                :show-file-list="false"
+                :on-success="handleAvatarSuccess"
+                :before-upload="beforeAvatarUpload"
+              >
+                <img v-if="coverImageUrl" :src="ruleForm.coverImageUrl" class="create-book-img" />
+                <el-icon v-else class="avatar-uploader-icon"><Plus /></el-icon>
+              </el-upload>
+              <div class="upload-warn-info-box">
+                <div class="upload-warn-info-title">温馨提示</div>
+                <ul>
+                  <li>书封尺寸为3:4，支持 jpg/png格</li>
+                  <li>请保证封面图、书名、作者名清晰，信息正确，否则影响流量推荐</li>
+                </ul>
+              </div>
               <el-form-item class="create-book-label" label="书本名称" prop="bookName">
                 <el-input class="create-book-input" v-model="ruleForm.bookName" placeholder="请输入作品名称，2-30字内"/>
               </el-form-item>
@@ -212,7 +231,6 @@
           
         </div>
 
-        
 
         <!-- 作品数据内容 -->
         <div v-if="activeNav === 'work-data'" class="author-content-section">
@@ -236,7 +254,7 @@
 
         <!-- 个人信息内容 -->
         <div v-if="activeNav === 'personal-info'" class="author-content-section">
-          <h2>个人信息</h2>
+          <div class="personal-info-title">个人信息</div>
           <p>编辑和管理你的个人信息</p>
           <div class="content-placeholder">
             <img src="/public/images/simurg-reader-logo.png" alt="Placeholder" class="placeholder-image">
@@ -281,12 +299,18 @@
 <script setup lang="ts">
   import Header from "@/components/layout/Header.vue";
   import { useAuth } from '@/composables/useAuth';
-  import type { FormInstance, FormRules } from 'element-plus'
+  import type { FormInstance, FormRules, UploadProps } from 'element-plus'
+  import { Plus } from '@element-plus/icons-vue'
+import { rule } from "postcss";
   const {isLoggedIn, isAuthor, userAvatar, userName, userId} = useAuth();
   const router = useRouter();
+  const route = useRoute();
   const authorInfo = ref(null);
   const showCreateBookFlag = ref(false)
+  const coverImageUrl = ref('')
   const ruleFormRef = ref<FormInstance>()
+  // 定义响应式数据，跟踪当前激活的导航项
+  const activeNav = ref('author-home');
   interface RuleForm {
     bookName: string
     bookCategoryList: String[]
@@ -294,6 +318,7 @@
     bookProtagonist: string
     bookDesc: string
     agreeProtocol: boolean
+    coverImageUrl: string
   }
   const ruleForm = reactive<RuleForm>({
     bookName: '',
@@ -301,9 +326,11 @@
     bookTagList: [],
     bookProtagonist: '',
     bookDesc: '',
-    agreeProtocol: false
+    agreeProtocol: false,
+    coverImageUrl: ''
   })
   const locationOptions = ['Home', 'Company', 'School']
+  const calendar = ref<CalendarInstance>()
   const rules = reactive<FormRules<RuleForm>>({
     bookName: [
       { required: true, message: 'Please input Book name', trigger: 'blur' },
@@ -327,7 +354,44 @@
       { required: true, message: 'Please agree to the protocol', trigger: 'change' },
       { type: 'boolean', message: 'Please agree to the protocol', trigger: 'change' },
     ],
+    coverImageUrl: [
+      { required: true, message: 'Please select Book cover image', trigger: 'change' },
+    ],
   })
+
+  watch(
+    () => route.query.tab,
+    (newTab) => {
+      if (newTab && ['work-data', 'income-management', 'personal-info', 'notifications', 'benefits', 'contracts'].includes(newTab)) {
+        activeNav.value = newTab
+      }
+    },
+    {immediate: true}
+  )
+
+  const handleAvatarSuccess: UploadProps['onSuccess'] = (
+    response,
+    uploadFile
+  ) => {
+    console.log('handleAvatarSuccess', uploadFile)
+    console.log('response', response)
+    coverImageUrl.value = response.data
+    ruleForm.coverImageUrl = response.data
+  }
+
+  const beforeAvatarUpload: UploadProps['beforeUpload'] = (rawFile) => {
+    console.log('beforeAvatarUpload', rawFile)
+    if (rawFile.type !== 'image/jpeg') {
+      ElMessage.error('Avatar picture must be JPG format!')
+      return false
+    } else if (rawFile.size / 1024 / 1024 > 2) {
+      ElMessage.error('Avatar picture size can not exceed 2MB!')
+      return false
+    }
+    return true
+  }
+
+  // 继续创建章节
   const continueCreateChapter = async (formEl: FormInstance | undefined) => {
     if (!formEl) return
     await formEl.validate((valid, fields) => {
@@ -376,14 +440,15 @@
   });
   console.log("作者书籍列表：", authorBookList);
 
-
-  // 定义响应式数据，跟踪当前激活的导航项
-  const activeNav = ref('author-home');
-
   // 切换导航的方法
   const switchNav = (nav) => {
     activeNav.value = nav;
   };
+
+  const selectDate = (val: CalendarDateType) => {
+    if (!calendar.value) return
+    calendar.value.selectDate(val)
+  }
 
   const createBook = () => {
     console.log("创建小说");
@@ -392,6 +457,12 @@
       console.log('DOM 更新完成')
     })
   }
+
+  onMounted(() => {
+    if (route.query.tab) {
+      activeNav.value = route.query.tab;
+    }
+  });
 </script>
 
 <style lang="scss" scoped>
@@ -449,6 +520,7 @@
   border-top-right-radius: 0;
 }
 .author-right-content-box {
+  display: flex;
   width: 1016px;
   margin-left: 24px;
 }
@@ -600,9 +672,19 @@
   background: #424242;
   border-radius: 6px;
   margin-top: 16px;
-}
-.el-calendar__header {
-  display: block;
+  :deep(.el-calendar__header) {
+    display: block !important;
+  }
+  :deep(td.is-selected) {
+    background-color: #ff984e;
+  }
+  :deep(.el-calendar-day:hover) {
+    background: #ff984e;
+  }
+   :deep(.el-calendar-table td:hover) {
+    background-color: #ff984e !important;
+    color: #ffffff !important;
+  }
 }
 .calendar-title { 
   font-family: PingFangSC, PingFang SC;
@@ -612,6 +694,14 @@
   line-height: 20px;
   text-align: left;
   font-style: normal;
+}
+.calendar-btn {
+  background: #a2a0a0;
+  border: 1px solid #a2a0a0;
+  &:hover { 
+    cursor: pointer;
+    color: #ff984e;
+  }
 }
 .work-management-title-box {
   position: relative;
@@ -716,6 +806,7 @@
 }
 // 新增的内容区域样式
 .author-content-section {
+  position: relative;
   width: 100%;
   background: #424242;
   border-radius: 6px;
@@ -749,7 +840,77 @@
 }
 .create-book-form-box {
   height: 640px;
-  padding: 76px 0 0 188px;
+}
+.create-book-title-box {
+  margin: 28px 0 0 24px;
+}
+.create-book-form {
+  padding: 38px 0 0 188px;
+}
+.create-book-img-upload {
+  position: absolute;
+  top: 82px;
+  left: 24px;
+  display: flex;
+  justify-content: center;
+  font-size: 44px;
+  background: #929292;
+  width: 132px;
+  height: 176px;
+  border-radius: 6px;
+}
+.create-book-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.upload-warn-info-box {
+  position: absolute;
+  top: 284px;
+  left: 24px;
+  width: 132px;
+  height: 143px;
+  background: #929292;
+  border-radius: 6px;
+
+  ul {
+    list-style: none;
+    padding: 0;
+    
+    li {
+      font-family: PingFangSC, PingFang SC;
+      font-weight: 400;
+      font-size: 12px;
+      color: #FFFFFF;
+      line-height: 1.5;
+      text-align: left;
+      font-style: normal;
+      margin-bottom: 4px;
+      padding-left: 10px;
+      padding-top: 10px;
+      &:last-child {
+        margin-bottom: 0;
+      }
+      
+      &::before {
+        content: "•";
+        color: #FFFFFF;
+        display: inline-block;
+        width: 1em;
+        margin-left: -1em;
+      }
+    }
+  }
+}
+.upload-warn-info-title {
+  font-family: PingFangSC, PingFang SC;
+  font-weight: 400;
+  font-size: 12px;
+  color: #FFFFFF;
+  line-height: 17px;
+  text-align: left;
+  font-style: normal;
+  margin: 8px 0 0 8px
 }
 .create-book-label {
   ::v-deep(.el-form-item__label) {
@@ -833,11 +994,11 @@
   border: none;
 }
 .cancel-create-book-btn {
-  margin: 54px 0 0 228px;
+  margin: 0 0 0 228px;
 }
 .create-book-btn {
   background: linear-gradient( 90deg, #FF9B51 0%, #ED5B00 100%);
-  margin: 54px 0 0 32px;
+  margin: 0 0 0 32px;
 }
 ::v-deep(.create-book-select .el-select__wrapper) {
   font-size: 14px;
@@ -848,6 +1009,18 @@
     box-shadow: 1px 1px 2px 0px rgba(249,110,8,0.3), -1px -1px 2px 0px rgba(249,110,8,0.3);
     border: 1px solid #F96E08;
   }
+}
+
+// 个人信息样式
+.personal-info-title {
+  font-family: PingFangSC, PingFang SC;
+  font-weight: 600;
+  font-size: 14px;
+  color: #FFFFFF;
+  line-height: 20px;
+  text-align: left;
+  font-style: normal;
+  margin: 35px 0 0 24px;
 }
 
 </style>

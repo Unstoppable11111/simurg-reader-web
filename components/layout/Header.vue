@@ -30,8 +30,8 @@
       <NuxtLink v-if="!isLoggedIn" class="login-btn" to="/login">登录</NuxtLink>
       <div v-else style="display: flex;">
         <!-- <img class="user-avatar" src="http://www.tireba.com/simurg-reader/images/author1.png" alt=""> -->
-        <img class="user-avatar" :src="userAvatar" alt="">
-        <span class="user-name">{{ userName }}</span>
+        <img class="user-avatar" :src="userAvatar" alt="" @click="goToUserCenter">
+        <span class="user-name" @click="goToUserCenter">{{ userName }}</span>
       </div>
     </div>
      
@@ -67,6 +67,14 @@
   const userCookie = useCookie('user');
   console.log('Raw cookies:', accessTokenCookie.value, userCookie.value);
 
+  const goToUserCenter = () => {
+    if (isAuthor.value) {
+      router.push('/author?tab=personal-info');
+    } else {
+      router.push('/user');
+    }
+  }
+
   const handleBookShelfClick = () => {
     if (!isLoggedIn.value) {
       router.push('/login?redirectPath=/bookshelf');
@@ -96,7 +104,7 @@
       if (bookSearchResult.code === 200 && Array.isArray(bookSearchResult.data)) {
         
       }
-      console.log("最近更新书籍", bookSearchResult)
+      console.log("搜索结果", bookSearchResult)
     } catch (error) {
     }
   }
