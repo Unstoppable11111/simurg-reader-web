@@ -585,6 +585,10 @@ const setBackground = (bgClass) => {
     mainContentRef.value.style.backgroundColor = config.contentBg
   }
 
+  if (bookContentRef.value) {
+    bookContentRef.value.style.backgroundColor = config.contentBg
+  }
+
   // 应用字体颜色
   if (mainContentRef.value) {
     const bookTextElements = mainContentRef.value.querySelectorAll('.book-text')
