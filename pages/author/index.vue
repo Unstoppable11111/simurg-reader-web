@@ -27,38 +27,10 @@
           </div>
           <div 
             class="nav-item" 
-            :class="{ active: activeNav === 'income-management' }"
-            @click="switchNav('income-management')"
-          >
-            收入管理
-          </div>
-          <div 
-            class="nav-item" 
             :class="{ active: activeNav === 'personal-info' }"
             @click="switchNav('personal-info')"
           >
             个人信息
-          </div>
-          <div 
-            class="nav-item" 
-            :class="{ active: activeNav === 'notifications' }"
-            @click="switchNav('notifications')"
-          >
-            消息通知
-          </div>
-          <div 
-            class="nav-item" 
-            :class="{ active: activeNav === 'benefits' }"
-            @click="switchNav('benefits')"
-          >
-            福利中心
-          </div>
-          <div 
-            class="nav-item" 
-            :class="{ active: activeNav === 'contracts' }"
-            @click="switchNav('contracts')"
-          >
-            我的合同
           </div>
         </div>
       </div>
@@ -147,10 +119,7 @@
                 <button class="work-create-chapter-btn" @click="createChapter">创建章节</button>
               </div>
             </div>
-            <div class="content-placeholder">
-              <img src="/public/images/simurg-reader-logo.png" alt="Placeholder" class="placeholder-image">
-              <p>功能开发中...</p>
-            </div>
+            
           </div>
 
           <div v-else class="create-book-form-box">
@@ -188,18 +157,22 @@
 
               <el-form-item class="create-book-label" label="作品分类" prop="bookCategoryList">
                 <el-select class="create-book-select" v-model="ruleForm.bookCategoryList" placeholder="请选择作品类型" multiple>
-                  <el-option label="科技末世" value="1" />
-                  <el-option label="历史脑洞" value="2" />
-                  <el-option label="悬疑脑洞" value="3" />
-                  <el-option label="传统玄幻" value="4" />
+                  <el-option
+                    v-for="item in categoryList"
+                    :key="item.categoryId"
+                    :label="item.categoryName"
+                    :value="item.categoryId" />
                 </el-select>
               </el-form-item>
 
               <el-form-item class="create-book-label" label="作品标签" prop="bookTagList">
                 <el-select class="create-book-select" v-model="ruleForm.bookTagList" placeholder="请选择标签" multiple>
-                  <el-option label="历史脑洞" value="2" />
-                  <el-option label="悬疑脑洞" value="3" />
-                  <el-option label="传统玄幻" value="4" />
+                  <el-option
+                    v-for="item in bookTagTypeList"
+                    :key="item.key"
+                    :label="item.key"
+                    :value="item.value"
+                  />
                 </el-select>
               </el-form-item>
 
@@ -227,6 +200,24 @@
               </el-form-item>
             </el-form>
             
+          </div>
+
+          <div class="manage-chapter-box" v-if="showManageChapterFlag">
+            <div class="manage-chapter-title-box"><
+              <span class="manage-chapter-title">穿书荒年我靠修仙无敌了</span>
+            </div>
+            <div class="manage-chapter-content-box">
+              <div class="manage-chapter-header-box">
+                <div class="manage-chapter-header-title">章节管理</div>
+                <button class="update-book-btn">修改信息</button>
+              </div>
+              <div class="chapter-count">共2章</div>
+              <div class="chapter-table-box">
+                <div class="chapter-th">
+
+                </div>
+              </div>
+            </div>
           </div>
           
         </div>
@@ -301,13 +292,20 @@
   import { useAuth } from '@/composables/useAuth';
   import type { FormInstance, FormRules, UploadProps } from 'element-plus'
   import { Plus } from '@element-plus/icons-vue'
-import { rule } from "postcss";
+  import { rule } from "postcss";
+  import { useDictStore } from "@/stores/dict";
+  const dictStore = useDictStore();
+  const bookTagTypeList = computed(() => {
+    return dictStore.dict.bookTagType || [];
+  });
   const {isLoggedIn, isAuthor, userAvatar, userName, userId} = useAuth();
   const router = useRouter();
   const route = useRoute();
   const authorInfo = ref(null);
   const showCreateBookFlag = ref(false)
+  const showManageChapterFlag = ref(false)
   const coverImageUrl = ref('')
+  const categoryList = ref([])
   const ruleFormRef = ref<FormInstance>()
   // 定义响应式数据，跟踪当前激活的导航项
   const activeNav = ref('author-home');
@@ -406,7 +404,16 @@ import { rule } from "postcss";
           }
         })
       } else {
-         ElMessage.error('缺少必填字段！')
+        //  ElMessage.error('缺少必填字段！')
+        console.log('submit!')
+        const bookDataStr = JSON.stringify(ruleForm);
+        const encodedBookData = btoa(encodeURIComponent(bookDataStr)) // 先 encodeURIComponent 防止特殊字符问题
+        router.push({
+          path: '/author/writeBook',
+          query: {
+            bookData: encodedBookData,
+          }
+        })
       }
     })
   }
@@ -421,9 +428,11 @@ import { rule } from "postcss";
 
   // 获取分类书籍
   const bookCateResult = await apiRequest(API_ENDPOINTS.LIST_ALL_BOOK_CATEGORY, {
-    method: 'POST',
+    method: 'GET',
   });
   console.log("分类书籍响应数据：", bookCateResult);
+  categoryList.value = bookCateResult.data;
+
 
   console.log("userId", userId.value);
   // 查询作者信息
@@ -456,6 +465,15 @@ import { rule } from "postcss";
     nextTick(() => {
       console.log('DOM 更新完成')
     })
+  }
+
+  const manageChapter = () => {
+    console.log("管理章节");
+    showManageChapterFlag.value = true;
+  }
+
+  const createChapter = () => {
+    console.log("创建章节");
   }
 
   onMounted(() => {
@@ -808,6 +826,7 @@ import { rule } from "postcss";
 .author-content-section {
   position: relative;
   width: 100%;
+  height: 639px;
   background: #424242;
   border-radius: 6px;
 }

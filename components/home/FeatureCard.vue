@@ -4,7 +4,7 @@
     <!-- 左箭头 -->
     <button 
       class="carousel-arrow left-arrow" 
-      @click="moveLeft" 
+      @click="moveLeft(books)" 
       aria-label="上一页"
     >
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -35,7 +35,7 @@
     <!-- 右箭头 -->
     <button 
       class="carousel-arrow right-arrow" 
-      @click="moveRight" 
+      @click="moveRight(books)" 
       aria-label="下一页"
     >
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -115,7 +115,6 @@
     console.log('当前margin-left:', currentMargin)
     firstPartStyles.value.marginLeft = currentMargin - 224 + 'px'
     console.log('更新后margin-left:', firstPartStyles.value.marginLeft)
-    
     // 可以同时调整其他样式
   }
     
