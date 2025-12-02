@@ -139,7 +139,23 @@
   }
   
   const goBack = () => {
-    router.back();
+    const from = route.query.from as string;
+    switch(from) {
+      case 'create-book':
+        // 从"创建章节"按钮进入，返回作品列表
+        router.push('/author/workManagement');
+        break;
+      case 'chapter-management':
+        // 从章节管理进入，返回章节管理页面
+        router.push({
+          path: '/author/workManagement',
+          query: { view: 'chapter-management' }
+        });
+        break;
+      default:
+        // 默认行为：返回上一页
+        router.back();
+    }
   }
 
   const saveDraft = () => {
