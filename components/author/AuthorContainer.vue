@@ -26,8 +26,8 @@
         </div>
         <div 
           class="nav-item" 
-          :class="{ active: activeNav === 'personal-info' }"
-          @click="switchNav('personal-info')"
+          :class="{ active: activeNav === 'author-info' }"
+          @click="switchNav('author-info')"
         >
           个人信息
         </div>

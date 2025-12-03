@@ -11,22 +11,9 @@
         <WorkManagement 
           v-if="activeNav === 'work-management'"
         />
-        <div v-if="activeNav === 'work-data'" class="author-content-section">
-          <h2>作品数据</h2>
-          <p>查看你的作品统计数据</p >
-          <div class="content-placeholder">
-            <img src="/public/images/simurg-reader-logo.png" alt="Placeholder" class="placeholder-image">
-            <p>功能开发中...</p >
-          </div>
-        </div>
-        <div v-if="activeNav === 'personal-info'" class="author-content-section">
-          <div class="personal-info-title">个人信息</div>
-          <p>编辑和管理你的个人信息</p >
-          <div class="content-placeholder">
-            <img src="/public/images/simurg-reader-logo.png" alt="Placeholder" class="placeholder-image">
-            <p>功能开发中...</p >
-          </div>
-        </div>
+        <AuthorInfo 
+          v-if="activeNav === 'author-info'"
+        />
       </template>
     </AuthorContainer>
   </div>
@@ -36,6 +23,7 @@
 import Header from "@/components/layout/Header.vue";
 import AuthorContainer from "@/components/author/AuthorContainer.vue";
 import AuthorHome from "@/components/author/AuthorHome.vue";
+import AuthorInfo from "@/components/author/AuthorInfo.vue";
 import WorkManagement from "@/components/author/WorkManagement.vue";
 import { useAuth } from '@/composables/useAuth';
 

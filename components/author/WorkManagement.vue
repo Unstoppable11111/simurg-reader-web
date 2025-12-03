@@ -362,17 +362,39 @@ const handleAvatarSuccess: UploadProps['onSuccess'] = (
   ruleForm.coverImageUrl = response.data
 }
 
+const allowImageTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+const allowExts = ['jpg', 'jpeg', 'png', 'gif'];
 const beforeAvatarUpload: UploadProps['beforeUpload'] = (rawFile) => {
   console.log('beforeAvatarUpload', rawFile)
-  if (rawFile.type !== 'image/jpeg') {
-    ElMessage.error('Avatar picture must be JPG format!')
-    return false
+  const fileExt = rawFile.name.split('.').pop().toLowerCase();
+  // 双重验证：MIME类型 或 后缀名
+  if (!allowImageTypes.includes(rawFile.type) && !allowExts.includes(fileExt)) {
+    ElMessage.error('仅支持上传 jpg/jpeg/png/gif 格式的图片！');
+    return false;
   } else if (rawFile.size / 1024 / 1024 > 2) {
     ElMessage.error('Avatar picture size can not exceed 2MB!')
     return false
   }
   return true
 }
+
+ // 获取书籍分类
+  try {
+    const bookCateResult = await apiRequest(API_ENDPOINTS.CATEGORIES, {
+      method: 'GET'
+    });
+    console.log("书籍分类", bookCateResult)
+    if (!bookCateResult.code === 200) {
+      throw new Error(`HTTP error! status: ${bookCateResult.status}`)
+    }
+    
+    const result = await bookCateResult
+    
+    if (result.code === 200 && Array.isArray(result.data)) {
+      categoryList.value = result.data;
+    }
+  } catch (error) {
+  }
 
 // 继续创建章节
 const continueCreateChapter = async (formEl: FormInstance | undefined) => {
