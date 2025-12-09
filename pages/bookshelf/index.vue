@@ -16,6 +16,7 @@
         @recharge="handleRecharge"
         @show-recharge-record="showRechargeRecord"
         @switch-tab="switchTab"
+        @update-avatar="handleAvatarUpdate"
       />
 
       <!-- 右侧导航栏 -->
@@ -34,15 +35,17 @@
           />
           
           <FollowAndFansContent 
-            v-else-if="activeNav === 'follow'"
-            :initial-tab = "'follow'"
+            v-else
+            :initial-tab = "activeNav"
             :follow-list="followList"
-          />
-          
-          <FollowAndFansContent 
-            v-else-if="activeNav === 'fans'"
-            :initial-tab = "'fans'"
             :fans-list="fansList"
+            :follow-count="followCount"
+            :fan-count="fanCount"
+            @update-follow-list="handleUpdateFollowList"
+            @update-fans-list="handleUpdateFansList"
+            @tab-change="handleTabChange"
+            @update-fans-item="handleUpdateFansItem"
+            @update-count="handleUpdateCount"
           />
         </slot>
       </div>
@@ -50,7 +53,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import Header from "@/components/layout/Header.vue";
 import LeftNav from "@/components/bookshelf/LeftNav.vue";
 import BookShelfContent from "@/components/bookshelf/BookShelfContent.vue";
@@ -73,10 +76,48 @@ const followCount = ref(0);
 const fanCount = ref(22);
 const balance = ref(0);
 
-// 切换标签页
-const switchTab = (tab) => {
+const handleUpdateFansList = (newFansList: any) => {
+  fansList.value = newFansList;
+};
+
+const handleUpdateFollowList = (newFollowList: any) => {
+  followList.value = newFollowList;
+};
+
+const handleTabChange = (tab: string) => {
   activeNav.value = tab;
 };
+
+const handleUpdateFansItem = (updateData: any) => {
+  const { userId, mutualFollowing } = updateData;
+  // 找到对应记录并更新状态（响应式数据，修改后子组件UI自动刷新）
+  const targetIndex = fansList.value.findIndex(fan => fan.userId === userId);
+  if (targetIndex !== -1) {
+    // 注意：直接修改响应式数组的元素属性，Vue能检测到变化
+    fansList.value[targetIndex].mutualFollowing = mutualFollowing;
+    // 若接口返回的字段名是 isMutual / isFollowing，替换为对应字段名
+    // fansList.value[targetIndex].isMutual = mutualFollowing;
+  }
+};
+
+const handleUpdateCount = (countData: any) => {
+  // 本地更新计数（响应式数据，LeftNav会自动刷新）
+  if (countData.followCount !== undefined) {
+    followCount.value = countData.followCount;
+  }
+  if (countData.fanCount !== undefined) {
+    fanCount.value = countData.fanCount;
+  }
+};
+// 切换标签页
+const switchTab = (tab: string) => {
+  activeNav.value = tab;
+};
+
+// 处理头像更新
+const handleAvatarUpdate = (newAvatarUrl:any) => {
+  userInfo.value.pictureUrl = newAvatarUrl // 更新头像
+}
 
 // 导航到关注页面
 const navigateToFollow = () => {
@@ -127,7 +168,20 @@ const queryMyFollow = async () => {
   followList.value = followListResult.data.records;
   followCount.value = followListResult.data.total;
 };
-// followCount.value = followListResult.data.total;
+
+const queryMyFans = async () => { 
+  const fansListReq = {
+    page: 1,
+    size: 10
+  }
+  const fansListResult = await apiRequest(API_ENDPOINTS.LIST_FANS, {
+    method: 'POST',
+    body: JSON.stringify(fansListReq)
+  });
+  console.log("获取粉丝列表: {}", fansListResult);
+  fansList.value = fansListResult.data.records
+  fanCount.value = fansListResult.data.total;
+}
 
 // 加载历史记录数据
 const queryMyHistory = async () => {
@@ -189,6 +243,7 @@ onMounted(() => {
   fetchUserInfo();
   queryMyBookShelf();
   queryMyFollow();
+  queryMyFans();
 });
 </script>
 
