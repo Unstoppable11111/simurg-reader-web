@@ -1,67 +1,102 @@
 <template>
     <div class="home-page">
         <!-- 透明导航栏（通过绝对定位悬浮） -->
-      <Header :margin-left="'360px'"/>
+      <Header 
+        :margin-left="'360px'"
+        @trigger-search="handleTriggerSearch"  
+        @clear-search="clearSearchResult"    
+        @search-result="handleSearchResult"
+      />
+
+      <!-- 核心：内容切换 - 有搜索关键词显示结果，否则显示原首页内容 -->
+      <div v-if="searchQuery" class="search-result-section">
+        <!-- 搜索结果列表 -->
+        <div class="search-result-header">
+          <span class="search-result-title">“{{ searchQuery }}” 的搜索结果</span>
+          <span class="search-result-count">共 {{ searchResult.length }} 本</span>
+        </div>
+        <div class="search-result-list">
+          <!-- 搜索结果项（根据实际数据结构调整） -->
+          <div 
+            v-for="book in searchResult" 
+            :key="book.id" 
+            class="search-result-item"
+            @click="gotoBookDetail(book.id)"
+          >
+            <img :src="book.coverImageUrl" alt="book cover" class="book-cover">
+            <div class="book-info">
+              <div class="book-name">{{ book.title }}</div>
+              <div class="book-author">作者：{{ book.authorPenName }}</div>
+              <div class="book-desc">{{ book.protagonistIntroduction || '暂无简介' }}</div>
+            </div>
+          </div>
+          <!-- 无结果提示 -->
+          <div v-if="!searchResult.length" class="no-result">
+            未找到“{{ searchQuery }}”相关书籍
+          </div>
+        </div>
+      </div>
       
-      <!-- 轮播图（作为背景层） -->
-      <!-- <Carousel  class="carousel" /> -->
-       <BookBanner class="carousel" :banners="banners" />
+      <div v-else class="home-content-box">
+        <!-- 轮播图（作为背景层） -->
+        <!-- <Carousel  class="carousel" /> -->
+        <BookBanner class="carousel" :banners="banners" />
 
-      <!-- 精选专区 -->
-      <div class="featured-section">
-        <span class="featured-title">精选</span>
-        <!-- 这里放精选内容 -->
-        <FeatureCard :books="books" />
-      </div>
-
-      <!-- 推荐专区 -->
-      <div class="recommend-section">
-        <span class="recommend-title">推荐</span>
-        <Recommend :recommendBooks="recommendBooks" />
-      </div>
-
-      <!-- 排行榜 -->
-      <div class="ranking-section">
-        <!-- 这里放排行榜内容 -->
-        <div class="ranking-title-h2">
-          <span class="ranking-title">排行榜</span>
-          <NuxtLink to="/ranking" class="ranking-more">更多</NuxtLink>
+        <!-- 精选专区 -->
+        <div class="featured-section">
+          <span class="featured-title">精选</span>
+          <!-- 这里放精选内容 -->
+          <FeatureCard :books="books" />
         </div>
-        <Ranking />
-      </div>
 
-      <!-- 签约新书(第一期没有签约的书籍) -->
-      <!-- <div class="newly-signed-section">
-        <span class="newly-signed-title">签约新书</span>
-        <NewlySigned />
-      </div> -->
-
-      <!-- 分类 -->
-      <div class="book-cate-section">
-        <div class="book-cate-container">
-          <span class="book-cate-title">分类</span>
-          <NuxtLink to="/bookcate" class="book-cate-more">更多</NuxtLink>
+        <!-- 推荐专区 -->
+        <div class="recommend-section">
+          <span class="recommend-title">推荐</span>
+          <Recommend :recommendBooks="recommendBooks" />
         </div>
-        <BookCate :bookCateList="bookCateList" />
+
+        <!-- 排行榜 -->
+        <div class="ranking-section">
+          <!-- 这里放排行榜内容 -->
+          <div class="ranking-title-h2">
+            <span class="ranking-title">排行榜</span>
+            <NuxtLink to="/ranking" class="ranking-more">更多</NuxtLink>
+          </div>
+          <Ranking />
+        </div>
+
+        <!-- 签约新书(第一期没有签约的书籍) -->
+        <!-- <div class="newly-signed-section">
+          <span class="newly-signed-title">签约新书</span>
+          <NewlySigned />
+        </div> -->
+
+        <!-- 分类 -->
+        <div class="book-cate-section">
+          <div class="book-cate-container">
+            <span class="book-cate-title">分类</span>
+            <NuxtLink to="/bookcate" class="book-cate-more">更多</NuxtLink>
+          </div>
+          <BookCate :bookCateList="bookCateList" />
+        </div>
+
+        <!-- 最近更新书籍日志 -->
+        <div class="last-update-book-section">
+          <div class="last-update-book-title">最近更新</div>
+          <LastUpdateBook :recentUpdateBooks="recentUpdateBooks" />
+        </div>
+
+        <Footer />
+
+        <!-- 回到顶部按钮 -->
+        <div 
+          v-if="showBackToTop" 
+          class="back-to-top"
+          @click="scrollToTop"
+        >
+          ↑
+        </div>
       </div>
-
-      <!-- 最近更新书籍日志 -->
-      <div class="last-update-book-section">
-        <div class="last-update-book-title">最近更新</div>
-        <LastUpdateBook :recentUpdateBooks="recentUpdateBooks" />
-      </div>
-
-      <Footer />
-
-      <!-- 回到顶部按钮 -->
-      <div 
-        v-if="showBackToTop" 
-        class="back-to-top"
-        @click="scrollToTop"
-      >
-        ↑
-      </div>
-
     </div>
 </template>
 
@@ -88,6 +123,47 @@
   const recommendBooks = ref([]);
   const bookCateList = ref([]);
   const recentUpdateBooks = ref([]);
+  // 新增：搜索相关响应式状态
+  const searchQuery = ref(''); // 搜索关键词
+  const searchResult = ref([]); // 搜索结果列表
+
+  // 新增：处理Header触发的搜索事件
+  const handleTriggerSearch = async (query) => {
+    if (!query.trim()) {
+      handleClearSearch();
+      return;
+    }
+    searchQuery.value = query.trim(); // 设置关键词，触发内容切换
+    
+    // 执行搜索请求（推荐将搜索逻辑移到首页，便于管理）
+    try {
+      const bookSearchUrl = { keyword: query.trim() };
+      const bookSearchResult = await apiRequest(API_ENDPOINTS.BOOK_SEARCH_BY_KEYWORDS, {
+        method: 'POST',
+        body: JSON.stringify(bookSearchUrl)
+      });
+      console.log('首页搜索结果:', bookSearchResult);
+      if (bookSearchResult.code === 200 && bookSearchResult.data?.records) {
+        searchResult.value = bookSearchResult.data.records || []; // 更新搜索结果
+      }
+    } catch (error) {
+      console.error('首页搜索失败:', error);
+      searchResult.value = [];
+    }
+  };
+  // 新增：清空搜索结果，恢复原首页内容
+  const clearSearchResult = () => {
+    searchQuery.value = '';
+    searchResult.value = [];
+  };
+  // 可选：接收Header返回的搜索结果（若搜索逻辑在Header中）
+  const handleSearchResult = (result) => {
+    searchResult.value = result;
+  };
+  // 新增：跳转到书籍详情页（根据实际路由调整）
+  const gotoBookDetail = (bookId) => {
+    router.push(`/book/${bookId}`);
+  };
 
   try {
     const featureBookUrl = new URL(`${API_ENDPOINTS.TAG_BOOKS}/FEATURED`);
@@ -187,6 +263,11 @@
   flex-direction: column;
   align-items: center;
   min-height: 100vh;
+}
+.home-content-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 .carousel {
   width: 100vw;  /* 使用视口宽度单位，占满整个浏览器宽度 */
@@ -334,5 +415,105 @@
 }
 .fluid-cursor {
   z-index: 9999 !important;
+}
+
+// 新增：搜索结果区域样式
+.search-result-section {
+  width: 1200px;
+  margin: 40px auto;
+  padding: 54px 0;
+}
+
+.search-result-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #444;
+}
+
+.search-result-title {
+  font-size: 18px;
+  color: #FFFFFF;
+  font-weight: 600;
+}
+
+.search-result-count {
+  font-size: 14px;
+  color: #A2A0A0;
+}
+
+.search-result-list {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); // 4列布局，可调整
+  gap: 20px;
+}
+
+.search-result-item {
+  display: flex;
+  flex-direction: column;
+  background: #424242;
+  border-radius: 8px;
+  padding: 15px;
+  cursor: pointer;
+  transition: transform 0.3s;
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  }
+}
+
+.book-cover {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 4px;
+  margin-bottom: 10px;
+}
+
+.book-info {
+  color: #FFFFFF;
+}
+
+.book-name {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+
+.book-author {
+  font-size: 12px;
+  color: #A2A0A0;
+  margin-bottom: 5px;
+}
+
+.book-desc {
+  font-size: 12px;
+  color: #777;
+  line-height: 1.4;
+  margin-bottom: 8px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2; // 最多显示2行
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.book-tag {
+  font-size: 12px;
+  color: #FF9B51;
+  background: rgba(255, 155, 81, 0.1);
+  padding: 2px 8px;
+  border-radius: 4px;
+  width: fit-content;
+}
+
+.no-result {
+  grid-column: 1 / -1; // 占满所有列
+  text-align: center;
+  font-size: 16px;
+  color: #FFFFFF;
+  padding: 40px 0;
 }
 </style>
