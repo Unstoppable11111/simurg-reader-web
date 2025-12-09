@@ -27,7 +27,7 @@ export const useAuthStore = defineStore('auth', {
         })
         console.log("账号登录成功:", response);
         if (response.code === 200) {
-          this.handleLoginSuccess(response.data.thirdPartyUserInfo, response.data.tokenInfo.accessToken, 'account')
+          this.handleLoginSuccess(response.data.thirdPartyUserInfo, response.data.tokenInfo.accessToken, response.data.tokenInfo.refreshToken, 'account')
           // 登录成功后获取用户信息
           const userInfoResult = await apiRequest(API_ENDPOINTS.USER_INFO);
           console.log("获取登录成功的用户信息：", userInfoResult);
@@ -52,6 +52,7 @@ export const useAuthStore = defineStore('auth', {
           this.handleLoginSuccess(
             response.data.thirdPartyUserInfo, 
             response.data.tokenInfo.accessToken, 
+            response.data.tokenInfo.refreshToken,
             'google'
           )
           return response
@@ -76,6 +77,7 @@ export const useAuthStore = defineStore('auth', {
           this.handleLoginSuccess(
             response.data.user, 
             response.data.accessToken, 
+            response.data.refreshToken,
             'facebook'
           )
           return response
@@ -89,16 +91,18 @@ export const useAuthStore = defineStore('auth', {
     },
 
     // 登录成功统一处理
-    handleLoginSuccess(user: User, accessToken: string, method: 'google' | 'facebook' | 'account') {
+    handleLoginSuccess(user: User, accessToken: string, refreshToken: string, method: 'google' | 'facebook' | 'account') {
       this.user = user
       this.accessToken = accessToken
       this.loginMethod = method
       this.isLoggedIn = true
+      this.refreshToken = refreshToken;
       
       // 持久化存储到 localStorage
       localStorage.setItem('auth_user', JSON.stringify(user))
       localStorage.setItem('auth_token', accessToken)
       localStorage.setItem('auth_method', method)
+      localStorage.setItem('auth_refreshToken', refreshToken)
     },
     updateAccessToken(newToken: string) {
       this.accessToken = newToken;
@@ -113,6 +117,7 @@ export const useAuthStore = defineStore('auth', {
       this.isLoggedIn = false
       localStorage.removeItem('auth_user')
       localStorage.removeItem('auth_token')
+      localStorage.removeItem('auth_refreshToken');
       localStorage.removeItem('auth_method')
     },
 
@@ -121,6 +126,7 @@ export const useAuthStore = defineStore('auth', {
       try {
         const userStr = localStorage.getItem('auth_user')
         const token = localStorage.getItem('auth_token')
+        const refreshToken = localStorage.getItem('auth_refreshToken');
         const method = localStorage.getItem('auth_method') as 'google' | 'facebook' | 'account' | null
         const isAuthor = localStorage.getItem('isAuthor') === 'true';
         
@@ -132,6 +138,7 @@ export const useAuthStore = defineStore('auth', {
             if (parsedUser && typeof parsedUser === 'object') {
               this.user = parsedUser
               this.accessToken = token
+              this.refreshToken = refreshToken;
               this.loginMethod = method
               this.isLoggedIn = true
               this.isAuthor = isAuthor;
@@ -152,6 +159,7 @@ export const useAuthStore = defineStore('auth', {
     clearLocalStorage() {
       localStorage.removeItem('auth_user')
       localStorage.removeItem('auth_token')
+      localStorage.removeItem('auth_refreshToken');
       localStorage.removeItem('auth_method')
     }
   }
