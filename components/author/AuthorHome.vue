@@ -26,10 +26,50 @@
     <div class="author-works-box">
       <div style="position: relative;height: 68px;">
         <label class="author-works-box-title">作品小说</label>
-        <NuxtLink to="/" class="to-work-management">更多</NuxtLink>
+        <NuxtLink to="/" class="to-work-management">更多<el-icon><ArrowRight /></el-icon></NuxtLink>
       </div>
+      <!-- 作者作品管理 -->
+      <div v-if="true" class="author-works-content-box">
+        <div class="author-create-book-box">
+          <el-upload
+            class="create-book-img-upload"
+            action="http://localhost:8082/api/file/upload"
+            :show-file-list="false"
+            :on-success="handleAvatarSuccess"
+            :before-upload="beforeAvatarUpload"
+          >
+            <img v-if="coverImageUrl" :src="coverImageUrl" class="create-book-img" />
+            <el-icon v-else class="book-img-upload-icon"><Plus /></el-icon>
+          </el-upload>
+          <div class="create-book-info">
+            <span class="create-book-title">来创作新书吧~</span>
+            <span class="create-book-desc">码字码字</span>
+            <button class="create-book-btn">新建小说</button>
+          </div>
+        </div>
+
+        <div class="author-recent-book-box">
+          <img class="book-img" src="" alt="">
+          <div class="book-info">
+            <span class="book-title">穿越七零：大佬的小作精又娇又飒又有钱…</span>
+            <span class="book-update-info">最近更新：暂未发布章节</span>
+            <div class="book-detail-info-box">
+              <span class="book-chapter-count">0章</span>
+              <span class="divider"></span>
+              <span class="book-word-count">0字</span>
+              <span class="divider"></span>
+              <span class="book-status">连载中</span>
+            </div>
+            <div class="book-btn-box">
+              <button class="edit-book-btn">作品设置</button>
+              <button class="create-chapter-btn">创建章节</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- 如果作者还没创建作品，则展示空的盒子 -->
-      <div class="empty-box">
+      <div v-else class="empty-box">
         <img class="empty-img" src="" alt="">
         <label class="empty-label">你还没有作品，快去创建你的新作品吧～</label>
         <NuxtLink to="/author/writeBook" class="to-write-book">新建小说</NuxtLink>
@@ -61,15 +101,41 @@
 
 <script setup lang="ts">
 import { useAuth } from '@/composables/useAuth';
-import type { CalendarInstance, CalendarDateType } from 'element-plus'
+import type { CalendarInstance, CalendarDateType} from 'element-plus'
+import {Plus, ArrowRight } from '@element-plus/icons-vue'
 
 const props = defineProps<{
   authorInfo: any
 }>()
 
+const coverImageUrl = ref('')
 const { userAvatar, userName } = useAuth();
 const calendar = ref<CalendarInstance>()
 
+const handleAvatarSuccess: UploadProps['onSuccess'] = (
+  response,
+  uploadFile
+) => {
+  console.log('handleAvatarSuccess', uploadFile)
+  console.log('response', response)
+  coverImageUrl.value = response.data
+}
+
+const allowImageTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+const allowExts = ['jpg', 'jpeg', 'png', 'gif'];
+const beforeAvatarUpload: UploadProps['beforeUpload'] = (rawFile) => {
+  console.log('beforeAvatarUpload', rawFile)
+  const fileExt = rawFile.name.split('.').pop().toLowerCase();
+  // 双重验证：MIME类型 或 后缀名
+  if (!allowImageTypes.includes(rawFile.type) && !allowExts.includes(fileExt)) {
+    ElMessage.error('仅支持上传 jpg/jpeg/png/gif 格式的图片！');
+    return false;
+  } else if (rawFile.size / 1024 / 1024 > 2) {
+    ElMessage.error('Avatar picture size can not exceed 2MB!')
+    return false
+  }
+  return true
+}
 const selectDate = (val: CalendarDateType) => {
   if (!calendar.value) return
   calendar.value.selectDate(val)
@@ -186,6 +252,137 @@ const selectDate = (val: CalendarDateType) => {
   line-height: 22px;
   text-align: left;
   font-style: normal;
+}
+.author-works-content-box {
+  display: flex;
+  margin-top: 12px;
+}
+.author-create-book-box { 
+  display: flex;
+  width: 468px;
+  height: 152px;
+  margin-left: 24px;
+}
+.create-book-img-upload {
+  display: flex;
+  width: 114px;
+  height: 152px;
+  background: #A2A0A0;
+  border-radius: 4px;
+  justify-content: center;
+}
+.create-book-img {
+  width: 114px;
+  height: 152px;
+  border-radius: 4px;
+}
+.book-img-upload-icon {
+  font-size: 38px;
+  color: #424242;
+}
+.create-book-info {
+  display: flex;
+  flex-direction: column;
+  margin-left: 16px;
+}
+.create-book-title {
+  font-family: PingFangSC, PingFang SC;
+  font-weight: 400;
+  font-size: 16px;
+  color: #FFFFFF;
+  line-height: 22px;
+  text-align: left;
+  font-style: normal;
+}
+.create-book-desc {
+  font-family: PingFangSC, PingFang SC;
+  font-weight: 400;
+  font-size: 12px;
+  color: #999797;
+  line-height: 17px;
+  text-align: left;
+  font-style: normal;
+  margin-top: 10px;
+}
+.create-book-btn {
+  width: 120px;
+  height: 28px;
+  background: linear-gradient( 90deg, #FF9B51 0%, #ED5B00 100%);
+  border-radius: 18px;
+  font-family: PingFangSC, PingFang SC;
+  font-weight: 400;
+  font-size: 12px;
+  color: #FFFFFF;
+  line-height: 28px;
+  text-align: center;
+  font-style: normal;
+  margin-top: 75px;
+}
+.author-recent-book-box {
+  display: flex;
+  margin-left: 32px;
+}
+.book-img {
+  width: 114px;
+  height: 152px;
+  background: #424242;
+}
+.book-info {
+  display: flex;
+  flex-direction: column;
+  margin-left: 16px;
+}
+.book-title {
+  font-family: PingFangSC, PingFang SC;
+  font-weight: 400;
+  font-size: 16px;
+  color: #FFFFFF;
+  line-height: 22px;
+  text-align: left;
+  font-style: normal;
+}
+.book-update-info {
+  font-family: PingFangSC, PingFang SC;
+  font-weight: 400;
+  font-size: 12px;
+  color: #999797;
+  line-height: 17px;
+  text-align: left;
+  font-style: normal;
+  margin-top: 10px;
+}
+.book-detail-info-box {
+  display: flex;
+  margin-top: 42px;
+}
+.book-chapter-count, .book-word-count, .book-status {
+  font-family: PingFangSC, PingFang SC;
+  font-weight: 400;
+  font-size: 12px;
+  color: #A2A0A0;
+  line-height: 17px;
+  text-align: left;
+  font-style: normal;
+  margin-right: 10px;
+}
+.book-btn-box {
+  margin-top: 16px;
+}
+.edit-book-btn, .create-chapter-btn {
+  width: 120px;
+  height: 28px;
+  background: linear-gradient( 90deg, #FF9B51 0%, #ED5B00 100%);
+  border-radius: 18px;
+  font-family: PingFangSC, PingFang SC;
+  font-weight: 400;
+  font-size: 12px;
+  color: #FFFFFF;
+  line-height: 17px;
+  text-align: center;
+  font-style: normal;
+}
+.create-chapter-btn {
+  margin-left: 32px;
 }
 .empty-box {
   display: flex;
