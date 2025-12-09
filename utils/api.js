@@ -22,6 +22,8 @@ export const API_ENDPOINTS = {
   /** 用户相关接口开始 */
   CHECK_FOLLOW: `${API_BASE_URL}/oauth/user/follow/check/`,
   LIST_FOLLOW: `${API_BASE_URL}/oauth/user/follow/list`,
+  LIST_FANS: `${API_BASE_URL}/oauth/user/follow/fans`,
+  FOLLOW: `${API_BASE_URL}/oauth/user/follow/operation_by_type`,
   USER_READING_HISTORY: `${API_BASE_URL}/oauth/reading-record/list`,
   /** 用户相关接口结束 */
 
@@ -104,6 +106,13 @@ function redirectToLogin() {
 }
 
 function getAccessToken() {
+  if (process.client) {
+    return localStorage.getItem('auth_token')
+  }
+  return null;
+}
+
+function getRefreshToken() {
   if (process.client) {
     return localStorage.getItem('auth_token')
   }
