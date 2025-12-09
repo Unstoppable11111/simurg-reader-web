@@ -26,7 +26,10 @@
       </NuxtLink>
       <Search class="search" 
         placeholder="请输入书名或作者名"
-        @search="handleSearch"/>
+        @search="handleSearch"
+        @input-change="handleSearchInput"
+        @clear="handleSearchClear"  
+      />
       <NuxtLink v-if="!isLoggedIn" class="login-btn" to="/login">登录</NuxtLink>
       <div v-else style="display: flex;">
         <!-- <img class="user-avatar" src="http://www.tireba.com/simurg-reader/images/author1.png" alt=""> -->
@@ -41,7 +44,8 @@
 <script setup>
   import { isScroll } from 'element-plus/es/utils/index.mjs';
   import { useAuth } from '@/composables/useAuth';
-
+  // 新增：定义emit事件，向父组件传递搜索关键词
+  const emit = defineEmits(['trigger-search']);
   const router = useRouter();
   const props = defineProps({
     marginLeft: {
@@ -92,22 +96,28 @@
 
   const isScrolled = ref(false);
   const handleSearch = async (query) => {
-    console.log('搜索内容:', query)
-    try {
-      const bookSearchUrl = {
-        keyword: query, // 获取书籍数量
-      };
-      const bookSearchResult = await apiRequest(API_ENDPOINTS.BOOK_SEARCH_BY_KEYWORDS, {
-        method: 'POST',
-        body: JSON.stringify(bookSearchUrl)
-      });
-      if (bookSearchResult.code === 200 && Array.isArray(bookSearchResult.data)) {
-        
-      }
-      console.log("搜索结果", bookSearchResult)
-    } catch (error) {
+    if (!query.trim()) {
+      emit('clear-search'); // 搜索按钮点击时若为空，也清空
+      return;
     }
+    emit('trigger-search', query.trim());
   }
+
+  // 新增：可选 - 实时输入时触发（比如输入完成后自动搜索）
+  const handleSearchInput = (value) => {
+    const trimedValue = value.trim();
+    if (trimedValue) {
+      // 有内容：触发搜索（可选加防抖）
+      emit('trigger-search', trimedValue);
+    } else {
+      // 无内容：通知首页清空搜索，恢复原内容
+      emit('clear-search');
+    }
+  };
+  // 2. 监听输入框清空按钮（如Search组件有清除按钮时）
+  const handleSearchClear = () => {
+    emit('clear-search');
+  };
   const handleScroll = () => { 
     isScrolled.value = window.scrollY > 84;
   }
