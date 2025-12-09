@@ -2,11 +2,11 @@
   <div class="write-book-page">
     <div class="write-book-header-box">
       <div class="back-btn" @click="goBack"><</div>
-      <div class="wirte-book-info-box">
-        <span class="book-title">炮灰的任意门</span>
+      <div class="write-book-info-box">
+        <span class="book-title">{{ bookData.title }}</span>
         <div class="book-info-box">
           <span>上一章 您还没有发布章节，开始创建第一章吧！</span>
-          <span class="work-count">当前字数：0</span>
+          <span class="work-count">当前字数：{{ bookWordCount }}</span>
         </div>
       </div>
       <button class="save-draft-btn" @click="saveDraft">存草稿</button>
@@ -47,9 +47,17 @@
 </template>
 
 <script setup lang="ts">    
-  const chapterNumber = ref(1);
+  const chapterNumber = computed(() => { 
+    if (bookData.value) {
+      return bookData.value.currentChapter;
+    }
+  });
   const chapterContent = ref('');
-  const chapterTitle = ref('');
+  const chapterTitle = computed(() => { 
+    if (bookData.value) {
+      return bookData.value.currentChapterTitle;
+    }
+  });
   const authorNote = ref('');
   const historyStack = ref([]);
   const currentIndex = ref(-1);
@@ -57,8 +65,12 @@
   // 添加防抖函数避免频繁保存历史记录
   const debounceTimer = ref(null)
   const fontSize = ref('16px')
+  const authorContainer = ref<InstanceType<typeof AuthorContainer>>()
   const route = useRoute();
   const router = useRouter();
+  const bookWordCount = computed(() => {
+    return chapterContent.value.length
+  })
 
   const options = [
   {
@@ -120,7 +132,7 @@
     return true
   }
 
-  const mergeChapterData = () => {
+  const mergeChapterData = async () => {
     // 构建新的章节对象
     const chapterInfo = {
       chapterNumber: chapterNumber.value,
@@ -135,22 +147,47 @@
     console.log('bookData:', chapterInfo)
     console.log('bookData:', typeof(chapterInfo))
     console.log('bookData:', typeof(bookData.value))
-    
+    const createBookReq = {
+      title: bookData.value.bookName,
+      description: bookData.value.bookDesc,
+      category: bookData.value.bookCategoryList.toString(), 
+      isFree: 1,
+      coverImageUrl: bookData.value.coverImageUrl,
+      chapterTitle: chapterTitle.value,
+      chapterContent: chapterContent.value,
+      protagonistIntroduction: bookData.value.bookProtagonist
+    }
+    console.log('createBookReq:', JSON.stringify(createBookReq))
+    // 请求服务端创建书籍接口
+    const createBookResult = await apiRequest(API_ENDPOINTS.CREATE_BOOK,{
+      method: 'POST',
+      body: JSON.stringify(createBookReq)
+    })
+    console.log("创建书籍结果：{}", createBookResult);
+    if (createBookResult.code === 200) {
+      ElMessage({
+        message: 'create book success',
+        type: 'success',
+      })
+      authorContainer.value?.switchNav('work-management');
+    } else {
+      ElMessage({
+        message: 'create book failed, please try again later.',
+        type: 'error',
+      })
+    }
   }
   
   const goBack = () => {
     const from = route.query.from as string;
     switch(from) {
       case 'create-book':
-        // 从"创建章节"按钮进入，返回作品列表
-        router.push('/author/workManagement');
+        // 调用 authorContainer 的 switchNav 方法
+        authorContainer.value?.switchNav('work-management');
         break;
       case 'chapter-management':
         // 从章节管理进入，返回章节管理页面
-        router.push({
-          path: '/author/workManagement',
-          query: { view: 'chapter-management' }
-        });
+        authorContainer.value?.switchNav('chapter-management');
         break;
       default:
         // 默认行为：返回上一页
@@ -287,7 +324,11 @@
     padding: 20px 0 0 28px;
   }
   .write-book-info-box {
-    margin: 13px 0 0 12px; 
+    display: flex;
+    flex-direction: column;
+    /* align-items: center; */
+    justify-content: center;
+    margin-left: 7px;
   }
   .book-title {
     font-family: PingFangSC, PingFang SC;
