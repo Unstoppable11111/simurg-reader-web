@@ -8,22 +8,22 @@
         <div class="create-novel" @click="switchView('create-book')">创建新书</div>
       </div>
       <div class="work-item-list">
-        <div class="work-item">
-          <img class="work-book-img" src="https://www.tata2025.xyz/uploads/2025/09/19/ed9bd8e3-3eee-494c-a890-068b6cce18f7.png" alt="">
+        <div class="work-item" v-for="bookItem in authorBookList" :key="bookItem.bookId">
+          <img class="work-book-img" :src="bookItem.coverImageUrl" alt="">
           <div class="work-book-info">
-            <span class="work-book-title">穿越七零：大佬的小作精又娇又飒</span>
-            <span class="work-update-info">最近更新：暂未发布章节</span>
+            <span class="work-book-title">{{ bookItem.title }}</span>
+            <span class="work-update-info">最近更新：{{ bookItem.currentChapterTitle }}</span>
             <div class="work-book-detail-info">
-              <span class="work-book-chapter">0章</span>
+              <span class="work-book-chapter">{{ bookItem.totalChapters }}章</span>
               <div class="divider"></div>
-              <span class="work-book-count">0字</span>
+              <span class="work-book-count">{{ bookItem.totalCharCount }}字</span>
               <div class="divider"></div>
-              <span class="work-status">连载中</span>
+              <span class="work-status">{{ formatSerialStatus(bookItem.serialStatus) }}</span>
             </div>
           </div>
-          <button class="work-book-setting-btn" @click="switchView('book-setting')">作品设置</button>
+          <button class="work-book-setting-btn" @click="openBookSetting(bookItem)">作品设置</button>
           <button class="work-chapter-manage-btn" @click="switchView('chapter-management')">章节管理</button>
-          <button class="work-create-chapter-btn" @click="switchView('create-chapter')">创建章节</button>
+          <button class="work-create-chapter-btn" @click="createChapter(bookItem)">创建章节</button>
         </div>
       </div>
     </div>
@@ -34,6 +34,7 @@
         <span class="create-book-title">创建小说</span>
         <span class="back-to-list" @click="switchView('list')">返回</span>
       </div>
+
       <el-form
         class="create-book-form"
         ref="ruleFormRef"
@@ -103,7 +104,8 @@
 
         <el-form-item class="create-book-btn-box">
           <el-button class="cancel-create-book-btn" @click="switchView('list')">取消</el-button>
-          <el-button class="create-book-btn" @click="continueCreateChapter(ruleFormRef)">确认创建</el-button>
+          <el-button v-if="!isEditing" class="create-book-btn" @click="continueCreateChapter(ruleFormRef)">确认创建</el-button>
+          <el-button v-else class="create-book-btn" @click="handleEditBook(ruleFormRef)">确认修改</el-button>
         </el-form-item>
       </el-form>
     </div>
@@ -168,266 +170,313 @@
 </template>
 
 <script setup lang="ts">
-import type { FormInstance, FormRules, UploadProps } from 'element-plus'
-import { Plus } from '@element-plus/icons-vue'
-import { useDictStore } from "@/stores/dict";
+  // <!-- components/author/WorkManagement.js -->
+  import type { FormInstance, FormRules, UploadProps } from 'element-plus'
+  import { Plus } from '@element-plus/icons-vue'
+  import { useDictStore } from "@/stores/dict";
+  import { formatTimestamp, formatSerialStatus } from '@/utils/dataFormatter';
+  import { rule } from 'postcss';
 
-const dictStore = useDictStore();
-const router = useRouter()
-const bookTagTypeList = computed(() => {
-  return dictStore.dict.bookTagType || [];
-});
-
-interface RuleForm {
-  bookName: string
-  bookCategoryList: String[]
-  bookTagList: string[]
-  bookProtagonist: string
-  bookDesc: string
-  agreeProtocol: boolean
-  coverImageUrl: string
-}
-
-// 添加视图状态管理
-const currentView = ref<'list' | 'create-book' | 'book-setting' | 'chapter-management' | 'create-chapter'>('list')
-
-const ruleFormRef = ref<FormInstance>()
-const coverImageUrl = ref('')
-const categoryList = ref([])
-
-const ruleForm = reactive<RuleForm>({
-  bookName: '',
-  bookCategoryList: [],
-  bookTagList: [],
-  bookProtagonist: '',
-  bookDesc: '',
-  agreeProtocol: false,
-  coverImageUrl: ''
-})
-
-const rules = reactive<FormRules<RuleForm>>({
-  bookName: [
-    { required: true, message: 'Please input Book name', trigger: 'blur' },
-    { min: 3, max: 20, message: 'Length should be 3 to 20', trigger: 'blur' },
-  ],
-  bookCategoryList: [
-    { required: true, message: 'Please select Book category', trigger: 'change' },
-  ],
-  bookTagList: [
-    { required: true, message: 'Please select Book tag', trigger: 'change' },
-  ],
-  bookProtagonist: [
-    { required: true, message: 'Please input Book protagonist', trigger: 'blur' },
-    { min: 3, max: 20, message: 'Length should be 3 to 20', trigger: 'blur' },
-  ],
-  bookDesc: [
-    { required: true, message: 'Please input Book description', trigger: 'blur' },
-    { min: 50, max: 500, message: 'Length should be 50 to 500', trigger: 'blur' },
-  ],
-  agreeProtocol: [
-    { required: true, message: 'Please agree to the protocol', trigger: 'change' },
-    { type: 'boolean', message: 'Please agree to the protocol', trigger: 'change' },
-  ],
-  coverImageUrl: [
-    { required: true, message: 'Please select Book cover image', trigger: 'change' },
-  ],
-})
-
-interface ChapterInfo {
-  chapterName: string
-  chapterWordCount: number
-  updateTime: string
-}
-
-const tableRowClassName = ({
-  row,
-  rowIndex,
-}: {
-  row: ChapterInfo
-  rowIndex: number
-}) => {
-  if (rowIndex === 1) {
-    return 'warning-row'
-  } else if (rowIndex === 3) {
-    return 'success-row'
-  }
-  return ''
-}
-
-const tableData: ChapterInfo[] = [
-  {
-    chapterName: '第1章 我死了，我又活了',
-    chapterWordCount: 2000,
-    updateTime: '2016-05-03'
-  },
-  {
-    chapterName: '开始逃荒',
-    chapterWordCount: 2160,
-    updateTime: '2025-12-02'
-  }
-]
-
-// 视图切换方法 - 合并为一个通用函数
-const switchView = (view: 'list' | 'create-book' | 'book-setting' | 'chapter-management' | 'create-chapter') => {
-  currentView.value = view
-}
-
-try { 
-  // 获取当前作者所有未发布的书籍
-  const authorBookList = await apiRequest(API_ENDPOINTS.LIST_ALL_BOOS_BY_AUTHOR, {
-    method: 'GET'
+  const dictStore = useDictStore();
+  const router = useRouter()
+  const bookTagTypeList = computed(() => {
+    return dictStore.dict.bookTagType || [];
   });
-  console.log(authorBookList)
-} catch (error) {
-  console.error(error)
-}
 
-const editBookInfo = () => {
-  // 这里需要获取当前书籍的信息，示例数据如下：
-  const bookInfo = {
-    bookName: '穿书荒年我靠修仙无敌了',
+  interface RuleForm {
+    bookName: string
+    bookCategoryList: String[]
+    bookTagList: string[]
+    bookProtagonist: string
+    bookDesc: string
+    agreeProtocol: boolean
+    coverImageUrl: string
+  }
+
+  // 添加视图状态管理
+  const currentView = ref<'list' | 'create-book' | 'book-setting' | 'chapter-management' | 'create-chapter'>('list')
+
+  const ruleFormRef = ref<FormInstance>()
+  const coverImageUrl = ref('')
+  const isEditing = ref(false);
+  const currentBookId = ref('')
+  const categoryList = ref([])
+  const authorBookList = ref([])
+
+  const ruleForm = reactive<RuleForm>({
+    bookName: '',
     bookCategoryList: [],
     bookTagList: [],
     bookProtagonist: '',
     bookDesc: '',
     agreeProtocol: false,
     coverImageUrl: ''
-  };
-  
-  // 将书籍信息编码后传递到创建小说页面
-  const bookDataStr = JSON.stringify(bookInfo);
-  const encodedBookData = btoa(encodeURIComponent(bookDataStr));
-  
-  // 切换到创建小说视图
-  currentView.value = 'create-book';
-  
-  // 如果需要在路由间传递数据，可以使用以下方式：
-  // router.push({
-  //   path: '/author/createBook',
-  //   query: {
-  //     bookData: encodedBookData,
-  //     editMode: 'true'
-  //   }
-  // });
-}
-
-const updatechapter = () => {
-  console.log('update')
-  router.push({
-    path: '/author/writeBook',
-    query: {
-      chapterId: '1', // This should be the actual chapter ID
-      editMode: 'true',
-      from: 'chapter-management'
-    }
   })
-}
 
-const deleteChapter = () => {
-  ElMessageBox.confirm(
-    '删除后将不会恢复，确定要删除吗？',
-    '提示',
+  const rules = reactive<FormRules<RuleForm>>({
+    bookName: [
+      { required: true, message: 'Please input Book name', trigger: 'blur' },
+      { min: 3, max: 20, message: 'Length should be 3 to 20', trigger: 'blur' },
+    ],
+    bookCategoryList: [
+      { required: true, message: 'Please select Book category', trigger: 'change' },
+    ],
+    bookTagList: [
+      { required: true, message: 'Please select Book tag', trigger: 'change' },
+    ],
+    bookProtagonist: [
+      { required: true, message: 'Please input Book protagonist', trigger: 'blur' },
+      { min: 3, max: 20, message: 'Length should be 3 to 20', trigger: 'blur' },
+    ],
+    bookDesc: [
+      { required: true, message: 'Please input Book description', trigger: 'blur' },
+      { min: 50, max: 500, message: 'Length should be 50 to 500', trigger: 'blur' },
+    ],
+    agreeProtocol: [
+      { required: true, message: 'Please agree to the protocol', trigger: 'change' },
+      { type: 'boolean', message: 'Please agree to the protocol', trigger: 'change' },
+    ],
+    coverImageUrl: [
+      { required: true, message: 'Please select Book cover image', trigger: 'change' },
+    ],
+  })
+
+  interface ChapterInfo {
+    chapterName: string
+    chapterWordCount: number
+    updateTime: string
+  }
+
+  const tableRowClassName = ({
+    row,
+    rowIndex,
+  }: {
+    row: ChapterInfo
+    rowIndex: number
+  }) => {
+    if (rowIndex === 1) {
+      return 'warning-row'
+    } else if (rowIndex === 3) {
+      return 'success-row'
+    }
+    return ''
+  }
+
+  const tableData: ChapterInfo[] = [
     {
-      confirmButtonText: '确认',
-      cancelButtonText: '取消',
-      type: 'warning',
-      // 自定义样式
-      customClass: 'custom-delete-dialog',
-      showClose: true,
-      center: true,
-      draggable: false,
+      chapterName: '第1章 我死了，我又活了',
+      chapterWordCount: 2000,
+      updateTime: '2016-05-03'
+    },
+    {
+      chapterName: '开始逃荒',
+      chapterWordCount: 2160,
+      updateTime: '2025-12-02'
     }
-  )
-    .then(() => {
-      ElMessage({
-        type: 'success',
-        message: '删除成功',
-      })
-    })
-    .catch(() => {
-      ElMessage({
-        type: 'info',
-        message: '取消删除',
-      })
-    })
-}
+  ]
 
-const handleAvatarSuccess: UploadProps['onSuccess'] = (
-  response,
-  uploadFile
-) => {
-  console.log('handleAvatarSuccess', uploadFile)
-  console.log('response', response)
-  coverImageUrl.value = response.data
-  ruleForm.coverImageUrl = response.data
-}
-
-const allowImageTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
-const allowExts = ['jpg', 'jpeg', 'png', 'gif'];
-const beforeAvatarUpload: UploadProps['beforeUpload'] = (rawFile) => {
-  console.log('beforeAvatarUpload', rawFile)
-  const fileExt = rawFile.name.split('.').pop().toLowerCase();
-  // 双重验证：MIME类型 或 后缀名
-  if (!allowImageTypes.includes(rawFile.type) && !allowExts.includes(fileExt)) {
-    ElMessage.error('仅支持上传 jpg/jpeg/png/gif 格式的图片！');
-    return false;
-  } else if (rawFile.size / 1024 / 1024 > 2) {
-    ElMessage.error('Avatar picture size can not exceed 2MB!')
-    return false
-  }
-  return true
-}
-
- // 获取书籍分类
-  try {
-    const bookCateResult = await apiRequest(API_ENDPOINTS.CATEGORIES, {
-      method: 'GET'
-    });
-    console.log("书籍分类", bookCateResult)
-    if (!bookCateResult.code === 200) {
-      throw new Error(`HTTP error! status: ${bookCateResult.status}`)
-    }
-    
-    const result = await bookCateResult
-    
-    if (result.code === 200 && Array.isArray(result.data)) {
-      categoryList.value = result.data;
-    }
-  } catch (error) {
+  const openBookSetting = (bookItem: any) => {
+    console.log("打开书籍设置", bookItem)
+    // Object.assign(ruleForm, bookItem);
+    ruleForm.bookName = bookItem.title
+    ruleForm.bookDesc = bookItem.description
+    ruleForm.coverImageUrl = bookItem.coverImageUrl
+    ruleForm.bookTagList = bookItem.tag
+    ruleForm.bookProtagonist = bookItem.protagonistIntroduction
+    coverImageUrl.value = bookItem.coverImageUrl
+    currentView.value = 'create-book';
+    currentBookId.value = bookItem.bookId;
+    isEditing.value = true;
+  };
+  // 视图切换方法 - 合并为一个通用函数
+  const switchView = (view: 'list' | 'create-book' | 'book-setting' | 'chapter-management' | 'create-chapter') => {
+    currentView.value = view
   }
 
-// 继续创建章节
-const continueCreateChapter = async (formEl: FormInstance | undefined) => {
-  if (!formEl) return
-  await formEl.validate((valid, fields) => {
-    if (valid) {
-      console.log('submit!')
-      const bookDataStr = JSON.stringify(ruleForm);
-      const encodedBookData = btoa(encodeURIComponent(bookDataStr)) // 先 encodeURIComponent 防止特殊字符问题
-      router.push({
-        path: '/author/writeBook',
-        query: {
-          bookData: encodedBookData,
-          from: 'create-book'
-        }
-      })
-    } else {
-      //  ElMessage.error('缺少必填字段！')
-      console.log('submit!')
-      const bookDataStr = JSON.stringify(ruleForm);
-      const encodedBookData = btoa(encodeURIComponent(bookDataStr)) // 先 encodeURIComponent 防止特殊字符问题
-      router.push({
-        path: '/author/writeBook',
-        query: {
-          bookData: encodedBookData,
-        }
-      })
+  const createChapter = (bookItem: any) => {
+    const bookDataStr = JSON.stringify(bookItem);
+    const encodedBookData = btoa(encodeURIComponent(bookDataStr)) // 先 encodeURIComponent 防止特殊字符问题
+    router.push({
+      path: '/author/writeBook',
+      query: {
+        bookData: encodedBookData,
+        from: 'create-chapter'
+      }
+    })
+  }
+
+  const listAuthoBook = async () => { 
+    try { 
+      // 获取当前作者所有未发布的书籍
+      const authorBookListResult = await apiRequest(API_ENDPOINTS.LIST_ALL_BOOS_BY_AUTHOR, {
+        method: 'GET'
+      });
+      console.log(authorBookListResult)
+      authorBookList.value = authorBookListResult.data;
+    } catch (error) {
+      console.error(error)
     }
+  }
+  const updatechapter = () => {
+    console.log('update')
+    router.push({
+      path: '/author/writeBook',
+      query: {
+        chapterId: '1', // This should be the actual chapter ID
+        editMode: 'true',
+        from: 'chapter-management'
+      }
+    })
+  }
+
+  const deleteChapter = () => {
+    ElMessageBox.confirm(
+      '删除后将不会恢复，确定要删除吗？',
+      '提示',
+      {
+        confirmButtonText: '确认',
+        cancelButtonText: '取消',
+        type: 'warning',
+        // 自定义样式
+        customClass: 'custom-delete-dialog',
+        showClose: true,
+        center: true,
+        draggable: false,
+      }
+    )
+      .then(() => {
+        ElMessage({
+          type: 'success',
+          message: '删除成功',
+        })
+      })
+      .catch(() => {
+        ElMessage({
+          type: 'info',
+          message: '取消删除',
+        })
+      })
+  }
+
+  const handleAvatarSuccess: UploadProps['onSuccess'] = (
+    response,
+    uploadFile
+  ) => {
+    console.log('handleAvatarSuccess', uploadFile)
+    console.log('response', response)
+    coverImageUrl.value = response.data
+    ruleForm.coverImageUrl = response.data
+  }
+
+  const allowImageTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+  const allowExts = ['jpg', 'jpeg', 'png', 'gif'];
+  const beforeAvatarUpload: UploadProps['beforeUpload'] = (rawFile) => {
+    console.log('beforeAvatarUpload', rawFile)
+    const fileExt = rawFile.name.split('.').pop().toLowerCase();
+    // 双重验证：MIME类型 或 后缀名
+    if (!allowImageTypes.includes(rawFile.type) && !allowExts.includes(fileExt)) {
+      ElMessage.error('仅支持上传 jpg/jpeg/png/gif 格式的图片！');
+      return false;
+    } else if (rawFile.size / 1024 / 1024 > 2) {
+      ElMessage.error('Avatar picture size can not exceed 2MB!')
+      return false
+    }
+    return true
+  }
+
+  // 获取书籍分类
+    try {
+      const bookCateResult = await apiRequest(API_ENDPOINTS.CATEGORIES, {
+        method: 'GET'
+      });
+      console.log("书籍分类", bookCateResult)
+      if (!bookCateResult.code === 200) {
+        throw new Error(`HTTP error! status: ${bookCateResult.status}`)
+      }
+      
+      const result = await bookCateResult
+      
+      if (result.code === 200 && Array.isArray(result.data)) {
+        categoryList.value = result.data;
+      }
+    } catch (error) {
+    }
+
+  // 继续创建章节
+  const continueCreateChapter = async (formEl: FormInstance | undefined) => {
+    if (!formEl) return
+    await formEl.validate((valid, fields) => {
+      if (valid) {
+        console.log('submit!')
+        const bookDataStr = JSON.stringify(ruleForm);
+        const encodedBookData = btoa(encodeURIComponent(bookDataStr)) // 先 encodeURIComponent 防止特殊字符问题
+        router.push({
+          path: '/author/writeBook',
+          query: {
+            bookData: encodedBookData,
+            from: 'create-book'
+          }
+        })
+      } else {
+        //  ElMessage.error('缺少必填字段！')
+        console.log('submit!')
+        const bookDataStr = JSON.stringify(ruleForm);
+        const encodedBookData = btoa(encodeURIComponent(bookDataStr)) // 先 encodeURIComponent 防止特殊字符问题
+        router.push({
+          path: '/author/writeBook',
+          query: {
+            bookData: encodedBookData,
+          }
+        })
+      }
+    })
+  }
+
+  const handleEditBook = async () => {
+    try {
+      // Validate form
+      await ruleFormRef.value?.validate();
+
+      // Prepare request data
+      const updateBookReq = {
+        bookId: currentBookId.value, // Assuming you have a currentBookId
+        title: ruleForm.bookName,
+        protagonistIntroduction: ruleForm.bookProtagonist,
+        description: ruleForm.bookDesc,
+        coverImageUrl: ruleForm.coverImageUrl,
+        bookCategoryList: ruleForm.bookCategoryList,
+        bookTagList: ruleForm.bookTagList,
+      };
+
+      const updateBookResult = await apiRequest(API_ENDPOINTS.UPDATE_BOOK, {
+        method: 'POST',
+        body: JSON.stringify(updateBookReq),
+      });
+      console.log('Update book result:', updateBookResult);
+      if (updateBookResult.code === 200) {
+        ElMessage({
+          type: 'success',
+          message: '书籍信息更新成功',
+        });
+        // 刷新数据
+        listAuthoBook();
+        switchView('list'); // Return to list view
+      } else {
+        ElMessage.error('更新失败，请重试');
+      }
+    } catch (error) {
+      console.error('Update book failed:', error);
+      ElMessage.error('更新失败，请检查网络或联系管理员');
+    }
+  };
+
+  onMounted(() => { 
+    listAuthoBook();
   })
-}
 </script>
 
 <style lang="scss" scoped>
+// components/author/WorkManagement.style
 /* 移动原文件中的相关样式到这里 */
 :deep(.custom-delete-dialog .el-message-box) {
   background-color: #424242 !important; /* 自定义背景色 */
