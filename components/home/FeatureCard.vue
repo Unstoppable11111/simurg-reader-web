@@ -60,7 +60,7 @@
   const activeIndex = ref(3)
   // 定义.first-part的样式状态
   const firstPartStyles = ref({
-    marginLeft: '-108px',
+    marginLeft: '-96px',
     // 可以添加其他初始样式
     transition: 'margin-left 0.5s ease-in-out' // 添加过渡动画属性
   })
@@ -95,7 +95,8 @@
       router.push(`/book/${bookId}`)
   }
 
-
+  // 左右偏移量
+  const lv = 192;
   // 点击左箭头时调整样式
   const moveLeft = () => {
     activeIndex.value--
@@ -103,7 +104,7 @@
     // 每次点击左箭头，增加margin-left值（示例：每次增加50px）
     const currentMargin = parseInt(firstPartStyles.value.marginLeft)
     console.log('当前margin-left:', currentMargin)
-    firstPartStyles.value.marginLeft = currentMargin + 224 + 'px'
+    firstPartStyles.value.marginLeft = currentMargin + lv + 'px'
     console.log('更新后margin-left:', firstPartStyles.value.marginLeft)
   }
 
@@ -113,7 +114,7 @@
     // 每次点击左箭头，增加margin-left值（示例：每次增加50px）
     const currentMargin = parseInt(firstPartStyles.value.marginLeft)
     console.log('当前margin-left:', currentMargin)
-    firstPartStyles.value.marginLeft = currentMargin - 224 + 'px'
+    firstPartStyles.value.marginLeft = currentMargin - lv + 'px'
     console.log('更新后margin-left:', firstPartStyles.value.marginLeft)
     // 可以同时调整其他样式
   }
@@ -174,7 +175,7 @@
   }
 
   .first-part {
-    margin-left: -108px;
+    margin-left: -96px;
     z-index: 1;
   }
 
