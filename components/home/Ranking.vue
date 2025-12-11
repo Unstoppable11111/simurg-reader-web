@@ -1,7 +1,7 @@
 <template>
   <div class="ranking-box">
     <!-- 大热榜 -->
-    <div class="ranking-hot-section">
+    <div class="ranking-hot-section" v-if="hotBooks.length > 0">
       <div class="ranking-hot-list">
         <span class="ranking-hot-title">大热榜</span>
         <!-- 使用v-for循环渲染列表项 -->
@@ -11,22 +11,24 @@
           :key="index"
           @click="gotoBookDetail(book.bookId)"
         >
-          <img :src="book.imgUrl" :alt="book.title" class="book-cover">
+          <img :src="book.coverImageUrl" :alt="book.title" class="book-cover">
           <img 
-            :src="book.rankIcon" 
-            :class="book.rankClass"
+            :src="getRankIcon(index)" 
+            :class="getRankClass(index)"
           />
           <div class="book-info">
             <span class="book-title">{{ book.title }}</span>
-            <span class="book-cate">{{ book.category }}</span>
-            <span class="book-hot">{{ book.hot }}</span>
+            <span class="book-cate">{{ book.bookCategoryResponseList && book.bookCategoryResponseList.length > 0 
+              ? book.bookCategoryResponseList[0].categoryName 
+              : ''  }}</span>
+            <span class="book-hot">{{ book.bookViews }} 热度</span>
           </div>
         </div>
       </div>
     </div>
 
     <!-- 新书榜 -->
-    <div class="ranking-new-section">
+    <div class="ranking-new-section" v-if="newBooks.length > 0">
       <div class="ranking-new-list">
         <span class="ranking-new-title">新书榜</span>
         <!-- 使用v-for循环渲染列表项 -->
@@ -36,24 +38,26 @@
           :key="index"
           @click="gotoBookDetail(book.bookId)"
         >
-          <img :src="book.imgUrl" :alt="book.title" class="book-cover">
+          <img :src="book.coverImageUrl" :alt="book.title" class="book-cover">
           <img 
-            :src="book.rankIcon" 
-            :class="book.rankClass"
+            :src="getRankIcon(index)" 
+            :class="getRankClass(index)"
           />
           <div class="book-info">
             <span class="book-title">{{ book.title }}</span>
-            <span class="book-cate">{{ book.category }}</span>  
-            <span class="book-hot">{{ book.hot }}</span>
+            <span class="book-cate">{{ book.bookCategoryResponseList && book.bookCategoryResponseList.length > 0 
+              ? book.bookCategoryResponseList[0].categoryName 
+              : ''  }}</span>  
+            <span class="book-hot">{{ book.bookViews }} 热度</span>
           </div>
         </div>
       </div>
     </div>
 
     <!-- 畅销榜 -->
-    <div class="ranking-best-sellers-section">
+    <div class="ranking-best-sellers-section" v-if="bestSellersBooks.length > 0">
       <div class="ranking-best-sellers-list">
-        <span class="ranking-best-sellers-title">畅销榜</span>
+        <span class="ranking-best-sellers-title">完结榜</span>
         <!-- 使用v-for循环渲染列表项 -->
         <div 
           class="ranking-best-sellers-itme" 
@@ -61,15 +65,17 @@
           :key="index"
           @click="gotoBookDetail(book.bookId)"
         >
-          <img :src="book.imgUrl" :alt="book.title" class="book-cover">
+          <img :src="book.coverImageUrl" :alt="book.title" class="book-cover">
           <img 
-            :src="book.rankIcon" 
-            :class="book.rankClass"
+            :src="getRankIcon(index)" 
+            :class="getRankClass(index)"
           />
           <div class="book-info">
             <span class="book-title">{{ book.title }}</span>
-            <span class="book-cate">{{ book.category }}</span>  
-            <span class="book-hot">{{ book.hot }}</span>
+            <span class="book-cate">{{ book.bookCategoryResponseList && book.bookCategoryResponseList.length > 0 
+              ? book.bookCategoryResponseList[0].categoryName 
+              : ''  }}</span>  
+            <span class="book-hot">{{ book.bookViews }}</span>
           </div>
         </div>
       </div>
@@ -79,14 +85,36 @@
 
 <script setup>
 import { ref } from 'vue';
+import { API_ENDPOINTS, apiRequest } from '@/utils/api'
 const router = useRouter();
 const props = defineProps({
-    books: {
-      type: Array,
-      default: () => [],
-      required: true
-    }
+    apiUrl: {
+    type: String,
+    default: API_ENDPOINTS.RANKING_BOOKS
+    },
 })
+
+// 定义排名图标和类名
+const RANK_ICONS = {
+  first: "http://www.tireba.com/simurg-reader/images/first.svg",
+  second: "http://www.tireba.com/simurg-reader/images/second.svg",
+  third: "http://www.tireba.com/simurg-reader/images/third.svg",
+  fore: "http://www.tireba.com/simurg-reader/images/fore.svg",
+  five: "http://www.tireba.com/simurg-reader/images/five.svg"
+};
+
+const RANK_CLASSES = ['first', 'second', 'third', 'fore', 'five'];
+
+// 根据索引获取排名图标
+const getRankIcon = (index) => {
+  const rankClass = RANK_CLASSES[index] || 'five';
+  return RANK_ICONS[rankClass];
+};
+
+// 根据索引获取排名类名
+const getRankClass = (index) => {
+  return RANK_CLASSES[index] || 'five';
+};
 
 // 点击书籍跳转到详情页
 const gotoBookDetail = (bookId) => {
@@ -95,156 +123,88 @@ const gotoBookDetail = (bookId) => {
   router.push(`/book/${bookId}`)
 }
 
-// 大热榜数据
-const hotBooks = ref([
-  {
-    bookId: 1,
-    imgUrl: "http://www.tireba.com/simurg-reader/images/4.jpg",
-    title: "快穿一时爽",
-    category: "架空穿越",
-    hot: "381.9万热度",
-    rankIcon: "http://www.tireba.com/simurg-reader/images/first.svg",
-    rankClass: "first"
-  },
-  {
-    bookId: 2,
-    imgUrl: "http://www.tireba.com/simurg-reader/images/5.jpg",
-    title: "太好了，是狗腿子，我们有救了",
-    category: "修仙",
-    hot: "362.7万热度",
-    rankIcon: "http://www.tireba.com/simurg-reader/images/second.svg",
-    rankClass: "second"
-  },
-  {
-    bookId: 3,
-    imgUrl: "http://www.tireba.com/simurg-reader/images/6.jpg",
-    title: "太好了，是狗腿子，我们有救了",
-    category: "修仙",
-    hot: "362.7万热度",
-    rankIcon: "http://www.tireba.com/simurg-reader/images/third.svg",
-    rankClass: "third"
-  },
-  {
-    bookId: 4,
-    imgUrl: "http://www.tireba.com/simurg-reader/images/7.jpg",
-    title: "太好了，是狗腿子，我们有救了",
-    category: "修仙",
-    hot: "362.7万热度",
-    rankIcon: "http://www.tireba.com/simurg-reader/images/fore.svg",
-    rankClass: "fore"
-  },
-  {
-    bookId: 5,
-    imgUrl: "http://www.tireba.com/simurg-reader/images/8.jpg",
-    title: "太好了，是狗腿子，我们有救了",
-    category: "修仙",
-    hot: "362.7万热度",
-    rankIcon: "http://www.tireba.com/simurg-reader/images/five.svg",
-    rankClass: "five"
-  }
-]);
+const fetchRankingData = async () => {
+  // 热门榜
+  try {
+    const hotRankingData = {
+      rankingType: 1,
+      rankingSize: 5
+    };
 
+    const response = await apiRequest(props.apiUrl, {
+      method: 'POST',
+      body: JSON.stringify(hotRankingData)
+    });
+    const result = response;
+    console.log('热门榜数据:', result);
+    if (result.code === 200 && result.data) {
+      hotBooks.value = result.data || [];
+    }
+  } catch (error) {
+  }
+
+  // 新书榜
+  try {
+    const newBookRankingData = {
+      rankingType: 5,
+      rankingSize: 5
+    };
+
+    const response = await apiRequest(props.apiUrl, {
+      method: 'POST',
+      body: JSON.stringify(newBookRankingData)
+    });
+    const result = response;
+    console.log('新书榜数据:', result);
+    if (result.code === 200 && result.data) {
+      newBooks.value = result.data || [];
+    }
+  } catch (error) {
+  }
+
+  // 完结榜
+  try {
+    const bestsellerRankingData = {
+      rankingType: 4,
+      rankingSize: 5
+    };
+
+    const response = await apiRequest(props.apiUrl, {
+      method: 'POST',
+      body: JSON.stringify(bestsellerRankingData)
+    });
+    const result = response;
+    console.log('完结榜数据:', result);
+    if (result.code === 200 && result.data) {
+      bestSellersBooks.value = result.data || [];
+    }
+  } catch (error) {
+  }
+};
+
+// 大热榜数据
+const hotBooks = ref([]);
 // 新书榜数据
-const newBooks = ref([
-  {
-    bookId: 1,
-    imgUrl: "http://www.tireba.com/simurg-reader/images/4.jpg",
-    title: "快穿一时爽",
-    category: "架空穿越",
-    hot: "381.9万热度",
-    rankIcon: "http://www.tireba.com/simurg-reader/images/first.svg",
-    rankClass: "first"
-  },
-  {
-    bookId: 1,
-    imgUrl: "http://www.tireba.com/simurg-reader/images/5.jpg",
-    title: "太好了，是狗腿子，我们有救了",
-    category: "修仙",
-    hot: "362.7万热度",
-    rankIcon: "http://www.tireba.com/simurg-reader/images/second.svg",
-    rankClass: "second"
-  },
-  {
-    bookId: 1,
-    imgUrl: "http://www.tireba.com/simurg-reader/images/6.jpg",
-    title: "太好了，是狗腿子，我们有救了",
-    category: "修仙",
-    hot: "362.7万热度",
-    rankIcon: "http://www.tireba.com/simurg-reader/images/third.svg",
-    rankClass: "third"
-  },
-  {
-    bookId: 1,
-    imgUrl: "http://www.tireba.com/simurg-reader/images/7.jpg",
-    title: "太好了，是狗腿子，我们有救了",
-    category: "修仙",
-    hot: "362.7万热度",
-    rankIcon: "http://www.tireba.com/simurg-reader/images/fore.svg",
-    rankClass: "fore"
-  },
-  {
-    bookId: 1,
-    imgUrl: "http://www.tireba.com/simurg-reader/images/8.jpg",
-    title: "太好了，是狗腿子，我们有救了",
-    category: "修仙",
-    hot: "362.7万热度",
-    rankIcon: "http://www.tireba.com/simurg-reader/images/five.svg",
-    rankClass: "five"
-  }
-]);
-const bestSellersBooks = ref([
-  {
-    bookId: 1,
-    imgUrl: "http://www.tireba.com/simurg-reader/images/4.jpg",
-    title: "快穿一时爽",
-    category: "架空穿越",
-    hot: "381.9万热度",
-    rankIcon: "http://www.tireba.com/simurg-reader/images/first.svg",
-    rankClass: "first"
-  },
-  {
-    bookId: 1,
-    imgUrl: "http://www.tireba.com/simurg-reader/images/5.jpg",
-    title: "太好了，是狗腿子，我们有救了",
-    category: "修仙",
-    hot: "362.7万热度",
-    rankIcon: "http://www.tireba.com/simurg-reader/images/second.svg",
-    rankClass: "second"
-  },
-  {
-    bookId: 1,
-    imgUrl: "http://www.tireba.com/simurg-reader/images/6.jpg",
-    title: "太好了，是狗腿子，我们有救了",
-    category: "修仙",
-    hot: "362.7万热度",
-    rankIcon: "http://www.tireba.com/simurg-reader/images/third.svg",
-    rankClass: "third"
-  },
-  {
-    bookId: 1,
-    imgUrl: "http://www.tireba.com/simurg-reader/images/7.jpg",
-    title: "太好了，是狗腿子，我们有救了",
-    category: "修仙",
-    hot: "362.7万热度",
-    rankIcon: "http://www.tireba.com/simurg-reader/images/fore.svg",
-    rankClass: "fore"
-  },
-  {
-    bookId: 1,
-    imgUrl: "http://www.tireba.com/simurg-reader/images/8.jpg",
-    title: "太好了，是狗腿子，我们有救了",
-    category: "修仙",
-    hot: "362.7万热度",
-    rankIcon: "http://www.tireba.com/simurg-reader/images/five.svg",
-    rankClass: "five"
-  }
-]);
+const newBooks = ref([]);
+// 畅销榜数据
+const bestSellersBooks = ref([]);
+
+
+// 组件挂载时获取数据
+onMounted(() => {
+  fetchRankingData();
+});
 </script>
 
 <style lang="scss" scoped>
   .ranking-box {
     display: flex;
-    margin-top: 38px;
+  }
+  .ranking-hot-section, 
+  .ranking-new-section, 
+  .ranking-best-sellers-section { 
+    width: 400px;
+    height: 633px;
   }
   .ranking-hot-title, 
   .ranking-new-title, 
@@ -252,7 +212,7 @@ const bestSellersBooks = ref([
     height: 40px;
     font-family: PingFangSC, PingFang SC;
     font-weight: 400;
-    font-size: 28px;
+    font-size: 24px;
     color: #FFFFFF;
     line-height: 40px;
     text-align: left;
@@ -262,7 +222,7 @@ const bestSellersBooks = ref([
   .ranking-new-itme, 
   .ranking-best-sellers-itme {
     display: flex;
-    width: 445px;
+    width: 400px;
     height: 96px;
     margin-top: 14px;
     margin-bottom: 18px;
@@ -273,9 +233,12 @@ const bestSellersBooks = ref([
   .ranking-best-sellers-itme img {
     width: 72px;
     height: 96px;
+    border-radius: 4px
   }
   .book-info {
     display: flex;
+    width: 290px;
+    height: 96px;
     flex-direction: column;
     margin-left: 8px;
   }
@@ -299,12 +262,12 @@ const bestSellersBooks = ref([
     margin-left: 8px;
   }
   .book-title {
-    height: 29px;
+    height: 22px;
     font-family: PingFangSC, PingFang SC;
     font-weight: 400;
-    font-size: 21px;
+    font-size: 16px;
     color: #FFFFFF;
-    line-height: 29px;
+    line-height: 22px;
     text-align: left;
     font-style: normal;
     /* 单行超出省略号核心样式 */
@@ -318,25 +281,25 @@ const bestSellersBooks = ref([
     cursor: pointer; /* 鼠标变为手型，提示可点击 */
     }
   .book-cate {
-    height: 22px;
+    height: 17px;
     font-family: PingFangSC, PingFang SC;
     font-weight: 400;
-    font-size: 16px;
+    font-size: 12px;
     color: #DADADA;
-    line-height: 22px;
+    line-height: 17px;
     text-align: left;
     font-style: normal;
   }
   .book-hot {
-    height: 22px;
+    height: 17px;
     font-family: PingFangSC, PingFang SC;
     font-weight: 400;
-    font-size: 16px;
+    font-size: 12px;
     color: #DB975A;
-    line-height: 22px;
+    line-height: 17px;
     text-align: left;
     font-style: normal;
-    margin-top: 19px;
+    margin-top: 36px;
   }
 
     // 书籍图片样式及动画
@@ -349,6 +312,9 @@ const bestSellersBooks = ref([
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     // 防止缩放时内容溢出
     transform-origin: center;
+    &:not(:valid) {
+      background-color: #828282;
+    }
   }
 
   // 鼠标悬停时的动画效果

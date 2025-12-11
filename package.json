@@ -4,22 +4,44 @@
   "type": "module",
   "scripts": {
     "build": "nuxt build",
-    "dev": "nuxt dev",
+    "build:test": "nuxt build --dotenv .env.test",
+    "build:prod": "nuxt build --dotenv .env.production",
+    "dev": "nuxt dev --dotenv .env.development",
+    "dev:test": "nuxt dev --dotenv .env.test",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "nuxt prepare"
+    "postinstall": "nuxt prepare",
+    "clear": "nuxt build --clean"
   },
   "dependencies": {
+    "@ckeditor/ckeditor5-vue": "^7.3.0",
+    "@pinia/nuxt": "^0.11.2",
+    "@tinymce/tinymce-vue": "^6.3.0",
+    "axios": "^1.13.2",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "crypto-js": "^4.2.0",
     "element-plus": "^2.11.1",
+    "lucide-vue-next": "^0.544.0",
     "nuxt": "^4.0.3",
+    "pinia": "^3.0.3",
     "swiper": "^11.2.10",
+    "tailwind-merge": "^3.3.1",
+    "tailwindcss-animate": "^1.0.7",
+    "tinymce": "^8.0.2",
     "vue": "^3.5.18",
-    "vue-router": "^4.5.1"
+    "vue-cropper": "^0.6.5",
+    "vue-router": "^4.5.1",
+    "vue3-emoji": "^3.0.5"
   },
   "devDependencies": {
     "@element-plus/nuxt": "^1.1.4",
+    "@nuxtjs/tailwindcss": "^6.14.0",
+    "autoprefixer": "^10.4.21",
+    "postcss": "^8.5.6",
     "postcss-px-to-viewport": "^1.1.1",
     "sass-embedded": "^1.90.0",
+    "tailwindcss": "^3.4.17",
     "unplugin-auto-import": "^20.0.0",
     "unplugin-vue-components": "^29.0.0"
   }

@@ -43,3 +43,33 @@ li {
   /* 如需移除列表项的默认行高或其他样式可在此添加 */
   /* line-height: 1; */
 }
+
+/* 去除所有button的默认样式 */
+button {
+  background: none;
+  border: none;
+  outline: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+  text-align: inherit;
+}
+
+/* 去除focus状态下的默认样式 */
+button:focus {
+  outline: none;
+}
+
+/* 去除移动端点击时的高亮效果 */
+button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* 去除Firefox浏览器下的默认内边距 */
+button::-moz-focus-inner {
+  border: 0;
+  padding: 0;
+}

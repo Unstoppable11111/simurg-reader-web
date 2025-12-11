@@ -1,6 +1,6 @@
 <template>
   <div class="become-author-page">
-    <Header  :margin-left="'244px'"/>
+    <Header  :margin-left="'360px'"/>
     <div class="become-author-container">
       <!-- 推荐信息区域 -->
       <div class="become-author-recommend-box">
@@ -27,7 +27,7 @@
               @click="triggerFileSelect">
             <input ref="fileInput" type="file" accept="image/*" @change="handleAvatarChange" class="avatar-input" />
             <div class="avatar-preview">
-              <img v-if="avatarPreview" :src="avatarPreview" alt="预览" />
+              <img v-if="avatarPreview" :src="avatarUrl" alt="预览" />
               <div v-else class="placeholder">点击上传或拖拽头像</div>
             </div>
             <button type="button" class="upload-btn" @click.stop="triggerFileSelect">上传头像</button>
@@ -76,21 +76,20 @@
 
 <script setup>
   import Header from "@/components/layout/Header.vue";
+  import { API_ENDPOINTS, apiFileRequest, apiRequest } from "@/utils/api";
+  import { ca } from "element-plus/es/locale/index.mjs";
 
   const penName = ref('');
   const bio = ref('');
   const agree = ref(false);
   const avatarPreview = ref('');
   const fileInput = ref(null);
+  const avatarUrl = ref('');
 
   const handleAvatarChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        avatarPreview.value = event.target.result;
-      };
-      reader.readAsDataURL(file);
+      uploadAvatar(file);
     }
   };
 
@@ -126,16 +125,48 @@
     
     const file = e.dataTransfer.files[0];
     if (file && file.type.startsWith('image/')) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        avatarPreview.value = event.target.result;
-      };
-      reader.readAsDataURL(file);
+      uploadAvatar(file);
     } else {
       alert('请上传有效的图片文件');
     }
   };
 
+  // 上传头像到后端
+  const uploadAvatar = async (file) => {
+    // 显示预览
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      avatarPreview.value = event.target.result;
+    };
+    reader.readAsDataURL(file);
+
+    // 创建 FormData 对象
+    const formData = new FormData();
+    formData.append('file', file);
+    console.log("文件对象",formData);
+    try {
+      // 这里需要替换为实际的上传接口URL
+      // 假设有一个上传头像的接口
+      const response = await apiFileRequest(API_ENDPOINTS.FILE_UPLOAD, {
+        method: 'POST',
+        body: formData
+      });
+      console.log("response：{}", response);
+      if (response.code != 200) {
+        throw new Error('上传失败');
+      }
+      // 保存返回的图片URL
+      if (response.data) {
+        avatarUrl.value = response.data;
+        console.log('头像上传成功，URL:', avatarUrl.value);
+      }
+    } catch (error) {
+      console.error('上传错误:', error);
+      alert('头像上传失败，请重试');
+    }
+  };
+
+  const pendingAuthorData = ref(null);
   // 添加提交处理函数
   const handleBecomeAuthor = async () => {
     // 验证必填字段
@@ -143,11 +174,31 @@
       return;
     }
 
-    // 这里可以添加提交表单数据的逻辑
-    // 例如发送请求到后端保存作者信息
-    
-    // 跳转到作者页面
-    await navigateTo('/author');
+    try {
+      const becomeAuthorReq = {
+        penName: penName.value,
+        briefIntroduction: bio.value,
+        country: "tr",
+        avatarUrl: avatarUrl.value
+      }
+      const becomeAuthorResult = await apiRequest(API_ENDPOINTS.BECOME_AUTHOR, {
+        method: 'POST',
+        body: JSON.stringify(becomeAuthorReq)
+      });
+      console.log("becomeAuthorResult：{}", becomeAuthorResult);
+      if (becomeAuthorResult.code === 200) {
+        // 跳转到作者页面
+        await navigateTo('/author');
+      }
+      if (becomeAuthorResult.code === 2008) {
+        // 跳转登录页面，登录完成直接跳转
+        pendingAuthorData.value = becomeAuthorReq;
+        await navigateTo(`/login?redirect=/becomeAuthor&autoSubmit=true`)
+      }
+    } catch (error) {
+      console.error('提交错误:', error);
+      alert('提交失败，请检查填写的表单数据');
+    }
   };
 </script>
 
@@ -164,7 +215,7 @@
     height: 878px;
     background: #424242;
     border-radius: 14px;
-    padding: 54px 54px 0;
+    margin: 122px 54px 0;
   }
   .become-author-recommend-box {
     display: flex;
@@ -172,7 +223,7 @@
     height: 174px;
     background: #646261;
     border-radius: 6px;
-    margin-bottom: 40px;
+    margin: 54px 0 38px 54px;
   }
   .become-author-recommend-img {
     width: 74px;
@@ -204,7 +255,7 @@
   .become-author-form-item {
     display: flex;
     align-items: center;
-    margin-bottom: 24px;
+    margin: 0 0 24px 54px;
   }
   .form-label .required {
     font-family: PingFangSC, PingFang SC;

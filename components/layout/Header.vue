@@ -1,36 +1,51 @@
 <template>
-  <div class="header">
-    <img src="/public/images/simurg-reader-logo.png" alt="simurg reader" class="logo" :style="{marginLeft: marginLeft}"/>
-    <img src="/public/images/simurg-reader.png" alt="simurg reader" class="simurg-reader" />
-    <NuxtLink to="/" class="header-nav to-simurg-reader-index" :class="{ 'header-nav-active': $route.path === '/' }">首页</NuxtLink>
-    <NuxtLink to="/bookshelf" class="header-nav to-bookshelf" :class="{ 'header-nav-active': $route.path === '/bookshelf' }">书架</NuxtLink>
-    <NuxtLink to="/ranking" class="header-nav to-ranking" :class="{ 'header-nav-active': $route.path === '/ranking' }">排行榜</NuxtLink>
-    <!-- <NuxtLink to="/becomeAuthor" class="header-nav to-become-author" :class="{ 'header-nav-active': $route.path === '/becomeAuthor' }">成为作家</NuxtLink> -->
-    <NuxtLink 
-      v-if="!isAuthor" 
-      to="/becomeAuthor" 
-      class="header-nav to-become-author" 
-      :class="{ 'header-nav-active': $route.path === '/becomeAuthor' }">
-      成为作家
-    </NuxtLink>
-    <NuxtLink 
-      v-else 
-      to="/author" 
-      class="header-nav to-become-author" 
-      :class="{ 'header-nav-active': $route.path === '/author' }">
-      作家专区
-    </NuxtLink>
-    <Search class="search" 
-      placeholder="请输入书名或作者名"
-      @search="handleSearch"/>
-    <NuxtLink class="login-btn" to="/login">登录</NuxtLink>
-    <!-- <button class="login-btn" @click="handleLogin">登录</button> -->
-     <img class="user-avatar" src="http://www.tireba.com/simurg-reader/images/author1.png" alt="">
-     <span class="user-name">田拽拽</span>
+  <div class="header" :class = "{ 'scrolled': isScrolled} " :key="isAuthor.toString()">
+    <img src="/public/images/simurg-reader-logo.svg" alt="simurg reader" class="logo" :style="{marginLeft: marginLeft}"/>
+    <div class="header-right-nav">
+      <a href="/" class="header-nav to-simurg-reader-index" :class="{ 'header-nav-active': $route.path === '/' }">首页</a>
+      <a
+        @click="handleBookShelfClick" 
+        class="header-nav to-bookshelf"
+        :class="{ 'header-nav-active': $route.path === '/bookshelf' }"
+      >书架</a>
+      <NuxtLink to="/ranking" class="header-nav to-ranking" :class="{ 'header-nav-active': $route.path === '/ranking' }">排行榜</NuxtLink>
+      <a
+        v-if="!isAuthor"
+        @click="handleBecomeAuthorClick" 
+        to="/becomeAuthor" 
+        class="header-nav to-become-author"
+        :class="{ 'header-nav-active': $route.path === '/becomeAuthor' }">
+        成为作家
+      </a>
+      <NuxtLink 
+        v-else 
+        to="/author" 
+        class="header-nav to-become-author" 
+        :class="{ 'header-nav-active': $route.path === '/author' }">
+        作家专区
+      </NuxtLink>
+      <Search class="search" 
+        placeholder="请输入书名或作者名"
+        @search="handleSearch"
+        @input-change="handleSearchInput"
+        @clear="handleSearchClear"  
+      />
+      <NuxtLink v-if="!isLoggedIn" class="login-btn" to="/login">登录</NuxtLink>
+      <div v-else style="display: flex;">
+        <!-- <img class="user-avatar" src="http://www.tireba.com/simurg-reader/images/author1.png" alt=""> -->
+        <img class="user-avatar" :src="userAvatar" alt="" @click="goToUserCenter">
+        <span class="user-name" @click="goToUserCenter">{{ userName }}</span>
+      </div>
+    </div>
+     
   </div>
 </template>
 
 <script setup>
+  import { isScroll } from 'element-plus/es/utils/index.mjs';
+  import { useAuth } from '@/composables/useAuth';
+  // 新增：定义emit事件，向父组件传递搜索关键词
+  const emit = defineEmits(['trigger-search']);
   const router = useRouter();
   const props = defineProps({
     marginLeft: {
@@ -42,31 +57,105 @@
       default: false
     }
   });
-    const handleSearch = (query) => {
-    console.log('搜索内容:', query)
-    // 这里可以添加实际的搜索逻辑，如跳转到搜索结果页
-    }
+  const {isLoggedIn, isAuthor, userAvatar, userName} = useAuth();
+  // 调试日志
+  console.log('Initial isLoggedIn:', isLoggedIn.value);
+  watch(isLoggedIn, (newVal) => {
+    console.log('isLoggedIn changed to:', newVal);
+  }, { immediate: true });
+  watch(isAuthor, (newVal) => {
+    console.log('isAuthor changed to:', newVal);
+  }, { immediate: true });
+  // 检查原始 cookie 值
+  const accessTokenCookie = useCookie('accessToken');
+  const userCookie = useCookie('user');
+  console.log('Raw cookies:', accessTokenCookie.value, userCookie.value);
 
-  // // 跳转登录
-  // const handleLogin = (bookId) => {  
-  //   console.log('点击了书籍，ID:', bookId)
-  //   // 登录
-  //   router.push(`/login/${bookId}`)
-  // }
+  const goToUserCenter = () => {
+    if (isAuthor.value) {
+      router.push('/author?tab=personal-info');
+    } else {
+      router.push('/user');
+    }
+  }
+
+  const handleBookShelfClick = () => {
+    if (!isLoggedIn.value) {
+      router.push('/login?redirectPath=/bookshelf');
+    } else {
+      router.push('/bookshelf');
+    }
+  }
+  const handleBecomeAuthorClick = () => {
+    if (!isLoggedIn.value) {
+      router.push('/login?redirectPath=/becomeAuthor');
+    } else {
+      router.push('/becomeAuthor');
+    }
+  }
+
+  const isScrolled = ref(false);
+  const handleSearch = async (query) => {
+    if (!query.trim()) {
+      emit('clear-search'); // 搜索按钮点击时若为空，也清空
+      return;
+    }
+    emit('trigger-search', query.trim());
+  }
+
+  // 新增：可选 - 实时输入时触发（比如输入完成后自动搜索）
+  const handleSearchInput = (value) => {
+    const trimedValue = value.trim();
+    if (trimedValue) {
+      // 有内容：触发搜索（可选加防抖）
+      emit('trigger-search', trimedValue);
+    } else {
+      // 无内容：通知首页清空搜索，恢复原内容
+      emit('clear-search');
+    }
+  };
+  // 2. 监听输入框清空按钮（如Search组件有清除按钮时）
+  const handleSearchClear = () => {
+    emit('clear-search');
+  };
+  const handleScroll = () => { 
+    isScrolled.value = window.scrollY > 84;
+  }
+
+  onMounted(() => {
+    window.addEventListener('scroll', handleScroll);
+  })
+
+  onBeforeUnmount(() => {
+    window.removeEventListener('scroll', handleScroll);
+  });
+
 
 </script>
 
 <style lang="scss" scoped>
 .header {
+  position: fixed;
   display: flex;
-  width: 1920px;
+  width: 100vw;
   height: 84px;
   align-items: center;
+  z-index: 1000;
+}
+.header.scrolled {
+  background-color: rgba(0, 0, 0, 0.8); // 可以根据需要调整颜色和透明度
+  backdrop-filter: blur(10px); // 添加模糊效果（可选）
+}
+.header-right-nav {
+  display: flex;
+  align-items: center;
+  position: absolute;
+  right: 360px;
 }
 .logo {
-  width: 54px;
+  width: 192px;
   height: 30px;
-  // margin-left: 244px;
+  margin-left: 360px;
 }
 .simurg-reader {
   width: 182px;
@@ -76,34 +165,35 @@
 .to-simurg-reader-index {
   margin-left: 318px;
   height: 25px;
-  font-size: 18px;
   color: #FFFFFF;
   text-align: left;
 }
 .header-nav {
   margin-right: 44px;
   color: #FFFFFF;
+  font-size: 14px;
   text-align: left;
   font-style: normal;
 }
 .to-bookshelf {
   height: 25px;
-  font-size: 18px;
+  &:hover {
+    cursor: pointer;
+  }
 }
 .to-ranking {
   height: 25px;
-  font-size: 18px;
 }
 .to-become-author {
   height: 25px;
-  font-size: 18px;
   color: #FF9B51;
+  &:hover {
+    cursor: pointer;
+  }
 }
 
 .header-nav-active {
-  font-size: 20px;
   font-weight: 600;
-  line-height: 28px;
 }
 .search {
   margin-right: 44px;
@@ -115,6 +205,7 @@
   background: #FFFFFF;
   border-radius: 16px;
   text-align: center;
+  font-size: 14px;
 }
 .user-avatar {
   width: 28px;

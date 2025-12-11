@@ -4,15 +4,15 @@
       <div class="footer-column">
         <h3>关于</h3>
         <ul>
-          <li><NuxtLink to="/about-us">关于我们</NuxtLink></li>
-          <li><NuxtLink to="/contact-us">联系我们</NuxtLink></li>
-          <li><NuxtLink to="/resources">资源</NuxtLink></li>
+          <li><NuxtLink to="/footer-common?section=about">关于我们</NuxtLink></li>
+          <li><NuxtLink to="/footer-common?section=contact">联系我们</NuxtLink></li>
+          <li><NuxtLink to="/footer-common?section=resources">资源</NuxtLink></li>
         </ul>
       </div>
       <div class="footer-column">
         <h3>支持</h3>
         <ul>
-          <li><NuxtLink to="/help">帮助</NuxtLink></li>
+          <li><NuxtLink to="//footer-common?section=help">帮助</NuxtLink></li>
           <li><NuxtLink to="/feedback">反馈</NuxtLink></li>
           <li><NuxtLink to="/copyright-complaint">版权投诉</NuxtLink></li>
           <li><NuxtLink to="/partners">合作伙伴</NuxtLink></li>
@@ -21,8 +21,8 @@
       <div class="footer-column">
         <h3>合法的</h3>
         <ul>
-          <li><NuxtLink to="/terms-of-use">使用条款</NuxtLink></li>
-          <li><NuxtLink to="/privacy-policy">隐私政策</NuxtLink></li>
+          <li><NuxtLink to="/footer-common?section=terms">使用条款</NuxtLink></li>
+          <li><NuxtLink to="/footer-common?section=privacy">隐私政策</NuxtLink></li>
           <li><NuxtLink to="/settings">设置</NuxtLink></li>
         </ul>
       </div>
@@ -36,7 +36,10 @@
       </div>
     </div>
     <div class="copyright">
-      版权归塔塔所有
+      Copyright © 2025 www.simurg-reader-test.tata.org.cn All rights reserved版权所有
+    </div>
+    <div class="backnum">
+      粤ICP备2025480951号-1
     </div>
   </footer>
 </template>
@@ -99,5 +102,10 @@
   margin-top: 30px;
   color: #bbb;
   font-size: 14px;
+}
+.backnum {
+  text-align: center;
+  color: #bbb;
+  font-size: 12px;
 }
 </style>
