@@ -34,7 +34,8 @@
 
 <script setup>
   import { ref, defineProps, defineEmits, onUnmounted } from 'vue'
-  import { debounce } from 'lodash' // 导入 Lodash 防抖函数
+  import _ from 'lodash';
+  const { debounce } = _;
 
   // 定义Props
   const props = defineProps({
