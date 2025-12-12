@@ -13,7 +13,7 @@
         <div class="book-author">{{ book.penName }}</div>
         <div class="book-read-history">最近阅读至：第{{book.currentReadingChapterNumber}}章 {{ book.chapterTitle }}</div>
         <div class="book-operate">
-          <div class="continue-read">继续阅读</div>
+          <div class="continue-read" @click="continueRead(book.bookId, book.currentReadingChapterNumber)">继续阅读</div>
           <div class="book-delete" @click.stop="$emit('delete-book', book.bookId)">删除</div>
         </div>
       </div>
@@ -26,8 +26,9 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
   import { Plus } from '@element-plus/icons-vue'
+  const router = useRouter();
   defineProps({
     books: {
       type: Array,
@@ -36,6 +37,12 @@
   });
 
   defineEmits(['goto-book-detail', 'delete-book']);
+
+  const continueRead = (bookId: string, chapterId: string) => {
+    console.log('继续阅读', bookId, chapterId);
+    // 获取用户阅读记录，用于跳转
+    router.push(`/book/read?book=${bookId}&chapter=${chapterId}`);
+  }
 </script>
 
 <style lang="scss" scoped>
