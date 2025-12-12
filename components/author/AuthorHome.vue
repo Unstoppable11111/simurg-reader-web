@@ -49,19 +49,19 @@
         </div>
 
         <div class="author-recent-book-box">
-          <img class="book-img" src="" alt="">
+          <img class="book-img" :src="authorBookInfo.coverImageUrl" alt="">
           <div class="book-info">
-            <span class="book-title">穿越七零：大佬的小作精又娇又飒又有钱…</span>
-            <span class="book-update-info">最近更新：暂未发布章节</span>
+            <span class="book-title">{{ authorBookInfo.title }}</span>
+            <span class="book-update-info">最近更新：{{ authorBookInfo.currentChapterTitle }}</span>
             <div class="book-detail-info-box">
-              <span class="book-chapter-count">0章</span>
+              <span class="book-chapter-count">{{ authorBookInfo.totalChapters }}章</span>
               <span class="divider"></span>
-              <span class="book-word-count">0字</span>
+              <span class="book-word-count">{{ authorBookInfo.totalCharCount }}字</span>
               <span class="divider"></span>
-              <span class="book-status">连载中</span>
+              <span class="book-status">{{ formatSerialStatus(authorBookInfo.serialStatus) }}</span>
             </div>
             <div class="book-btn-box">
-              <button class="edit-book-btn">作品设置</button>
+              <button class="edit-book-btn" @click="handleOpenBookSetting">作品设置</button>
               <button class="create-chapter-btn">创建章节</button>
             </div>
           </div>
@@ -100,46 +100,73 @@
 </template>
 
 <script setup lang="ts">
-import { useAuth } from '@/composables/useAuth';
-import type { CalendarInstance, CalendarDateType} from 'element-plus'
-import {Plus, ArrowRight } from '@element-plus/icons-vue'
+  import { useAuth } from '@/composables/useAuth';
+  import type { CalendarInstance, CalendarDateType} from 'element-plus'
+  import {Plus, ArrowRight } from '@element-plus/icons-vue'
+  import { formatTimestamp, formatSerialStatus } from '@/utils/dataFormatter';
 
-const props = defineProps<{
-  authorInfo: any
-}>()
+  const props = defineProps<{
+    authorInfo: any
+  }>()
+  const router = useRouter();
+  const authorBookInfo = ref({});
+  const coverImageUrl = ref('')
+  const { userAvatar, userName } = useAuth();
+  const calendar = ref<CalendarInstance>()
 
-const coverImageUrl = ref('')
-const { userAvatar, userName } = useAuth();
-const calendar = ref<CalendarInstance>()
-
-const handleAvatarSuccess: UploadProps['onSuccess'] = (
-  response,
-  uploadFile
-) => {
-  console.log('handleAvatarSuccess', uploadFile)
-  console.log('response', response)
-  coverImageUrl.value = response.data
-}
-
-const allowImageTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
-const allowExts = ['jpg', 'jpeg', 'png', 'gif'];
-const beforeAvatarUpload: UploadProps['beforeUpload'] = (rawFile) => {
-  console.log('beforeAvatarUpload', rawFile)
-  const fileExt = rawFile.name.split('.').pop().toLowerCase();
-  // 双重验证：MIME类型 或 后缀名
-  if (!allowImageTypes.includes(rawFile.type) && !allowExts.includes(fileExt)) {
-    ElMessage.error('仅支持上传 jpg/jpeg/png/gif 格式的图片！');
-    return false;
-  } else if (rawFile.size / 1024 / 1024 > 2) {
-    ElMessage.error('Avatar picture size can not exceed 2MB!')
-    return false
+  const handleAvatarSuccess: UploadProps['onSuccess'] = (
+    response,
+    uploadFile
+  ) => {
+    console.log('handleAvatarSuccess', uploadFile)
+    console.log('response', response)
+    coverImageUrl.value = response.data
   }
-  return true
-}
-const selectDate = (val: CalendarDateType) => {
-  if (!calendar.value) return
-  calendar.value.selectDate(val)
-}
+
+  const allowImageTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+  const allowExts = ['jpg', 'jpeg', 'png', 'gif'];
+  const beforeAvatarUpload: UploadProps['beforeUpload'] = (rawFile) => {
+    console.log('beforeAvatarUpload', rawFile)
+    const fileExt = rawFile.name.split('.').pop().toLowerCase();
+    // 双重验证：MIME类型 或 后缀名
+    if (!allowImageTypes.includes(rawFile.type) && !allowExts.includes(fileExt)) {
+      ElMessage.error('仅支持上传 jpg/jpeg/png/gif 格式的图片！');
+      return false;
+    } else if (rawFile.size / 1024 / 1024 > 2) {
+      ElMessage.error('Avatar picture size can not exceed 2MB!')
+      return false
+    }
+    return true
+  }
+  const selectDate = (val: CalendarDateType) => {
+    if (!calendar.value) return
+    calendar.value.selectDate(val)
+  }
+
+  // 2. 添加跳转处理函数
+  const handleOpenBookSetting = () => {
+    console.log('handleOpenBookSetting');
+  }
+  // 获取作者书籍列表
+  const getAuthorBookInfo = async () => { 
+    try { 
+      // 获取当前作者所有未发布的书籍
+      const authorBookListResult = await apiRequest(API_ENDPOINTS.LIST_ALL_BOOS_BY_AUTHOR, {
+        method: 'GET'
+      });
+      console.log("获取作者未发布书籍列表", authorBookListResult);
+      if (authorBookListResult.code === 200 && authorBookListResult.data) {
+        authorBookInfo.value = authorBookListResult.data[0];
+      }
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  onMounted(() => { 
+    getAuthorBookInfo();
+  })
+
 </script>
 
 <style lang="scss" scoped>
