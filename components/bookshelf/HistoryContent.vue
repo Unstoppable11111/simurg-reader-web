@@ -30,8 +30,27 @@
 </template>
 
 <script setup>
-// 历史记录组件可以根据需要添加更多功能
 
+  // 获取历史阅读记录书籍
+  const listHistoryBook = async () => { 
+    try {
+      const historyBookReq = {
+        "page": 1,
+        "size": 10
+      }
+      const historyBookResult = await apiRequest(API_ENDPOINTS.USER_READING_HISTORY, {
+        method: 'POST',
+        body: JSON.stringify(historyBookReq)
+      })
+      console.log("用户阅读历史记录: ", historyBookResult);
+    } catch (error) {
+
+    }
+  }
+
+  onMounted(() => { 
+    listHistoryBook();
+  }) 
 
 </script>
 
@@ -68,6 +87,7 @@
   .book-img {
     width: 102px;
     height: 136px;
+    border-radius: 10px;
   }
   .book-info {
     margin-left: 16px;
