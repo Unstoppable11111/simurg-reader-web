@@ -114,7 +114,7 @@ function getAccessToken() {
 
 function getRefreshToken() {
   if (process.client) {
-    return localStorage.getItem('auth_token')
+    return localStorage.getItem('auth_refreshToken')
   }
   return null;
 }
@@ -124,6 +124,7 @@ export async function apiRequest(endpoint, options = {}) {
   try {
     // 获取accessToken
     const accessToken = getAccessToken()
+    const refreshToken = getRefreshToken()
     // 设置默认选项
     const defaultOptions = {
       headers: {
@@ -136,6 +137,9 @@ export async function apiRequest(endpoint, options = {}) {
     
     if (accessToken) {
        defaultOptions.headers.Authorization = `${accessToken}`
+    }
+    if (refreshToken) {
+      defaultOptions.headers.RefreshToken = `${refreshToken}`
     }
     
     // 合并选项
@@ -152,6 +156,10 @@ export async function apiRequest(endpoint, options = {}) {
       throw new Error(`HTTP error! status: ${response.status}`)
     }
     // TODO: 如果返回的参数请求头有accessToken，需要替换
+    if (response.headers.get('X-New-Access-Token')) {
+      console.log("返回的请求头参数有新的accessToken，", response.headers.get('X-New-Access-Token'));
+      localStorage.setItem('auth_token', response.headers.get('accessToken'))
+    }
     return await response.json()
   } catch (error) {
     console.error('API request failed:', error)
