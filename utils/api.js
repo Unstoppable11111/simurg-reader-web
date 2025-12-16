@@ -33,7 +33,6 @@ export const API_ENDPOINTS = {
   DELETE_BOOK: `${API_BASE_URL}/book/oauth/delete_book`,
   LIST_ALL_BOOS_BY_AUTHOR: `${API_BASE_URL}/book/oauth/all_book`,
   LIST_PUBLISHED_BOOKS: `${API_BASE_URL}/book/list/published_book/author/`,
-  LIST_AUTHOR_BOOKS: `${API_BASE_URL}/book/oauth/all_book`,
   
   /** 书籍相关接口结束 */
 
@@ -56,6 +55,8 @@ export const API_ENDPOINTS = {
   PUBLISH_CHAPTER: `${API_BASE_URL}/chapters/publish_chapter`,
   LIST_PUBLISHED_CHAPTERS: `${API_BASE_URL}/chapters/published/Chapters/list`,
   GET_CHAPTER_DETAIL: `${API_BASE_URL}/chapters/chapter/detail`,
+  GET_NEXT_CHAPTER_NUM: `${API_BASE_URL}/chapters/next_chapter_num/`,
+  LIST_ALL_CHAPTERS: `${API_BASE_URL}/chapters/oauth/list_by_book`,
   /** 书籍章节相关接口结束 */
 
   /** 书架相关接口开始 */
