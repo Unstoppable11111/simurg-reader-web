@@ -7,6 +7,7 @@
         <AuthorHome 
           v-if="activeNav === 'author-home'"
           :author-info="authorInfo"
+          @to-edit-book="handleToEditBook" 
         />
         <WorkManagement 
           v-if="activeNav === 'work-management'"
@@ -20,40 +21,53 @@
 </template>
 
 <script setup lang="ts">
-import Header from "@/components/layout/Header.vue";
-import AuthorContainer from "@/components/author/AuthorContainer.vue";
-import AuthorHome from "@/components/author/AuthorHome.vue";
-import AuthorInfo from "@/components/author/AuthorInfo.vue";
-import WorkManagement from "@/components/author/WorkManagement.vue";
-import { useAuth } from '@/composables/useAuth';
+  import Header from "@/components/layout/Header.vue";
+  import AuthorContainer from "@/components/author/AuthorContainer.vue";
+  import AuthorHome from "@/components/author/AuthorHome.vue";
+  import AuthorInfo from "@/components/author/AuthorInfo.vue";
+  import WorkManagement from "@/components/author/WorkManagement.vue";
+  import { useAuth } from '@/composables/useAuth';
 
-const route = useRoute();
-const {isLoggedIn, isAuthor, userId} = useAuth();
-const authorContainer = ref();
-const authorInfo = ref(null);
+  const route = useRoute();
+  const {isLoggedIn, isAuthor, userId} = useAuth();
+  const authorContainer = ref();
+  const authorInfo = ref(null);
+  const workManagementRef = ref(null);
 
-// 查询作者信息
-const getAuthorInfoUrl = `${API_ENDPOINTS.AUTHO_INFO}${userId.value}`;
-const authorInfoResult = await apiRequest(getAuthorInfoUrl, {
-  method: 'GET'
-});
-authorInfo.value = authorInfoResult.data;
-
-watch(
-  () => route.query.tab,
-  (newTab) => {
-    if (newTab && authorContainer.value && ['work-data', 'income-management', 'personal-info', 'notifications', 'benefits', 'contracts'].includes(newTab)) {
-      authorContainer.value.switchNav(newTab)
+  // 查询作者信息
+  const getAuthorInfoUrl = `${API_ENDPOINTS.AUTHO_INFO}${userId.value}`;
+  const authorInfoResult = await apiRequest(getAuthorInfoUrl, {
+    method: 'GET'
+  });
+  console.log("作者信息", authorInfoResult);
+  authorInfo.value = authorInfoResult.data;
+  // 处理authorHome的作品设置点击事件
+  const handleToEditBook = async (bookData: any) => {
+    if (authorContainer.value) {
+      authorContainer.value.switchNav('work-management');
     }
-  },
-  {immediate: true}
-)
+    await nextTick();
+    if (workManagementRef.value) {
+      console.log("调用子组件打开设置", bookData);
+      workManagementRef.value.openBookSetting(bookData);
+    }
+  };
 
-onMounted(() => {
-  if (route.query.tab && authorContainer.value) {
-    authorContainer.value.switchNav(route.query.tab);
-  }
-});
+  watch(
+    () => route.query.tab,
+    (newTab) => {
+      if (newTab && authorContainer.value && ['work-data', 'income-management', 'personal-info', 'notifications', 'benefits', 'contracts'].includes(newTab)) {
+        authorContainer.value.switchNav(newTab)
+      }
+    },
+    {immediate: true}
+  )
+
+  onMounted(() => {
+    if (route.query.tab && authorContainer.value) {
+      authorContainer.value.switchNav(route.query.tab);
+    }
+  });
 </script>
 
 <style lang="scss" scoped>
@@ -65,7 +79,6 @@ onMounted(() => {
 .author-content-section {
   position: relative;
   width: 100%;
-  height: 639px;
   background: #424242;
   border-radius: 6px;
 }
