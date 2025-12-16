@@ -131,6 +131,10 @@
   import { formatTimestamp, formatSerialStatus } from '@/utils/dataFormatter';
   import { useAuth } from '@/composables/useAuth';
   import { decryptData } from '@/utils/crypto';
+  definePageMeta({
+    // 开启页面缓存
+    keepalive: true
+  })
 
   const {isLoggedIn} = useAuth();
   console.log("isLoggedIn", isLoggedIn);
