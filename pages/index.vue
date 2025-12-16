@@ -60,6 +60,7 @@
           <!-- 这里放排行榜内容 -->
           <div class="ranking-title-h2">
             <span class="ranking-title">排行榜</span>
+            <SvgIcon name="ranking-icon-right" class="ranking-icon" />
             <NuxtLink to="/ranking" class="ranking-more">更多</NuxtLink>
           </div>
           <Ranking />
@@ -107,6 +108,7 @@
   import FeatureCard from '@/components/home/FeatureCard.vue';
   import Recommend from '@/components/home/Recommend.vue';
   import Ranking from '@/components/home/Ranking.vue';
+  import SvgIcon from '@/components/SvgIcon.vue';
   import NewlySigned from '@/components/home/NewlySigned.vue';
   import BookCate from '@/components/home/BookCate.vue';
   import LastUpdateBook from '@/components/home/LastUpdateBook.vue';
