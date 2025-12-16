@@ -10,7 +10,7 @@
       </div>
       <div class="author-work-num-box">
         <label class="author-work-num-label">作品数量</label>
-        <span class="author-work-num"> {{ authorInfo.bookCount }} </span>
+        <span class="author-work-num"> {{ authorInfo?.bookCount || 0}} </span>
       </div>
       <div class="author-reader-num-box">
         <label class="author-reader-num-label">累计读者</label>
@@ -18,7 +18,7 @@
       </div>
       <div class="author-word-num-box">
         <label class="author-word-num-label">累计字数</label>
-        <span class="author-word-num"> {{ authorInfo.totalCompletedWords }} </span>
+        <span class="author-word-num"> {{ authorInfo?.totalCompletedWords || 0}} </span>
       </div>
     </div>
 
@@ -62,7 +62,7 @@
             </div>
             <div class="book-btn-box">
               <button class="edit-book-btn" @click="handleOpenBookSetting">作品设置</button>
-              <button class="create-chapter-btn">创建章节</button>
+              <button class="create-chapter-btn" @click="handleCreateChapter">创建章节</button>
             </div>
           </div>
         </div>
@@ -108,6 +108,7 @@
   const props = defineProps<{
     authorInfo: any
   }>()
+  const emit = defineEmits(['to-edit-book']);
   const router = useRouter();
   const authorBookInfo = ref({});
   const coverImageUrl = ref('')
@@ -143,9 +144,36 @@
     calendar.value.selectDate(val)
   }
 
-  // 2. 添加跳转处理函数
+  // 作品设置按钮处理逻辑
   const handleOpenBookSetting = () => {
-    console.log('handleOpenBookSetting');
+    if (!authorBookInfo.value || !authorBookInfo.value.bookId) {
+      ElMessage.warning('暂无书籍信息');
+      return;
+    }
+    // 发射事件给 index.vue，携带当前书籍信息
+    emit('to-edit-book', authorBookInfo.value);
+  }
+  // 创建章节按钮处理函数
+  const handleCreateChapter = () => { 
+    console.log('handleCreateChapter');
+    if (!authorBookInfo.value || !authorBookInfo.value.bookId) {
+      ElMessage.warning('暂无书籍信息，无法创建章节');
+      return;
+    }
+    
+    const bookDataStr = JSON.stringify(authorBookInfo.value);
+    // 这里保持与 WorkManagement 一致的编码逻辑
+    const encodedBookData = btoa(encodeURIComponent(bookDataStr)); 
+    
+    router.push({
+      path: '/author/writeBook',
+      query: {
+        bookId: authorBookInfo.value.bookId,
+        bookData: encodedBookData,
+        from: 'create-chapter',
+        opType: 'createChapter'
+      }
+    });
   }
   // 获取作者书籍列表
   const getAuthorBookInfo = async () => { 
