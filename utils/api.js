@@ -28,10 +28,10 @@ export const API_ENDPOINTS = {
   /** 用户相关接口结束 */
 
   /** 书籍相关接口开始 */
-  CREATE_BOOK: `${API_BASE_URL}/book/oauth/create_book`,
-  UPDATE_BOOK: `${API_BASE_URL}/book/oauth/update_book`,
-  DELETE_BOOK: `${API_BASE_URL}/book/oauth/delete_book`,
-  LIST_ALL_BOOS_BY_AUTHOR: `${API_BASE_URL}/book/oauth/all_book`,
+  CREATE_BOOK: `${API_BASE_URL}/author/oauth/create_book`,
+  UPDATE_BOOK: `${API_BASE_URL}/author/oauth/update_book`,
+  DELETE_BOOK: `${API_BASE_URL}/author/oauth/delete_book`,
+  LIST_ALL_BOOS_BY_AUTHOR: `${API_BASE_URL}/author/oauth/all_book`,
   LIST_PUBLISHED_BOOKS: `${API_BASE_URL}/book/list/published_book/author/`,
   
   /** 书籍相关接口结束 */
@@ -49,14 +49,14 @@ export const API_ENDPOINTS = {
   /** 书籍分类相关接口结束 */
 
   /** 书籍章节相关接口开始 */
-  CREATE_CHAPTER: `${API_BASE_URL}/chapters/create_chapter`,
-  UPDATE_CHAPTER: `${API_BASE_URL}/chapters/update_chapter`,
-  DELETE_CHAPTER: `${API_BASE_URL}/chapters/delete_chapter`,
-  PUBLISH_CHAPTER: `${API_BASE_URL}/chapters/publish_chapter`,
+  CREATE_CHAPTER: `${API_BASE_URL}/author/create_chapter`,
+  UPDATE_CHAPTER: `${API_BASE_URL}/author/update_chapter`,
+  DELETE_CHAPTER: `${API_BASE_URL}/author/delete_chapter`,
+  PUBLISH_CHAPTER: `${API_BASE_URL}/author/publish_chapter`,
   LIST_PUBLISHED_CHAPTERS: `${API_BASE_URL}/chapters/published/Chapters/list`,
   GET_CHAPTER_DETAIL: `${API_BASE_URL}/chapters/chapter/detail`,
-  GET_NEXT_CHAPTER_NUM: `${API_BASE_URL}/chapters/next_chapter_num/`,
-  LIST_ALL_CHAPTERS: `${API_BASE_URL}/chapters/oauth/list_by_book`,
+  GET_NEXT_CHAPTER_NUM: `${API_BASE_URL}/author/next_chapter_num/`,
+  LIST_ALL_CHAPTERS: `${API_BASE_URL}/author/oauth/list_by_book`,
   /** 书籍章节相关接口结束 */
 
   /** 书架相关接口开始 */

@@ -26,7 +26,7 @@
     <div class="author-works-box">
       <div style="position: relative;height: 68px;">
         <label class="author-works-box-title">作品小说</label>
-        <NuxtLink to="/" class="to-work-management">更多<el-icon><ArrowRight /></el-icon></NuxtLink>
+        <span class="to-work-management" @click="handleMoreWork">更多<el-icon><ArrowRight /></el-icon></span>
       </div>
       <!-- 作者作品管理 -->
       <div v-if="true" class="author-works-content-box">
@@ -44,7 +44,7 @@
           <div class="create-book-info">
             <span class="create-book-title">来创作新书吧~</span>
             <span class="create-book-desc">码字码字</span>
-            <button class="create-book-btn">新建小说</button>
+            <button class="create-book-btn" @click="handleCreateBook">新建小说</button>
           </div>
         </div>
 
@@ -61,7 +61,7 @@
               <span class="book-status">{{ formatSerialStatus(authorBookInfo.serialStatus) }}</span>
             </div>
             <div class="book-btn-box">
-              <button class="edit-book-btn" @click="handleOpenBookSetting">作品设置</button>
+              <button class="edit-book-btn" @click="handleOpenBookSetting()">作品设置</button>
               <button class="create-chapter-btn" @click="handleCreateChapter">创建章节</button>
             </div>
           </div>
@@ -72,7 +72,7 @@
       <div v-else class="empty-box">
         <img class="empty-img" src="" alt="">
         <label class="empty-label">你还没有作品，快去创建你的新作品吧～</label>
-        <NuxtLink to="/author/writeBook" class="to-write-book">新建小说</NuxtLink>
+        <button class="to-write-book" @click="handleCreateBook">新建小说</button>
       </div>
     </div>
     <el-calendar ref="calendar" class="calendar">
@@ -108,7 +108,7 @@
   const props = defineProps<{
     authorInfo: any
   }>()
-  const emit = defineEmits(['to-edit-book']);
+  const emit = defineEmits(['to-edit-book', 'to-work-management', 'to-create-book']);
   const router = useRouter();
   const authorBookInfo = ref({});
   const coverImageUrl = ref('')
@@ -142,6 +142,15 @@
   const selectDate = (val: CalendarDateType) => {
     if (!calendar.value) return
     calendar.value.selectDate(val)
+  }
+  // 点击更多跳转到作品管理列表 
+  const handleMoreWork = () => {
+    emit('to-work-management');
+  }
+  // 跳转到创建新书
+  const handleCreateBook = () => {
+    console.log("handleCreateBook");
+    emit('to-create-book');
   }
 
   // 作品设置按钮处理逻辑
@@ -307,6 +316,9 @@
   line-height: 22px;
   text-align: left;
   font-style: normal;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
 }
 .author-works-content-box {
   display: flex;

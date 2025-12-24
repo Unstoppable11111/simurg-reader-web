@@ -491,6 +491,10 @@ import { Title } from '#components';
     height: 12px;
     color: #a2a0a0;
     padding: 20px 0 0 28px;
+    cursor: pointer;
+    &:hover { 
+      color: #f9a825;
+    }
   }
   .write-book-info-box {
     display: flex;

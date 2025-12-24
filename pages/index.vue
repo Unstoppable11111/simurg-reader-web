@@ -9,13 +9,13 @@
       />
 
       <!-- 核心：内容切换 - 有搜索关键词显示结果，否则显示原首页内容 -->
-      <div v-if="searchQuery" class="search-result-section">
+      <div v-if="searchQuery" class="search-result-section" v-loading="isSearching">
         <!-- 搜索结果列表 -->
         <div class="search-result-header">
           <span class="search-result-title">“{{ searchQuery }}” 的搜索结果</span>
           <span class="search-result-count">共 {{ searchResult.length }} 本</span>
         </div>
-        <div class="search-result-list">
+        <div class="search-result-list" v-if="searchResult.length > 0">
           <!-- 搜索结果项（根据实际数据结构调整） -->
           <div 
             v-for="book in searchResult" 
@@ -30,10 +30,10 @@
               <div class="book-desc">{{ book.protagonistIntroduction || '暂无简介' }}</div>
             </div>
           </div>
-          <!-- 无结果提示 -->
-          <div v-if="!searchResult.length" class="no-result">
-            未找到“{{ searchQuery }}”相关书籍
-          </div>
+        </div>
+        <!-- 无结果提示 -->
+        <div v-if="!searchResult.length" class="no-result">
+          未找到“{{ searchQuery }}”相关书籍
         </div>
       </div>
       
@@ -119,7 +119,10 @@
   definePageMeta({
     layout: 'default' // 可指定默认布局名称（可选）
   })
-
+  const router = useRouter();
+  const isSearching = ref(false);
+  // 控制回到顶部按钮的显示
+  const showBackToTop = ref(false);
   const banners = ref([]);
   const books = ref([]);
   const recommendBooks = ref([]);
@@ -135,9 +138,7 @@
       handleClearSearch();
       return;
     }
-    searchQuery.value = query.trim(); // 设置关键词，触发内容切换
-    
-    // 执行搜索请求（推荐将搜索逻辑移到首页，便于管理）
+    searchQuery.value = query.trim(); 
     try {
       const bookSearchUrl = { keyword: query.trim() };
       const bookSearchResult = await apiRequest(API_ENDPOINTS.BOOK_SEARCH_BY_KEYWORDS, {
@@ -146,17 +147,22 @@
       });
       console.log('首页搜索结果:', bookSearchResult);
       if (bookSearchResult.code === 200 && bookSearchResult.data?.records) {
-        searchResult.value = bookSearchResult.data.records || []; // 更新搜索结果
+        searchResult.value = bookSearchResult.data.records || []; 
+        isSearching.value = true;
+        searchResult.value = [];
       }
     } catch (error) {
       console.error('首页搜索失败:', error);
       searchResult.value = [];
+    } finally {
+      isSearching.value = false;
     }
   };
   // 新增：清空搜索结果，恢复原首页内容
   const clearSearchResult = () => {
     searchQuery.value = '';
     searchResult.value = [];
+    isSearching.value = false;
   };
   // 可选：接收Header返回的搜索结果（若搜索逻辑在Header中）
   const handleSearchResult = (result) => {
@@ -245,11 +251,7 @@
       top: 0, 
       behavior: 'smooth' 
     });
-  };
-  
-  // 控制回到顶部按钮的显示
-  const showBackToTop = ref(false);
-  
+  };  
   // 监听滚动事件
   onMounted(() => {
     window.addEventListener('scroll', () => {

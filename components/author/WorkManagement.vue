@@ -5,7 +5,7 @@
     <div v-if="currentView === 'list'">
       <div class="work-management-title-box">
         <div class="author-work-title">我的小说</div>
-        <div class="create-novel" @click="switchView('create-book')">创建新书</div>
+        <div class="create-novel" @click="openCreateBook">创建新书</div>
       </div>
       <div class="work-item-list">
         <div class="work-item" v-for="bookItem in authorBookList" :key="bookItem.bookId">
@@ -141,7 +141,7 @@
         </div>
         <div class="manage-chapter-create-box">
           <div class="chapter-count">共{{chapterCount}}章</div>
-          <div class="create-chapter-box">创建章节</div>
+          <div class="create-chapter-box" @click="createChapterByBook">创建章节</div>
         </div>
         <div class="chapter-table-box">
           <el-table
@@ -149,13 +149,18 @@
 						style="width: 100%; background-color: #424242; --el-table-row-hover-bg-color: #f8f9fa;"
 						:row-class-name="tableRowClassName"
 					>
+						<el-table-column prop="chapterNumber" label="ChapterNumber" />
 						<el-table-column prop="chapterTitle" label="ChapterTitle" />
 						<el-table-column prop="totalCharCount" label="TotalCharCount" />
-						<el-table-column prop="publishDate" label="PublishDate" />
+						<el-table-column prop="publishDate" label="PublishDate" >
+              <template #default="{ row }">
+              {{ formatTimestamp(row.publishDate) }}
+              </template>
+            </el-table-column>
             <el-table-column fixed="right" label="Operations" min-width="120">
               <template #default="{row}">
                 <el-button class="update-chapter-btn" link size="small" @click="updatechapter(row)">修改</el-button>
-                <el-button class="delete-chapter-btn" link size="small" @click="deleteChapter()">删除</el-button>
+                <el-button v-if="row.isSigned === 0" class="delete-chapter-btn" link size="small" @click="deleteChapter()">删除</el-button>
                 <el-button class="publish-chapter-btn" link size="small" @click="publishChapter(row)">发布</el-button>
               </template>
             </el-table-column>
@@ -214,6 +219,7 @@
   const chapterList = ref<ChapterInfo>()
   const chapterCount = ref(0)
   const bookTitle = ref('')
+  const bookId = ref('')
 
   const ruleForm = reactive<RuleForm>({
     bookName: '',
@@ -254,6 +260,7 @@
   })
 
   interface ChapterInfo {
+    chapterNumber: number
     bookChaptersStatus: number
     bookId: string
     chapterId: string
@@ -280,6 +287,7 @@
   }
   const openBookSetting = (bookItem: any) => {
     console.log("打开书籍设置", bookItem)
+    console.log("表单数据:", ruleForm)
     ruleForm.bookName = bookItem.title
     ruleForm.bookDesc = bookItem.description
     ruleForm.coverImageUrl = bookItem.coverImageUrl
@@ -297,12 +305,59 @@
   const switchView = (view: 'list' | 'create-book' | 'book-setting' | 'chapter-management' | 'create-chapter') => {
     currentView.value = view
   }
+  // 打开创建新书视图方法
+  const openCreateBook = (bookData?: any) => {
+    // 如果有bookData，说明是编辑模式
+    console.log("打开创建新书视图", bookData)
+    if (bookData) {
+      isEditing.value = true;
+      // 填充表单数据（根据实际接口字段调整）
+      ruleForm.value = {
+        bookName: bookData.title || '',
+        coverImageUrl: bookData.coverImageUrl || '',
+        bookCategoryList: bookData.categoryIds || [],
+        bookTagList: bookData.tagIds || [],
+        bookProtagonist: bookData.protagonist || '',
+        bookDesc: bookData.description || '',
+        agreeProtocol: true
+      };
+      coverImageUrl.value = bookData.coverImageUrl || '';
+    } else {
+      // 新建模式：重置表单
+      isEditing.value = false;
+      ruleForm.value = {
+        bookName: '',
+        coverImageUrl: '',
+        bookCategoryList: [],
+        bookTagList: [],
+        bookProtagonist: '',
+        bookDesc: '',
+        agreeProtocol: false
+      };
+      coverImageUrl.value = '';
+    }
+    // 切换到创建/编辑表单视图
+    currentView.value = 'create-book';
+  };
+  // 重置表单的方法 (建议添加，防止上次编辑的数据残留)
+  const resetForm = () => {
+    ruleForm.bookName = '';
+    ruleForm.bookCategoryList = [];
+    ruleForm.bookTagList = [];
+    ruleForm.bookProtagonist = '';
+    ruleForm.bookDesc = '';
+    ruleForm.agreeProtocol = false;
+    ruleForm.coverImageUrl = '';
+    coverImageUrl.value = '';
+    currentBookId.value = '';
+  }
 
   // 章节管理
-  const chapterHandle = async (bookId: string, title: string) => { 
+  const chapterHandle = async (id: string, title: string) => { 
     switchView('chapter-management');
     bookTitle.value = title;
-    listBookChapter(bookId);
+    bookId.value = id;
+    listBookChapter(id);
   }
 
   const createChapter = (bookItem: any) => {
@@ -312,6 +367,23 @@
       path: '/author/writeBook',
       query: {
         bookId: bookItem.bookId,
+        bookData: encodedBookData,
+        from: 'create-chapter',
+        opType: 'createChapter'
+      }
+    })
+  }
+
+  const createChapterByBook = () => {
+    const bookDataReq = {
+      bookId: bookId.value,
+      title: bookTitle.value
+    }
+    const encodedBookData = btoa(encodeURIComponent(JSON.stringify(bookDataReq))) // 先 encodeURIComponent 防止特殊字符问题
+    router.push({
+      path: '/author/writeBook',
+      query: {
+        bookId: bookId.value,
         bookData: encodedBookData,
         from: 'create-chapter',
         opType: 'createChapter'
@@ -489,45 +561,50 @@
 
   const handleEditBook = async (formEl: FormInstance | undefined) => {
     if (!formEl) return
-    // Validate form
-    await ruleFormRef.value?.validate();
-    await formEl.validate((valid, fields) => {
-      if (!valid) {
-        ElMessage.error('Please fill in all required fields.')
-      }
-      try {
-        // Prepare request data
-        const updateBookReq = {
-          bookId: currentBookId.value, // Assuming you have a currentBookId
-          title: ruleForm.bookName,
-          protagonistIntroduction: ruleForm.bookProtagonist,
-          description: ruleForm.bookDesc,
-          coverImageUrl: ruleForm.coverImageUrl,
-          bookCategoryList: ruleForm.bookCategoryList,
-          bookTagList: ruleForm.bookTagList,
-        };
 
-        const updateBookResult = apiRequest(API_ENDPOINTS.UPDATE_BOOK, {
-          method: 'POST',
-          body: JSON.stringify(updateBookReq),
-        });
-        console.log('Update book result:', updateBookResult);
-        if (updateBookResult.code === 200) {
-          ElMessage({
-            type: 'success',
-            message: '书籍信息更新成功',
-          });
-          // 刷新数据
-          listAuthoBook();
-          switchView('list'); // Return to list view
-        } else {
-          ElMessage.error('更新失败，请重试');
-        }
-      } catch (error) {
-        console.error('Update book failed:', error);
-        ElMessage.error('更新失败，请检查网络或联系管理员');
+    try {
+      // 1. 简化表单验证：直接await验证结果（失败会抛出异常）
+      const isValid = await formEl.validate();
+      if (!isValid) {
+        ElMessage.error('Please fill in all required fields.');
+        return; // 验证失败直接终止
       }
-    })
+
+      // 2. 准备请求数据（注意ruleForm是响应式变量，需加.value）
+      console.log('ruleForm', ruleForm);
+      const updateBookReq = {
+        bookId: currentBookId.value,
+        title: ruleForm.bookName, // 关键：加.value
+        protagonistIntroduction: ruleForm.bookProtagonist,
+        description: ruleForm.bookDesc,
+        coverImageUrl: ruleForm.coverImageUrl,
+        bookCategoryList: ruleForm.bookCategoryList,
+        bookTagList: ruleForm.bookTagList,
+      };
+      // 3. 关键：await等待Promise解析，获取真实响应结果
+      const updateBookResult = await apiRequest(API_ENDPOINTS.UPDATE_BOOK, {
+        method: 'POST',
+        body: JSON.stringify(updateBookReq),
+      });
+
+      console.log('Update book result:', updateBookResult);
+
+      // 4. 处理业务响应
+      if (updateBookResult?.code === 200) {
+        ElMessage({
+          type: 'success',
+          message: '书籍信息更新成功',
+        });
+        await listAuthoBook(); // 若列表刷新是异步，也需await
+        switchView('list');
+      } else {
+        ElMessage.error(`更新失败：${updateBookResult?.message || '请重试'}`);
+      }
+    } catch (error) {
+      // 5. 捕获所有异常（验证失败、网络错误、API报错等）
+      console.error('Update book failed:', error);
+      ElMessage.error('更新失败，请检查网络或联系管理员');
+    }
   };
   // 删除书籍
   const handleDeleteBook = async () => { 
@@ -624,7 +701,8 @@
   })
   // 2. 关键：将 openBookSetting 暴露出去
   defineExpose({
-    openBookSetting
+    openBookSetting,
+    openCreateBook
   });
 </script>
 
@@ -669,7 +747,7 @@
   font-style: normal;
   &:hover { 
     cursor: pointer;
-    color: #F96E08;
+    color: #f9a825;
   }
 }
 
@@ -929,10 +1007,16 @@
 
 .create-book-btn-box {
   display: flex;
+  justify-content: center;
+  flex: 1;
+  ::v-deep(.el-form-item__content) {
+    display: flex;
+    justify-content: center;
+  }
 }
 
-.cancel-create-book-btn, .create-book-btn {
-  width: 168px;
+.cancel-create-book-btn, .create-book-btn, .delete-book-btn, .finish-book-btn {
+  width: 132px;
   height: 42px;
   background: #646261;
   border-radius: 24px;
@@ -946,13 +1030,19 @@
   border: none;
 }
 
+.cancel-create-book-btn, .delete-book-btn {
+  // margin: 0 0 0 228px;
+  width: 100px;
+}
 .cancel-create-book-btn {
-  margin: 0 0 0 228px;
+  &:hover { 
+   color: #f9a825
+  }
 }
 
 .create-book-btn {
   background: linear-gradient( 90deg, #FF9B51 0%, #ED5B00 100%);
-  margin: 0 0 0 32px;
+  // margin: 0 0 0 32px;
 }
 
 ::v-deep(.create-book-select .el-select__wrapper) {
@@ -978,10 +1068,15 @@
   font-style: normal;
   cursor: pointer;
   &:hover { 
-    color: #F96E08;
+    color: #f9a825;
   }
 }
-
+.manage-chapter-back-to-list {
+  cursor: pointer;
+  &:hover { 
+    color: #f9a825;
+  }
+}
 .book-setting-title-box, .manage-chapter-title-box, .create-chapter-title-box {
   margin: 28px 0 0 24px;
   position: relative;
@@ -1020,7 +1115,7 @@
         font-size: 12px;
         color: #A3A3A3;
         line-height: 17px;
-        text-align: left;
+        text-align: center;
         font-style: normal;
         border-bottom: none;
       }
@@ -1037,7 +1132,7 @@
         font-size: 12px;
         color: #FFFFFF;
         line-height: 17px;
-        text-align: left;
+        text-align: center;
         font-style: normal;
       }
     }
@@ -1103,6 +1198,10 @@
   position: absolute;
   right: 0;
   top: 5px;
+  cursor: pointer;
+  &:hover { 
+    color: #f9a825;
+  }
 }
 .update-chapter-btn, .delete-chapter-btn, .publish-chapter-btn {
   font-family: PingFangSC, PingFang SC;
@@ -1112,5 +1211,9 @@
   line-height: 17px;
   text-align: left;
   font-style: normal;
+  cursor: pointer;
+  &:hover { 
+    color: #f9a825;
+  }
 }
 </style>
