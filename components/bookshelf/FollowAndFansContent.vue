@@ -165,7 +165,7 @@
 
         // 2. 刷新粉丝列表
         emit('update-count', { 
-          followCount: props.followCount + 1, 
+          followCount: props.followCount ++ , 
           fanCount: props.fanCount // 粉丝数不变
         });
         // await fetchFollowAndFansList('fans');
@@ -202,7 +202,7 @@
           }
         }
         // 2、通知父组件更新计数
-        let newFollowCount = props.followCount - 1;
+        let newFollowCount = props.followCount --;
         console.log('计算后的newFollowCount：', newFollowCount);
         emit('update-count', {
           followCount: Math.max(0, newFollowCount),

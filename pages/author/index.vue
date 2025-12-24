@@ -38,7 +38,7 @@
   const workManagementRef = ref(null);
 
   // 查询作者信息
-  const getAuthorInfoUrl = `${API_ENDPOINTS.AUTHO_INFO}${userId.value}`;
+  const getAuthorInfoUrl = `${API_ENDPOINTS.AUTHO_INFO}`;
   const authorInfoResult = await apiRequest(getAuthorInfoUrl, {
     method: 'GET'
   });

@@ -3,9 +3,9 @@
   <div class="author-home-content">
     <!-- 作者信息 -->
     <div class="author-info-box">
-      <img class="author-avatar" :src="userAvatar" alt="">
+      <img class="author-avatar" :src="authorInfo?.pictureUrl || userAvatar" alt="">
       <div class="author-info">
-        <div class="author-name"> {{userName}}，晚上好啊</div>
+        <div class="author-name"> {{authorInfo?.penName}}，{{ greetingMessage }}</div>
         <div class="welcome-author-desc">今天是你在simurg reader创作的第1天，继续努力码字吧~</div>
       </div>
       <div class="author-work-num-box">
@@ -114,6 +114,28 @@
   const coverImageUrl = ref('')
   const { userAvatar, userName } = useAuth();
   const calendar = ref<CalendarInstance>()
+  // 计算属性：根据土耳其时间动态显示问候语
+  const greetingMessage = computed(() => {
+    // 获取当前时间（土耳其时间）
+    const now = new Date();
+    
+    // 考虑时区差异，土耳其时间可能与本地时间不同
+    // 如果需要精确的土耳其时间，可以使用以下方法：
+    const turkeyTime = new Date(now.toLocaleString("en-US", {timeZone: "Europe/Istanbul"}));
+    const hour = turkeyTime.getHours();
+
+    if (hour >= 5 && hour < 12) {
+      return '早上好';
+    } else if (hour >= 12 && hour < 15) {
+      return '中午好';
+    } else if (hour >= 15 && hour < 18) {
+      return '下午好';
+    } else if (hour >= 18 && hour < 22) {
+      return '晚上好';
+    } else {
+      return '夜深了';
+    }
+  });
 
   const handleAvatarSuccess: UploadProps['onSuccess'] = (
     response,

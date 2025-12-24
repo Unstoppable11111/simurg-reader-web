@@ -708,15 +708,32 @@
 
 <style lang="scss" scoped>
 // components/author/WorkManagement.style
-/* 移动原文件中的相关样式到这里 */
-:deep(.custom-delete-dialog .el-message-box) {
-  background-color: #424242 !important; /* 自定义背景色 */
-}
-
-/* 可选：修改弹窗内容区/表头背景（若需要） */
-:deep(.custom-delete-dialog .el-message-box__header),
-:deep(.custom-delete-dialog .el-message-box__content) {
-  background-color: #424242 !important;
+:deep(.custom-delete-dialog) {
+  .el-message-box {
+    background-color: #777777 !important;
+    border: none !important;
+  }
+  
+  .el-message-box__header {
+    background-color: #777777 !important;
+    border-bottom: 1px solid #555555 !important;
+  }
+  
+  .el-message-box__content {
+    background-color: #777777 !important;
+  }
+  
+  .el-message-box__title {
+    color: #FFFFFF !important;
+  }
+  
+  .el-message-box__message {
+    color: #FFFFFF !important;
+  }
+  
+  .el-message-box__btns {
+    border-top: 1px solid #555555 !important;
+  }
 }
 .author-content-section {
   position: relative;
@@ -1028,6 +1045,11 @@
   text-align: center;
   font-style: normal;
   border: none;
+}
+
+:deep(.custom-delete-dialog .el-message-box__header),
+:deep(.custom-delete-dialog .el-message-box__content) {
+  background-color: #777777 !important;
 }
 
 .cancel-create-book-btn, .delete-book-btn {

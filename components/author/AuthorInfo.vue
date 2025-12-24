@@ -4,7 +4,7 @@
 		<div class="author-info-header-box">
 			<div class="author-info-header-title">个人信息</div>
 			<button class="cancle">取消</button>
-			<button class="save">保存</button>
+			<button class="save" @click="saveUserInfo">保存</button>
 		</div>
 
 		<div class="author-info-content-box"> 
@@ -60,17 +60,78 @@
 <script setup lang="ts">
 	import { useAuth } from '@/composables/useAuth';
 	import type { UploadProps } from 'element-plus';
+import auth from '~/plugins/auth';
 	const {isLoggedIn, isAuthor, userId} = useAuth();
-	const authorInfo = ref(null);
+	const authorInfo = ref({});
 	const authorAvatarUrl = ref(null);
 
-	const getAuthorInfoUrl = `${API_ENDPOINTS.AUTHO_INFO}${userId.value}`;
-	const authorInfoResult = await apiRequest(getAuthorInfoUrl, {
-		method: 'GET'
-	});
-	authorInfo.value = authorInfoResult.data;
-	authorAvatarUrl.value = authorInfo.value.pictureUrl
-	console.log("作者信息：{}", authorInfo.value);
+	const initAuthroInfo = async () => { 
+		const getAuthorInfoUrl = `${API_ENDPOINTS.AUTHO_INFO}${userId.value}`;
+		const authorInfoResult = await apiRequest(getAuthorInfoUrl, {
+			method: 'GET'
+		});
+		if (authorInfoResult.code === 200) {
+			authorInfo.value = authorInfoResult.data;
+			console.log("作者信息：{}", authorInfo.value);
+			authorAvatarUrl.value = authorInfo.value.pictureUrl
+		}
+		
+	}
+	// 保存用户信息
+	const saveUserInfo = async () => { 
+		if (!validateAuthorInfo()) {
+			return;
+		}
+		try {
+			const updateUserInfoReq = {
+				penName: authorInfo.value.penName,
+				briefIntroduction: authorInfo.value.briefIntroduction,
+				country: "tr"
+			}
+			console.log('更新用户信息', updateUserInfoReq);
+			const updateUserInfoResult = await apiRequest(API_ENDPOINTS.UPDATE_AUTHOR_INFO, {
+				method: 'POST',
+				body: JSON.stringify(updateUserInfoReq)
+			});
+			console.log("更新用户信息", updateUserInfoResult);
+			if (updateUserInfoResult.code === 200) {
+				ElMessage.success('更新信息成功！');
+				await initAuthroInfo();
+			} else {
+				ElMessage.error('更新信息失败！');
+			}
+		} catch (error) {
+			console.error('保存用户信息失败：', error);
+			ElMessage.error('保存失败，请稍后重试！');
+		}
+	}
+	// 验证用户信息
+	const validateAuthorInfo = () => { 
+		// 数据校验
+		if (!authorInfo.value.penName?.trim()) {
+			ElMessage.warning('请输入笔名');
+			return false;
+		}
+		
+		if (!authorInfo.value.briefIntroduction?.trim()) {
+			ElMessage.warning('请输入作家简介');
+			return false;
+		}
+		
+		if (!authorInfo.value.email?.trim()) {
+			ElMessage.warning('请输入邮箱号');
+			return false;
+		}
+		
+		if (authorInfo.value.email?.trim()) {
+			const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+			if (!emailRegex.test(authorInfo.value.email.trim())) {
+				ElMessage.warning('请输入正确的邮箱格式');
+				return false;
+			}
+		}
+		return true;
+	}
 	// 头像上传成功处理
 	const handleAvatarSuccess: UploadProps['onSuccess'] = (
 		response,
@@ -98,6 +159,9 @@
 		return true
 	}
 
+	onMounted(() => { 
+		initAuthroInfo();
+	})
 </script>
 
 <style scoped lang="scss">
