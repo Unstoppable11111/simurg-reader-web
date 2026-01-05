@@ -31,21 +31,42 @@
         @clear="handleSearchClear"  
       />
       <NuxtLink v-if="!isLoggedIn" class="login-btn" to="/login">登录</NuxtLink>
-      <div v-else style="display: flex;">
-        <!-- <img class="user-avatar" src="http://www.tireba.com/simurg-reader/images/author1.png" alt=""> -->
+      <!-- 已登录：用户信息 + 下拉框 -->
+      <div v-else class="user-menu-container" @click.stop>
+        <div class="user-info" @click="toggleUserDropdown">
+          <img class="user-avatar" :src="userAvatar" alt="用户头像" />
+          <span class="user-name">{{ userName }}</span>
+          <!-- 下拉箭头 -->
+          <svg class="dropdown-arrow" width="12" height="8" viewBox="0 0 12 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M1 1L6 7L11 1" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        
+        <!-- 下拉菜单 -->
+        <div class="user-dropdown" v-show="isDropdownOpen">
+          <div class="dropdown-item" @click="goToUserCenter">个人中心</div>
+          <div class="dropdown-divider"></div>
+          <div class="dropdown-item logout-btn" @click="handleLogout">注销</div>
+        </div>
+      </div>
+      
+      <!-- <div v-else style="display: flex;">
         <img class="user-avatar" :src="userAvatar" alt="" @click="goToUserCenter">
         <span class="user-name" @click="goToUserCenter">{{ userName }}</span>
-      </div>
+      </div> -->
     </div>
      
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
   import { isScroll } from 'element-plus/es/utils/index.mjs';
   import { useAuth } from '@/composables/useAuth';
+  import { useAuthStore } from '@/stores/auth';
+  const authStore = useAuthStore();
   // 新增：定义emit事件，向父组件传递搜索关键词
-  const emit = defineEmits(['trigger-search']);
+  const emit = defineEmits(['trigger-search', 'clear-search']);
+  const isDropdownOpen = ref(false);
   const router = useRouter();
   const props = defineProps({
     marginLeft: {
@@ -62,6 +83,7 @@
   console.log('Initial isLoggedIn:', isLoggedIn.value);
   watch(isLoggedIn, (newVal) => {
     console.log('isLoggedIn changed to:', newVal);
+    if (!newVal) isDropdownOpen.value = false;
   }, { immediate: true });
   watch(isAuthor, (newVal) => {
     console.log('isAuthor changed to:', newVal);
@@ -71,13 +93,42 @@
   const userCookie = useCookie('user');
   console.log('Raw cookies:', accessTokenCookie.value, userCookie.value);
 
+  // 切换下拉框显隐
+  const toggleUserDropdown = () => {
+    isDropdownOpen.value = !isDropdownOpen.value;
+  };
+
+  // 关闭下拉框（点击页面其他区域）
+  const closeDropdown = (e: MouseEvent) => {
+    const target = e.target as HTMLElement;
+    if (!target.closest('.user-menu-container')) {
+      isDropdownOpen.value = false;
+    }
+  };
+
+  // 注销登录逻辑
+  const handleLogout = async () => {
+    try {
+      
+      isDropdownOpen.value = false;
+      const response = await authStore.logout();
+      // 4. 跳转首页
+      ElMessage.success('注销成功'); // 需引入ElMessage
+      router.push('/');
+    } catch (error) {
+      console.error('注销失败:', error);
+      ElMessage.error('注销失败，请重试');
+    }
+  };
+
   const goToUserCenter = () => {
+    isDropdownOpen.value = false; // 进入个人中心时关闭下拉框
     if (isAuthor.value) {
       router.push('/author?tab=personal-info');
     } else {
       router.push('/user');
     }
-  }
+  };
 
   const handleBookShelfClick = () => {
     if (!isLoggedIn.value) {
@@ -124,10 +175,12 @@
 
   onMounted(() => {
     window.addEventListener('scroll', handleScroll);
+    document.addEventListener('click', closeDropdown);
   })
 
   onBeforeUnmount(() => {
     window.removeEventListener('scroll', handleScroll);
+    document.removeEventListener('click', closeDropdown);
   });
 
 
@@ -222,5 +275,86 @@
   text-align: left;
   font-style: normal;
   margin-left: 9px;
+}
+
+// 新增：用户菜单样式
+.user-menu-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  
+  .user-info {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    
+    .user-avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      margin-left: 46px;
+    }
+    
+    .user-name {
+      font-family: PingFangSC, PingFang SC;
+      font-weight: 400;
+      font-size: 18px;
+      color: #FFFFFF;
+      line-height: 25px;
+      text-align: left;
+      font-style: normal;
+      margin-left: 9px;
+      margin-right: 6px;
+    }
+    
+    .dropdown-arrow {
+      transition: transform 0.2s ease;
+    }
+  }
+  
+  // 下拉框样式
+  .user-dropdown {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    width: 160px;
+    background-color: rgba(0, 0, 0, 0.9);
+    backdrop-filter: blur(10px);
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    z-index: 1001;
+    padding: 8px 0;
+    
+    .dropdown-item {
+      padding: 10px 16px;
+      color: #FFFFFF;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+      
+      &:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+      }
+    }
+    
+    .dropdown-divider {
+      height: 1px;
+      background-color: rgba(255, 255, 255, 0.2);
+      margin: 4px 0;
+    }
+    
+    .logout-btn {
+      color: #FF4D4F; // 注销按钮红色突出
+      
+      &:hover {
+        background-color: rgba(255, 77, 79, 0.2);
+      }
+    }
+  }
+}
+
+// 下拉框展开时箭头旋转
+.user-menu-container:has(.user-dropdown[style*="display: block"]) .dropdown-arrow {
+  transform: rotate(180deg);
 }
 </style>

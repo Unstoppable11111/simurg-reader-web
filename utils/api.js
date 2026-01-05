@@ -83,6 +83,7 @@ export const API_ENDPOINTS = {
   CALLBACK_GOOGLE: `${API_BASE_URL}/auth/callback`,
   AUTH_FACEBOOK: `${API_BASE_URL}/auth/2`,
   AUTH_BY_ACCOUNT: `${API_BASE_URL}/auth/login`,
+  LOGOUT: `${API_BASE_URL}/auth/logout`,
 
   // 公共接口
   LIST_DICT: `${API_BASE_URL}/common/dictionary/list`,

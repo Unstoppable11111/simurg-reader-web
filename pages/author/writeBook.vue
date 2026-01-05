@@ -207,19 +207,30 @@ import { Title } from '#components';
   const validateChapterData = (isPublish: boolean): boolean => {
     const chapterNum = Number(chapterNumber.value)
     const title = chapterTitle.value.trim()
+    const content = chapterContent.value.trim()
 
     if (isNaN(chapterNum) || chapterNum < 1) {
-      alert('章节序号必须为大于0的整数')
+      ElMessage.warning('章节序号必须为大于0的整数')
       return false
     }
 
     if (!title) {
-      alert('章节标题不能为空')
+      ElMessage.warning('章节标题不能为空')
+      return false
+    }
+    // 字数校验
+    if (content.length < 200 && isPublish) {
+      ElMessage.warning('发布章节内容不得少于200字');
+      return false
+    }
+
+    if (content.length > 5000) {
+      ElMessage.warning('章节内容不得超过5000字');
       return false
     }
 
     // 可选：正文内容校验（发布时）
-    if (!chapterContent.value.trim() && isPublish) {
+    if (!content && isPublish) {
       ElMessage.warning('发布时正文内容不能为空');
       return false
     }

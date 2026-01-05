@@ -43,9 +43,10 @@ export const useAuthStore = defineStore('auth', {
     // Google登录
     async loginByGoogle(code: string, state: string) {
       try {
-        const response = await $fetch(API_ENDPOINTS.AUTH_GOOGLE, {
-          method: 'POST',
-          body: { code, state }
+        const url = `${API_ENDPOINTS.CALLBACK_GOOGLE}?code=${encodeURIComponent(code)}&state=${encodeURIComponent(state)}`
+        const response = await $fetch(url, {
+          method: 'GET',
+          // body: { code, state }
         })
         
         if (response.code === 200) {
@@ -89,6 +90,25 @@ export const useAuthStore = defineStore('auth', {
         throw error
       }
     },
+    async logout () {
+      try {
+        const authorization = localStorage.getItem('auth_token')
+        const logoutReq = {
+          Authorization: authorization
+        }
+        const response = await apiRequest(API_ENDPOINTS.LOGOUT, {
+          method: 'POST'
+        })
+        console.log("登出成功:", response);
+        if (response.code === 200) {
+          this.handleLogoutSuccess(null, '', '')
+          return response
+        } else {
+          throw new Error(response.message || '登出失败')
+        }
+      } catch (error) {
+      }
+    },
 
     // 登录成功统一处理
     handleLoginSuccess(user: User, accessToken: string, refreshToken: string, method: 'google' | 'facebook' | 'account') {
@@ -110,7 +130,7 @@ export const useAuthStore = defineStore('auth', {
     },
 
     // 登出
-    logout() {
+    handleLogoutSuccess(user: User | null, accessToken: string, refreshToken: string) {
       this.user = null
       this.accessToken = ''
       this.loginMethod = null

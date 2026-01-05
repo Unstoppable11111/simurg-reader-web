@@ -108,7 +108,8 @@
   // 统一的请求方法：支持指定Tab，预加载另一组数据
   const fetchFollowAndFansList = async (currentTab = props.initialTab) => {
     // 1. 请求当前Tab的数据（若父组件无缓存）
-    if (currentTab === 'follow' && props.followList.length === 0) {
+    // if (currentTab === 'follow' && props.followList.length === 0) {
+    if (currentTab === 'follow') {
       try {
         const followListReq = { page: 1, size: 10 };
         const followListResult = await apiRequest(API_ENDPOINTS.LIST_FOLLOW, {
@@ -121,7 +122,8 @@
       } catch (error) {
         console.error('获取关注列表失败：', error);
       }
-    } else if (currentTab === 'fans' && props.fansList.length === 0) {
+    // } else if (currentTab === 'fans' && props.fansList.length === 0) {
+    } else if (currentTab === 'fans') {
       try {
         const fansListReq = { page: 1, size: 10 };
         const fansListResult = await apiRequest(API_ENDPOINTS.LIST_FANS, {
