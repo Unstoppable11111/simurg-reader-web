@@ -844,7 +844,7 @@
   position: absolute;
   width: 148px;
   height: 38px;
-  background: linear-gradient( 90deg, #FF9B51 0%, #ED5B00 100%);
+  background: linear-gradient( 90deg, #F9A825 0%, #F9A825 100%);
   border-radius: 24px;
   font-family: PingFangSC, PingFang SC;
   font-weight: 600;
@@ -959,7 +959,7 @@
   font-family: PingFangSC, PingFang SC;
   font-weight: 400;
   font-size: 14px;
-  color: #ED5B00;
+  color: #F9A825;
   line-height: 20px;
   text-align: left;
   font-style: normal;
@@ -1063,7 +1063,7 @@
 }
 
 .create-book-btn {
-  background: linear-gradient( 90deg, #FF9B51 0%, #ED5B00 100%);
+  background: linear-gradient( 90deg, #F9A825 0%, #F9A825 100%);
   // margin: 0 0 0 32px;
 }
 
@@ -1196,7 +1196,7 @@
 	right: 24px;
 	width: 120px;
 	height: 32px;
-	background: linear-gradient( 90deg, #FF9B51 0%, #ED5B00 100%);
+	background: linear-gradient( 90deg, #F9A825 0%, #F9A825 100%);
 	border-radius: 24px;
 	font-family: PingFangSC, PingFang SC;
 	font-weight: 600;

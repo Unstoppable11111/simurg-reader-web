@@ -175,7 +175,7 @@
   bottom: 16px;
   width: 80px;
   height: 28px;
-  background: linear-gradient( 90deg, #FF9B51 0%, #ED5B00 100%);
+  background: linear-gradient( 90deg, #F9A825 0%, #F9A825 100%);
   border-radius: 18px;
   font-family: PingFangSC, PingFang SC;
   font-size: 14px;

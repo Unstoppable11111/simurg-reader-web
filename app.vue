@@ -4,7 +4,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
   useSeoMeta({
     // 网站标题
     title: "simurg reader",

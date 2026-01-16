@@ -136,7 +136,7 @@
 }
 .table-row div {
    &:hover {
-    color: #ED5B00;
+    color: #F9A825;
     cursor: pointer;
   }
 }

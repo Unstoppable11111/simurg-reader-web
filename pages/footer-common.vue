@@ -363,13 +363,19 @@
             </div>
           </div>
         </div>
+
       </div>
+
     </div>
+
+    
+    <Footer />
   </div>
 </template>
 
 <script setup>
 import Header from '@/components/layout/Header.vue'
+import Footer from '@/components/layout/Footer.vue';
 const route = useRoute()
 // 响应式状态，用于跟踪当前激活的菜单项
 const activeMenu = ref('about')
@@ -402,7 +408,9 @@ watch(() => route.query.section, (newSection) => {
 <style lang="scss" scoped>
 .footer-common-page {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  // justify-content: center;
+  align-items: center;
   padding: 40px 20px;
   min-height: calc(100vh - 120px);
   background-color: #1a1a1a;

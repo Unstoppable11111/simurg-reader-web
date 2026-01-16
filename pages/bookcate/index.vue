@@ -295,9 +295,9 @@
     line-height: 30px;
     text-align: center;
     font-style: normal;
-    // background: linear-gradient(0deg, #FF9B51 0%, #ED5B00 100%);
+    // background: linear-gradient(0deg, #F9A825 0%, #F9A825 100%);
     /* 渐变背景，这里用红→橙示例，可自定义颜色、方向 */
-    background: linear-gradient(0deg, #FF9B51 0%, #ED5B00 100%);
+    background: linear-gradient(0deg, #F9A825 0%, #F9A825 100%);
     /* 关键：让背景裁剪成文字形状 */
     -webkit-background-clip: text; 
     /* 文字填充色设透明，让渐变背景透出来 */
@@ -336,9 +336,9 @@
     line-height: 30px;
     text-align: center;
     font-style: normal;
-    // background: linear-gradient(0deg, #FF9B51 0%, #ED5B00 100%);
+    // background: linear-gradient(0deg, #F9A825 0%, #F9A825 100%);
     /* 渐变背景，这里用红→橙示例，可自定义颜色、方向 */
-    background: linear-gradient(0deg, #FF9B51 0%, #ED5B00 100%);
+    background: linear-gradient(0deg, #F9A825 0%, #F9A825 100%);
     /* 关键：让背景裁剪成文字形状 */
     -webkit-background-clip: text; 
     /* 文字填充色设透明，让渐变背景透出来 */

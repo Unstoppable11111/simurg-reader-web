@@ -167,7 +167,7 @@ const newlySignedBooks = ref([
   margin-bottom: 8px; // 增加与描述的间距
   
   &:hover {
-    color: #ED5B00;
+    color: #F9A825;
     cursor: pointer;
   }
 }

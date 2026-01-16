@@ -239,7 +239,7 @@
 }
 .to-become-author {
   height: 25px;
-  color: #FF9B51;
+  color: #F9A825;
   &:hover {
     cursor: pointer;
   }

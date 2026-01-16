@@ -1,6 +1,10 @@
-// plugins/svg-icons.client.ts
+// plugins/svg-icon.client.ts（逐行复制）
 import { defineNuxtPlugin } from '#app'
+if (process.client) {
+  import('virtual:svg-icons-register')
+}
+import SvgIcon from '~/components/SvgIcon.vue'
 
-export default defineNuxtPlugin(() => {
-  // 这里不需要做任何事，引入即可
+export default defineNuxtPlugin((nuxtApp) => {
+  nuxtApp.vueApp.component('SvgIcon', SvgIcon)
 })

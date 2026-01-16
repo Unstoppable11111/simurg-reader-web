@@ -1,60 +1,67 @@
-<!-- components/SvgIcon.vue -->
 <template>
-  <svg aria-hidden="true" :class="svgClass" :style="svgStyle">
-    <use :href="symbolId" :fill="color" />
+  <svg
+    aria-hidden="true"
+    class="svg-icon"
+    :width="width"
+    :height="height"
+    :style="{
+      display: 'inline-block',
+      verticalAlign: 'middle',
+      overflow: 'hidden',
+      fill: color
+    }"
+  >
+    <!-- 移除 :width/:height，仅保留 xlink:href -->
+    <use :xlink:href="symbolId" />
   </svg>
 </template>
 
-<script setup lang="ts">
+<script setup>
 import { computed } from 'vue'
 
 const props = defineProps({
   prefix: {
     type: String,
-    default: 'icon',
+    default: 'icon'
   },
   name: {
     type: String,
-    required: true,
+    required: true
   },
   color: {
     type: String,
-    default: '',
+    default: '#333'
   },
-  size: {
-    type: [Number, String],
-    default: '1em',
+  width: {
+    type: [String, Number],
+    default: '16px'
   },
-  className: {
-    type: String,
-    default: '',
-  },
+  height: {
+    type: [String, Number],
+    default: '16px'
+  }
 })
+
+const formatSize = (size) => {
+  return typeof size === 'number' ? `${size}px` : size
+}
+
+const width = computed(() => formatSize(props.width))
+const height = computed(() => formatSize(props.height))
 
 const symbolId = computed(() => `#${props.prefix}-${props.name}`)
-const svgClass = computed(() => {
-  if (props.className) {
-    return `svg-icon ${props.className}`
-  }
-  return 'svg-icon'
-})
-
-const svgStyle = computed(() => {
-  return {
-    width: typeof props.size === 'number' ? `${props.size}px` : props.size,
-    height: typeof props.size === 'number' ? `${props.size}px` : props.size,
-    fill: props.color || 'currentColor', // 默认跟随文本颜色
-    overflow: 'hidden'
-  }
-})
 </script>
 
 <style scoped>
 .svg-icon {
-  width: 1em;
-  height: 1em;
-  vertical-align: -0.15em;
-  fill: currentColor;
-  overflow: hidden;
+  box-sizing: border-box !important;
+  preserveAspectRatio: xMidYMid meet;
+}
+
+/* 关键：通过样式强制 use 标签填满 svg 容器 */
+.svg-icon use {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
 }
 </style>

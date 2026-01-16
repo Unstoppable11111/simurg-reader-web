@@ -5,6 +5,7 @@
     <button 
       class="carousel-arrow left-arrow" 
       @click="moveLeft(books)" 
+      :disabled="leftArrowDisabled"
       aria-label="上一页"
     >
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -36,6 +37,7 @@
     <button 
       class="carousel-arrow right-arrow" 
       @click="moveRight(books)" 
+      :disabled="rightArrowDisabled"
       aria-label="下一页"
     >
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -96,28 +98,52 @@
   }
 
   // 左右偏移量
+  const leftArrowDisabled = ref(false)
+  const rightArrowDisabled = ref(false)
   const lv = 192;
+  const MAX_LEFT_MARGIN = 96;
+  const MAX_RIGHT_MARGIN = -288;
   // 点击左箭头时调整样式
   const moveLeft = () => {
-    activeIndex.value--
-    console.log('向右移动')
     // 每次点击左箭头，增加margin-left值（示例：每次增加50px）
     const currentMargin = parseInt(firstPartStyles.value.marginLeft)
     console.log('当前margin-left:', currentMargin)
+    if (currentMargin >= MAX_LEFT_MARGIN) {
+      leftArrowDisabled.value = true
+      return;
+    }
+    console.log('向左移动')
+    activeIndex.value--
     firstPartStyles.value.marginLeft = currentMargin + lv + 'px'
     console.log('更新后margin-left:', firstPartStyles.value.marginLeft)
+    // 重置禁用状态
+    leftArrowDisabled.value = false
+    rightArrowDisabled.value = false
   }
 
   const moveRight = () => {
-    activeIndex.value++
-    console.log('向右移动')
     // 每次点击左箭头，增加margin-left值（示例：每次增加50px）
     const currentMargin = parseInt(firstPartStyles.value.marginLeft)
     console.log('当前margin-left:', currentMargin)
+    if (currentMargin <= MAX_RIGHT_MARGIN) {
+      rightArrowDisabled.value = true
+      return;
+    }
+    activeIndex.value++
+    console.log('向右移动')
     firstPartStyles.value.marginLeft = currentMargin - lv + 'px'
     console.log('更新后margin-left:', firstPartStyles.value.marginLeft)
-    // 可以同时调整其他样式
+    // 重置禁用状态
+    leftArrowDisabled.value = false
+    rightArrowDisabled.value = false
   }
+
+  onMounted(() =>  { 
+    const currentMargin = parseInt(firstPartStyles.value.marginLeft)
+    console.log('初始margin-left:', currentMargin)
+    leftArrowDisabled.value = currentMargin >= MAX_LEFT_MARGIN
+    rightArrowDisabled.value = currentMargin <= MAX_RIGHT_MARGIN
+  })
     
 </script>
 
@@ -226,7 +252,7 @@
   }
    // 鼠标悬停时的颜色变化
   .book-title:hover {
-    color: #ED5B00; /* 悬停时的颜色，与热度数值同色保持协调 */
+    color: #F9A825; /* 悬停时的颜色，与热度数值同色保持协调 */
     cursor: pointer; /* 鼠标变为手型，提示可点击 */
   }
 

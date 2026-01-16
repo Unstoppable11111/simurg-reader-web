@@ -61,9 +61,10 @@ export default defineNuxtConfig({
       }),
       createSvgIconsPlugin({
         // 指定需要缓存的图标文件夹
-        iconDirs: [path.resolve(process.cwd(), 'public/icons')],
+        iconDirs: [path.resolve(process.cwd(), 'public/icon')],
         // 指定symbolId格式
         symbolId: 'icon-[dir]-[name]',
+        svgoOptions: false // 关闭优化，减少解析错误
       }),
     ],
     build: {

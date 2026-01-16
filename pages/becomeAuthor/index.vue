@@ -261,7 +261,7 @@
     font-family: PingFangSC, PingFang SC;
     font-weight: 400;
     font-size: 18px;
-    color: #ED5B00;
+    color: #F9A825;
     line-height: 25px;
     text-align: left;
     font-style: normal;
@@ -381,7 +381,7 @@
   }
   .submit-btn {
     padding: 12px 40px;
-    background: linear-gradient( 90deg, #FF9B51 0%, #ED5B00 100%);
+    background: linear-gradient( 90deg, #F9A825 0%, #F9A825 100%);
     color: white;
     border: none;
     border-radius: 20px;

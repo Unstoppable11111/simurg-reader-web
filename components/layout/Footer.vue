@@ -12,7 +12,8 @@
       <div class="footer-column">
         <h3>支持</h3>
         <ul>
-          <li><NuxtLink to="//footer-common?section=help">帮助</NuxtLink></li>
+          <!-- <li><NuxtLink to="/footer-common?section=help">帮助</NuxtLink></li> -->
+          <li><NuxtLink to="/help">帮助</NuxtLink></li>
           <li><NuxtLink to="/feedback">反馈</NuxtLink></li>
           <li><NuxtLink to="/copyright-complaint">版权投诉</NuxtLink></li>
           <li><NuxtLink to="/partners">合作伙伴</NuxtLink></li>

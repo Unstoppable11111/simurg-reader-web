@@ -154,11 +154,11 @@
 }
 
 .search-button.has-content {
-  color: #FF9B51; /* 匹配项目主色 */
+  color: #F9A825; /* 匹配项目主色 */
 }
 
 .search-button:hover:not(:disabled) {
-  background-color: #FF9B51;
+  background-color: #F9A825;
   color: #fff;
 }
 
@@ -209,7 +209,7 @@
 }
 
 .clear-button:hover {
-  background-color: #FF9B51;
+  background-color: #F9A825;
   color: #fff;
 }
 

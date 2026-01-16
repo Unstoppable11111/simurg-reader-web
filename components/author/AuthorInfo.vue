@@ -207,7 +207,7 @@ import auth from '~/plugins/auth';
 		position: absolute;
 		top: 24px;
 		right: 24px;
-		background: linear-gradient( 90deg, #FF9B51 0%, #ED5B00 100%);
+		background: linear-gradient( 90deg, #F9A825 0%, #F9A825 100%);
 		border-radius: 24px;
 		width: 120px;
 		height: 32px;

@@ -44,14 +44,20 @@
 
         <!-- 精选专区 -->
         <div class="featured-section">
-          <span class="featured-title">精选</span>
+          <div class="featured-title-box">  
+            <span class="featured-title">精选</span>
+            <SvgIcon name="feature-noval" class="feature-noval" size="34" />
+          </div>
           <!-- 这里放精选内容 -->
           <FeatureCard :books="books" />
         </div>
 
         <!-- 推荐专区 -->
         <div class="recommend-section">
-          <span class="recommend-title">推荐</span>
+          <div class="recommend-title-box">
+            <span class="recommend-title">推荐</span>
+            <SvgIcon name="recommend" class="recommend" size="34" />
+          </div>
           <Recommend :recommendBooks="recommendBooks" />
         </div>
 
@@ -60,8 +66,11 @@
           <!-- 这里放排行榜内容 -->
           <div class="ranking-title-h2">
             <span class="ranking-title">排行榜</span>
-            <SvgIcon name="ranking-icon-right" class="ranking-icon" />
-            <NuxtLink to="/ranking" class="ranking-more">更多</NuxtLink>
+            <SvgIcon name="ranking" class="ranking" size="34" />
+            <NuxtLink to="/ranking" class="ranking-more">
+              更多
+              <el-icon class="arrow-right"><ArrowRight /></el-icon>
+            </NuxtLink>
           </div>
           <Ranking />
         </div>
@@ -76,7 +85,11 @@
         <div class="book-cate-section">
           <div class="book-cate-container">
             <span class="book-cate-title">分类</span>
-            <NuxtLink to="/bookcate" class="book-cate-more">更多</NuxtLink>
+            <SvgIcon name="i-category" class="i-category" size="34" />
+            <NuxtLink to="/bookcate" class="book-cate-more">
+              更多
+              <el-icon class="arrow-right"><ArrowRight /></el-icon>
+            </NuxtLink>
           </div>
           <BookCate :bookCateList="bookCateList" />
         </div>
@@ -115,6 +128,7 @@
   import Footer from '@/components/layout/Footer.vue';
   import { API_ENDPOINTS, apiRequest } from '@/utils/api';
   import { tr } from 'element-plus/es/locale/index.mjs';
+  import { ArrowRight } from '@element-plus/icons-vue'
 
   definePageMeta({
     layout: 'default' // 可指定默认布局名称（可选）
@@ -149,7 +163,6 @@
       if (bookSearchResult.code === 200 && bookSearchResult.data?.records) {
         searchResult.value = bookSearchResult.data.records || []; 
         isSearching.value = true;
-        searchResult.value = [];
       }
     } catch (error) {
       console.error('首页搜索失败:', error);
@@ -287,12 +300,26 @@
   align-items: center;
   margin-top: 38px;
 }
+.featured-title-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 28px;
+}
 .recommend-section {
   display: flex;
   flex-direction: column;
   width: 1200px;
   height: 349px;
   margin-top: 50px;
+}
+.recommend-title-box {
+  display: flex;
+  align-items: center;
+}
+.recommend {
+  width: 30px;
+  height: 30px;
 }
 .book-carousel {
   width: 1360px;
@@ -314,6 +341,11 @@
   margin-bottom: 38px; /* 标题与内容间距 */
   position: relative; /* 为了定位“更多”按钮 */
 }
+.ranking {
+  width: 46px;
+  height: 46px;
+  margin-left: -16px;
+}
 .featured-title, .recommend-title, .ranking-title, .newly-signed-title, .book-cate-title {
   width: 56px;
   height: 40px;
@@ -324,9 +356,9 @@
   line-height: 40px;
   text-align: left;
   font-style: normal;
-  // background: linear-gradient(0deg, #FF9B51 0%, #ED5B00 100%);
+  // background: linear-gradient(0deg, #F9A825 0%, #F9A825 100%);
    /* 渐变背景，这里用红→橙示例，可自定义颜色、方向 */
-  background: linear-gradient(0deg, #FF9B51 0%, #ED5B00 100%);
+  background: linear-gradient(90deg, #F9A825 0%, #ED5B00 100%);
   /* 关键：让背景裁剪成文字形状 */
   -webkit-background-clip: text; 
   /* 文字填充色设透明，让渐变背景透出来 */
@@ -335,8 +367,9 @@
   background-clip: text; 
   text-fill-color: transparent; 
 }
-.featured-title {
-  margin-top: 28px;
+.feature-noval {
+  width: 30px;
+  height: 30px;
 }
 .ranking-title {
   width: 84px;
@@ -355,12 +388,19 @@
     cursor: pointer;
   }
 }
+.arrow-right {
+  line-height: 29px;
+}
 .newly-signed-section {
   width: 1360px;
   height: 438px;
 }
 .newly-signed-title {
   width: 112px;
+}
+.i-category {
+  width: 26px;
+  height: 26px;
 }
 .book-cate-container {
   display: flex;
@@ -401,7 +441,7 @@
   right: 40px;
   width: 50px;
   height: 50px;
-  background: linear-gradient(90deg, #FF9B51 0%, #ED5B00 100%);
+  background: linear-gradient(90deg, #F9A825 0%, #F9A825 100%);
   color: white;
   border-radius: 50%;
   display: flex;
@@ -506,7 +546,7 @@
 
 .book-tag {
   font-size: 12px;
-  color: #FF9B51;
+  color: #F9A825;
   background: rgba(255, 155, 81, 0.1);
   padding: 2px 8px;
   border-radius: 4px;

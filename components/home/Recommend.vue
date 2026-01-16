@@ -133,7 +133,7 @@
   text-overflow: ellipsis;
 }
 .book-title:hover {
-  color: #ED5B00; /* 悬停时的颜色，与热度数值同色保持协调 */
+  color: #F9A825; /* 悬停时的颜色，与热度数值同色保持协调 */
   cursor: pointer; /* 鼠标变为手型，提示可点击 */
 }
 

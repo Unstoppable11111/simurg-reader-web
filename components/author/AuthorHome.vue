@@ -396,7 +396,7 @@
 .create-book-btn {
   width: 120px;
   height: 28px;
-  background: linear-gradient( 90deg, #FF9B51 0%, #ED5B00 100%);
+  background: linear-gradient( 90deg, #F9A825 0%, #F9A825 100%);
   border-radius: 18px;
   font-family: PingFangSC, PingFang SC;
   font-weight: 400;
@@ -460,7 +460,7 @@
 .edit-book-btn, .create-chapter-btn {
   width: 120px;
   height: 28px;
-  background: linear-gradient( 90deg, #FF9B51 0%, #ED5B00 100%);
+  background: linear-gradient( 90deg, #F9A825 0%, #F9A825 100%);
   border-radius: 18px;
   font-family: PingFangSC, PingFang SC;
   font-weight: 400;
@@ -496,7 +496,7 @@
 .to-write-book {
   width: 200px;
   height: 49px;
-  background: linear-gradient( 90deg, #FF9B51 0%, #ED5B00 100%);
+  background: linear-gradient( 90deg, #F9A825 0%, #F9A825 100%);
   border-radius: 18px;
   text-align: center;
   line-height: 49px;

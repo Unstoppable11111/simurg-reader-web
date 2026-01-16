@@ -3,7 +3,11 @@
     <!-- 大热榜 -->
     <div class="ranking-hot-section" v-if="hotBooks.length > 0">
       <div class="ranking-hot-list">
-        <span class="ranking-hot-title">大热榜</span>
+        <div>
+          <SvgIcon name="ranking-icon-left" class="ranking-icon-left" />
+          <span class="ranking-hot-title">大热榜</span>
+          <SvgIcon name="ranking-icon-right" class="ranking-icon-right" />
+        </div>
         <!-- 使用v-for循环渲染列表项 -->
         <div 
           class="ranking-hot-itme" 
@@ -30,7 +34,9 @@
     <!-- 新书榜 -->
     <div class="ranking-new-section" v-if="newBooks.length > 0">
       <div class="ranking-new-list">
+        <SvgIcon name="ranking-icon-left" class="ranking-icon-left" />
         <span class="ranking-new-title">新书榜</span>
+        <SvgIcon name="ranking-icon-right" class="ranking-icon-right" />
         <!-- 使用v-for循环渲染列表项 -->
         <div 
           class="ranking-new-itme" 
@@ -57,7 +63,9 @@
     <!-- 畅销榜 -->
     <div class="ranking-best-sellers-section" v-if="bestSellersBooks.length > 0">
       <div class="ranking-best-sellers-list">
+        <SvgIcon name="ranking-icon-left" class="ranking-icon-left" />
         <span class="ranking-best-sellers-title">完结榜</span>
+        <SvgIcon name="ranking-icon-right" class="ranking-icon-right" />
         <!-- 使用v-for循环渲染列表项 -->
         <div 
           class="ranking-best-sellers-itme" 
@@ -86,6 +94,7 @@
 <script setup>
 import { ref } from 'vue';
 import { API_ENDPOINTS, apiRequest } from '@/utils/api'
+import SvgIcon from '@/components/SvgIcon.vue';
 const router = useRouter();
 const props = defineProps({
     apiUrl: {
@@ -218,6 +227,11 @@ onMounted(() => {
     text-align: left;
     font-style: normal;
   }
+  .ranking-icon-left, .ranking-icon-right {
+    width: 34px;
+    height: 34px;
+  }
+
   .ranking-hot-itme, 
   .ranking-new-itme, 
   .ranking-best-sellers-itme {
@@ -277,7 +291,7 @@ onMounted(() => {
     max-width: 300px;
   }
   .book-title:hover {
-    color: #ED5B00; /* 悬停时的颜色，与热度数值同色保持协调 */
+    color: #F9A825; /* 悬停时的颜色，与热度数值同色保持协调 */
     cursor: pointer; /* 鼠标变为手型，提示可点击 */
     }
   .book-cate {

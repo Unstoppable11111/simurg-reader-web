@@ -849,7 +849,7 @@ watch(
 .next-page-btn {
   width: 118px;
   height: 36px;
-  background: linear-gradient( 90deg, #FF9B51 0%, #ED5B00 100%);
+  background: linear-gradient( 90deg, #F9A825 0%, #F9A825 100%);
   border-radius: 18px;
   font-family: PingFangSC, PingFang SC;
   font-weight: 400;
@@ -1116,7 +1116,7 @@ watch(
   cursor: pointer;
   
   &.active {
-    background: linear-gradient(90deg, #FF9B51 0%, #ED5B00 100%);
+    background: linear-gradient(90deg, #F9A825 0%, #F9A825 100%);
     color: #000000;
   }
 }
@@ -1160,8 +1160,8 @@ watch(
   --el-scrollbar-width: 8px;
   --el-scrollbar-track-background: rgba(255, 255, 255, 0.05);
   --el-scrollbar-thumb-background: #F96E08;
-  --el-scrollbar-thumb-hover-background: #FF9B51;
-  --el-scrollbar-thumb-active-background: #ED5B00;
+  --el-scrollbar-thumb-hover-background: #F9A825;
+  --el-scrollbar-thumb-active-background: #F9A825;
   
   /* 滚动条圆角 */
   --el-scrollbar-thumb-border-radius: 4px;

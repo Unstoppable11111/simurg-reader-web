@@ -553,7 +553,7 @@ import { Title } from '#components';
   .publish-btn {
     top: 15px;
     right: 28px;
-    background: linear-gradient( 90deg, #FF9B51 0%, #ED5B00 100%);
+    background: linear-gradient( 90deg, #F9A825 0%, #F9A825 100%);
   }
   .wirte-book-main-box {
     margin-top: 24px;

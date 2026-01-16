@@ -3,7 +3,7 @@
     <Header :margin-left="'360px'"/>
     <div class="author-container">
       <div class="author-box">
-        <img class="author-img" :src="authorInfo.pictureUrl" alt="">
+        <img class="author-img" :src="authorInfo.pictureUrl || '/default-avatar.png'" alt="">
         <!-- 作者信息简介开始 -->
         <div class="author-info">
           <div class="author-pen-name-box">
@@ -99,7 +99,7 @@
   const authorInfo = ref(null);
   const authorBookList = ref([]);
 
-  const getAuthorInfoUrl = `${API_ENDPOINTS.AUTHO_INFO}${authorId}`;
+  const getAuthorInfoUrl = `${API_ENDPOINTS.AUTHO_INFO_BY_ID}/${authorId}`;
   const authorInfoResult = await apiRequest(getAuthorInfoUrl, {
     method: 'GET'
   });
@@ -178,7 +178,7 @@
   .author-tag {
     width: 44px;
     height: 17px;
-    background: linear-gradient( 180deg, #FFD50D 0%, #ED5B00 100%);
+    background: linear-gradient( 180deg, #FFD50D 0%, #F9A825 100%);
     border-radius: 2px;
     font-family: PingFangSC, PingFang SC;
     font-weight: 400;
@@ -360,7 +360,7 @@
     bottom: 0;
     width: 128px;
     height: 28px;
-    background: linear-gradient( 90deg, #FF9B51 0%, #ED5B00 100%);
+    background: linear-gradient( 90deg, #F9A825 0%, #F9A825 100%);
     border-radius: 18px;
     font-family: PingFangSC, PingFang SC;
     font-weight: 400;
