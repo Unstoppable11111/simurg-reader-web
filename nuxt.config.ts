@@ -2,6 +2,8 @@
 import { defineNuxtConfig } from 'nuxt/config'
 import AutoImport from 'unplugin-auto-import/vite'
 import Components from 'unplugin-vue-components/vite'
+import { createSvgIconsPlugin } from 'vite-plugin-svg-icons';
+import path from 'path'; // 必须导入 path 模块
 import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 
 export default defineNuxtConfig({
@@ -56,6 +58,19 @@ export default defineNuxtConfig({
       }),
       Components({
         resolvers: [ElementPlusResolver()],
+      }),
+      // 🚨 添加 SVG 插件配置
+      createSvgIconsPlugin({
+        // 1. 指定你的 SVG 图标所在的目录路径
+        iconDirs: [path.resolve(process.cwd(), 'assets/icons/svg')], 
+        // 请根据你的项目结构调整 'assets/icons/svg' 这个路径，确保它指向你的 .svg 文件
+
+        // 2. 指定生成的 symbolId 格式
+        symbolId: 'icon-[dir]-[name]',
+        
+        // 3. 注入方式（Nuxt 项目推荐使用 'body'）
+        inject: 'body', 
+        customDomId: '__svg__icons__dom__',
       }),
     ],
     build: {

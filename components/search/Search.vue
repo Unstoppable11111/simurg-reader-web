@@ -34,7 +34,7 @@
 
 <script setup>
   import { ref, defineProps, defineEmits, onUnmounted } from 'vue'
-  import _ from 'lodash';
+  import * as _ from 'lodash'
   const { debounce } = _;
 
   // 定义Props
