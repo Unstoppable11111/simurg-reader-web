@@ -16,7 +16,7 @@
               <span class="book-chapter-num">第二章 </span>
               <span class="book-chapter-title">赚钱了？</span>
             </div>
-            <button class="add-bookshelf-btn">加入书架</button>
+            <button class="add-bookshelf-btn" @click="addToBookShelf">加入书架</button>
           </div>
         </div>
       </div>
@@ -45,6 +45,25 @@
       console.log("用户阅读历史记录: ", historyBookResult);
     } catch (error) {
 
+    }
+  }
+
+  const addToBookShelf = async (bookId) => { 
+    // 获取当前书籍的 bookId
+    const addFavoriteReq = {
+      bookIdList: [bookId]
+    };
+    // 跳转到书籍详情页面
+    console.log("添加到我的书架", JSON.stringify(addFavoriteReq));
+    try {
+      const response = await apiRequest(API_ENDPOINTS.ADD_BOOKS_TO_FAVORITE, {
+        method: 'POST',
+        body: JSON.stringify(addFavoriteReq)
+      });
+      console.log("添加结果",response);
+      ElMessage.success('添加成功！');
+    } catch (error) {
+      ElMessage.error('Error adding book to favorite:', error);
     }
   }
 

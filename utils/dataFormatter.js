@@ -13,6 +13,7 @@ export function formatTimestamp(timestamp) {
   return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 }
 
+// 格式化时间戳为年月日
 export function formatTimestampToYMD(timestamp) {
   if (!timestamp) return '';
   
