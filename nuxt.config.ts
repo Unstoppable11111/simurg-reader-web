@@ -10,7 +10,7 @@ export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   ssr: true,
   devtools: { enabled: true },
-  css: ['@/public/style/global.css'],
+  css: ['@/public/style/global.css', '@/assets/css/global.css'],
   // postcss: {
   //   plugins: {
   //     'postcss-px-to-viewport': {
