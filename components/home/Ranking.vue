@@ -105,11 +105,15 @@ const props = defineProps({
 
 // 定义排名图标和类名
 const RANK_ICONS = {
-  first: "http://www.tireba.com/simurg-reader/images/first.svg",
-  second: "http://www.tireba.com/simurg-reader/images/second.svg",
-  third: "http://www.tireba.com/simurg-reader/images/third.svg",
-  fore: "http://www.tireba.com/simurg-reader/images/fore.svg",
-  five: "http://www.tireba.com/simurg-reader/images/five.svg"
+  first: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><defs><linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:%23FFECB3" /><stop offset="100%" style="stop-color:%23FFD700" /></linearGradient></defs><path fill="url(%23g1)" d="M12 2l2.4 7.4h7.6l-6.2 4.5 2.4 7.4-6.2-4.5-6.2 4.5 2.4-7.4-6.2-4.5h7.6z"/></svg>`,
+  
+  second: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><defs><linearGradient id="g2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:%23FFFFFF" /><stop offset="100%" style="stop-color:%23BDBDBD" /></linearGradient></defs><path fill="url(%23g2)" d="M12 2l2.4 7.4h7.6l-6.2 4.5 2.4 7.4-6.2-4.5-6.2 4.5 2.4-7.4-6.2-4.5h7.6z"/></svg>`,
+  
+  third: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><defs><linearGradient id="g3" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:%23FFAB91" /><stop offset="100%" style="stop-color:%23FF5722" /></linearGradient></defs><path fill="url(%23g3)" d="M12 2l2.4 7.4h7.6l-6.2 4.5 2.4 7.4-6.2-4.5-6.2 4.5 2.4-7.4-6.2-4.5h7.6z"/></svg>`,
+  
+  fore: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><text x="12" y="18" font-family="Verdana" font-size="16" fill="%23888888" text-anchor="middle" font-weight="bold">4</text></svg>`,
+  
+  five: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><text x="12" y="18" font-family="Verdana" font-size="16" fill="%23888888" text-anchor="middle" font-weight="bold">5</text></svg>`
 };
 
 const RANK_CLASSES = ['first', 'second', 'third', 'fore', 'five'];
