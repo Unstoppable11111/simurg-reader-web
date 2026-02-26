@@ -100,7 +100,8 @@
           <LastUpdateBook :recentUpdateBooks="recentUpdateBooks" />
         </div>
 
-        <Footer />
+      </div>
+       <Footer />
 
         <!-- 回到顶部按钮 -->
         <div 
@@ -110,7 +111,6 @@
         >
           ↑
         </div>
-      </div>
     </div>
 </template>
 
@@ -280,6 +280,7 @@
   flex-direction: column;
   align-items: center;
   min-height: 100vh;
+  overflow: hidden;
 }
 .home-content-box {
   display: flex;
@@ -419,7 +420,7 @@
   flex-direction: column;
   align-items: center;
   width: 1200px;
-  max-height: 830px;
+  // max-height: 830px;
   margin-top: 50px;
 }
 .last-update-book-title {
