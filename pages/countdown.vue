@@ -1,5 +1,5 @@
 <template>
-  <div class="simurg-reader-page">
+  <div class="simurg-reader-page" @click="shiftDimensions">
     <!-- 宇宙传送门：按官方示例 + Nuxt3客户端渲染 + 全屏样式（核心修复） -->
     <ClientOnly>
       <CosmicPortal
@@ -10,14 +10,15 @@
 
     <!-- 顶部Logo：保留你的原有样式+居中 -->
     <div class="site-header">
-      <img src="/public/images/simurg-reader-logo.svg" alt="simurg reader logo" class="header-logo" />
-      <p class="slogon">一千零一夜的故事正在被重写</p>
+      
     </div>
 
     <!-- 主内容区：保留你的倒计时+特色列表+原有样式 -->
     <div class="main-container">
       <!-- 左侧倒计时卡片 -->
       <div class="countdown-card">
+        <img src="/public/images/simurg-reader-logo.svg" alt="simurg reader logo" class="header-logo" />
+        <p class="slogon">一千零一夜的故事正在被重写</p>
         <p class="card-subtitle">距离 simurg reader 上线还有</p>
         <div class="countdown-display">
           <span class="count-item">{{ days }}</span>
@@ -38,7 +39,7 @@
 
         <!-- 传送门控制按钮：按官方示例样式，匹配你的页面金色主题 -->
         <div class="portal-control-buttons">
-          <!-- <Button @click="activatePortal" class="portal-btn">激活传送门</Button>
+          <!-- <Button @click.stop="activatePortal" class="portal-btn">激活传送门</Button>
           <Button @click="shiftDimensions" class="portal-btn">维度切换</Button> -->
         </div>
       </div>
@@ -54,7 +55,7 @@
           <li class="feature-item">🔄 多端互通，随时随地畅读</li>
           <li class="feature-item">🎁 新人福利，上线即可免费阅读</li>
         </ul>
-        <button class="notify-button">→ 上线第一时间通知你</button>
+        <button class="notify-button" @click.stop="activatePortal">→ 上线第一时间通知你</button>
       </div>
     </div>
 
@@ -181,6 +182,7 @@ onUnmounted(() => {
 }
 .slogon {
   color: #f9a825;
+  padding-bottom: 10px;
 }
 
 /* 主内容容器：保留你的原有样式，无修改 */
@@ -201,7 +203,7 @@ onUnmounted(() => {
 .countdown-card {
   background: rgba(18, 18, 24, 0.85) !important;
   border-radius: 20px !important;
-  padding: 60px 80px !important;
+  padding: 30px 40px !important;
   text-align: center !important;
   box-shadow: 0 0 80px rgba(255, 183, 0, 0.2) !important;
   border: 1px solid rgba(255, 183, 0, 0.2) !important;
@@ -317,7 +319,7 @@ onUnmounted(() => {
   display: flex !important;
   align-items: center !important;
   gap: 15px !important;
-  font-size: 16px !important;
+  font-size: 20px !important;
   line-height: 1.6 !important;
   color: #dddddd !important;
   padding: 12px 20px !important;

@@ -34,8 +34,6 @@
           </div>
           
           <div class="book-actions">
-            <!-- <NuxtLink :to="`/book/read?book=${book.bookId}&chapter=${book.tableOfContents[0].id}`" class="btn-read-now">开始阅读</NuxtLink> -->
-            <!-- <NuxtLink :to="`/book/read?book=${book.bookId}&chapter=1`" class="btn-read-now">开始阅读</NuxtLink> -->
             <button class="btn-read-now" @click="startReading">开始阅读</button>
             <button class="btn-add-to-bookshelf" @click="addToBookshelf">加入书架</button>
           </div>
@@ -54,7 +52,6 @@
             </div>
             <span v-if="isLoggedIn && isFollowed" class="followed">已关注</span>
             <span v-else class="btn-follow" @click="followAuthor(authorId)">+关注</span>
-            <!-- <span class="followed">已关注</span> -->
           </div>
         </div>
         
@@ -75,15 +72,12 @@
           </div>
         </div>
       </div>
-
-      
     </div>
 
     <!-- 书籍简介 -->
     <div class="book-desc-container"> 
       <div class="book-desc-box">
-        <div class="book-desc-title">
-        </div>
+        <div class="book-desc-title"></div>
         <span class="book-desc-title-text">简介</span>
         <div class="book-desc-content">
           <p class="book-desc">{{ book.description }}</p>
@@ -94,8 +88,7 @@
     <!-- 书籍目录 -->
     <div class="book-table-container"> 
       <div class="book-table-box">
-        <div class="book-table-content-title">
-        </div>
+        <div class="book-table-content-title"></div>
         <span class="book-table-content-title-text">目录</span>
         <div class="book-table-content">
           <div class="book-table-item" v-for="(item, index) in chapterList" :key="index">
@@ -103,8 +96,11 @@
           </div>
         </div>
 
-        <div class="book-table-more-container">
-          <div class="btn-more" v-if="hasNextChapter">展开更多</div>
+        <!-- 展开更多按钮 - 增加加载状态显示 -->
+        <div class="book-table-more-container" v-if="hasNextChapter">
+          <div class="btn-more" @click="loadMoreChapters" :class="{ loading: isLoading }">
+            {{ isLoading ? '加载中...' : '展开更多' }}
+          </div>
         </div>
       </div>
     </div>
@@ -112,8 +108,7 @@
     <!-- 书籍内容 -->
      <div class="book-content-container"> 
       <div class="book-content-box">
-        <div class="book-content-title">
-        </div>
+        <div class="book-content-title"></div>
         <span class="book-content-title-text">阅读</span>
         <div class="book-content-info">
           <p class="book-text"> {{ decryptData(chapterContent.chapterContent) }} </p>
@@ -131,25 +126,32 @@
   import { formatTimestamp, formatSerialStatus } from '@/utils/dataFormatter';
   import { useAuth } from '@/composables/useAuth';
   import { decryptData } from '@/utils/crypto';
+  
   definePageMeta({
-    // 开启页面缓存
     keepalive: true
   })
 
   const {isLoggedIn} = useAuth();
-  console.log("isLoggedIn", isLoggedIn);
+  
   // 获取路由参数
   const route = useRoute()
   const router = useRouter();
   const bookId = route.params.id
+  
+  // 分页相关变量
   const chapterList = ref([]);
   const hasNextChapter = ref(false);
+  const currentPage = ref(1); // 当前页码
+  const pageSize = ref(20);   // 每页条数
+  const isLoading = ref(false); // 加载状态
+  
   const chapterNumber = ref(1);
   const chapterContent = ref(null);
   const isFollowed = ref(false);
   const authorId = ref("");
   const book = ref(null);
 
+  // 获取书籍详情
   try {
     console.log("请求的id", bookId)
     const url = new URL(`${API_ENDPOINTS.BOOK_DETAIL}/${bookId}`);
@@ -164,25 +166,56 @@
     console.error('Error fetching book data:', error);
   }
 
-  // 获取书籍的所有章节目录
-  try {
-    const chapterReq = {
-      bookId: bookId,
-      page: 1,
-      size: 20
+  // 获取章节列表 - 封装成可复用方法
+  const fetchChapterList = async (page, isLoadMore = false) => {
+    try {
+      const chapterReq = {
+        bookId: bookId,
+        page: page,
+        size: pageSize.value
+      }
+      
+      // 加载状态控制
+      if (isLoadMore) {
+        isLoading.value = true;
+      }
+      
+      const chapterResult = await apiRequest(API_ENDPOINTS.LIST_ALL_CHAPTER, {
+        method: 'POST',
+        body: JSON.stringify(chapterReq)
+      });
+      
+      console.log(`第${page}章章节内容：`, chapterResult);
+      
+      if (chapterResult.code === 200) {
+        // 加载更多时追加数据，首次加载时替换数据
+        if (isLoadMore) {
+          chapterList.value = [...chapterList.value, ...chapterResult.data.records];
+        } else {
+          chapterList.value = chapterResult.data.records;
+        }
+        
+        hasNextChapter.value = chapterResult.data.hasNext;
+        currentPage.value = page; // 更新当前页码
+      }
+    } catch (error) {
+      console.error('Error fetching chapter data:', error);
+    } finally {
+      // 无论成功失败，都结束加载状态
+      isLoading.value = false;
     }
-    // console.log("请求的参数", JSON.stringify(chapterReq));
-    const chapterResult = await apiRequest(API_ENDPOINTS.LIST_ALL_CHAPTER, {
-      method: 'POST',
-      body: JSON.stringify(chapterReq)
-    });
-    console.log("章节内容：", chapterResult);
-    if (chapterResult.code === 200) {
-      chapterList.value = chapterResult.data.records;
-      hasNextChapter.value = chapterResult.data.hasNext;
-    }
-  } catch (error) {
-    console.error('Error fetching book data:', error);
+  }
+
+  // 初始化加载第一页章节
+  await fetchChapterList(currentPage.value);
+
+  // 加载更多章节方法
+  const loadMoreChapters = async () => {
+    // 避免重复请求
+    if (isLoading.value || !hasNextChapter.value) return;
+    
+    // 请求下一页数据
+    await fetchChapterList(currentPage.value + 1, true);
   }
 
   // 默认获取第一章数据
@@ -218,21 +251,20 @@
       chapterContent.value = newChapterContent.data;
     }
   }
-  
 
+  // 加入书架
   const addToBookshelf = async() =>{
-    // 获取当前书籍的 bookId
     const currentBookId = route.params.id;
     const addFavoriteReq = {
       bookIdList: [currentBookId]
     };
-    // 跳转到书籍详情页面
-    console.log("添加到我的书架", JSON.stringify(addFavoriteReq));
+    
     try {
       const response = await apiRequest(API_ENDPOINTS.ADD_BOOKS_TO_FAVORITE, {
         method: 'POST',
         body: JSON.stringify(addFavoriteReq)
       });
+      
       console.log("添加结果",response);
       if (response.code === 2008) {
         router.push('/login');
@@ -241,7 +273,6 @@
     } catch (error) {
       console.error('Error adding book to favorite:', error);
     }
-    
   }
 
   // 检查是否已关注作者
@@ -258,7 +289,6 @@
 
   // 开始阅读
   const startReading = async() => {
-    // 获取用户阅读记录，用于跳转
     router.push(`/book/read?book=${bookId}&chapter=1`);
   }
 
@@ -312,9 +342,6 @@
   .breadcrumb a {
     color: #bdc3c7;
     text-decoration: none;
-  }
-  .breadcrumb a:hover {
-    // color: #e74c3c;
   }
   .book-info {
     position: absolute;
@@ -483,9 +510,9 @@
   .author-name {
     width: 118px;
     height: 25px;
-    white-space: nowrap;      /* 防止换行 */
-    overflow: hidden;         /* 超出部分隐藏 */
-    text-overflow: ellipsis;  /* 超出部分显示省略号 */
+    white-space: nowrap;      
+    overflow: hidden;         
+    text-overflow: ellipsis;  
     font-family: PingFangSC, PingFang SC;
     font-weight: 400;
     font-size: 18px;
@@ -600,30 +627,20 @@
     color: #FFFFFF;
     text-align: left;
     font-style: normal;
-    // background: linear-gradient(0deg, #F9A825 0%, #F9A825 100%);
-    /* 渐变背景，这里用红→橙示例，可自定义颜色、方向 */
     background: linear-gradient(0deg, #F9A825 0%, #F9A825 100%);
-    /* 关键：让背景裁剪成文字形状 */
     -webkit-background-clip: text; 
-    /* 文字填充色设透明，让渐变背景透出来 */
     -webkit-text-fill-color: transparent; 
-    /* 兼容其他浏览器 */
     background-clip: text; 
     text-fill-color: transparent; 
   }
   .book-desc-content {
-    /* 必须设置宽度，否则可能不生效 */
-    width: 1200px; /* 可根据实际需求调整 */
-    
-    /* 核心样式 */
+    width: 1200px;
     display: -webkit-box;
-    -webkit-line-clamp: 3; /* 限制最多显示3行 */
+    -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
-    overflow: hidden; /* 超出部分隐藏 */
-    text-overflow: ellipsis; /* 显示省略号 */
-    
-    /* 可选样式 */
-    line-height: 1.5; /* 行高，影响整体高度 */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.5;
     font-size: 16px;
   }
   .book-content-info {
@@ -672,6 +689,7 @@
     position: absolute;
     bottom: -32px;
     left: 50%;
+    transform: translateX(-50%); /* 居中对齐 */
   }
   .btn-more {
     width: 128px;
@@ -681,8 +699,10 @@
     color: #F96C05;
     text-align: center;
     line-height: 32px;
-    &:hover {
-      cursor: pointer;
+    cursor: pointer;
+    &.loading {
+      cursor: not-allowed;
+      opacity: 0.7;
     }
   }
   .book-text {
@@ -693,8 +713,8 @@
     line-height: 25px;
     text-align: justify;
     font-style: normal;
-    word-wrap: break-word;      /* 允许长单词换行 */
-    word-break: break-word;     /* 在适当位置换行 */
-    white-space: pre-wrap;      /* 保留空白符序列，但是正常换行 */
+    word-wrap: break-word;
+    word-break: break-word;
+    white-space: pre-wrap;
   }
 </style>

@@ -163,8 +163,7 @@
     // 获取书籍分类
   try {
     const bookCateResult = await apiRequest(API_ENDPOINTS.CATEGORIES, {
-      method: 'POST',
-      body: JSON.stringify({})
+      method: 'GET'
     });
     console.log("分类类型", bookCateResult)
     if (!bookCateResult.code === 200) {
