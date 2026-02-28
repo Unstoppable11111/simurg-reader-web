@@ -9,9 +9,9 @@
     </ClientOnly>
 
     <!-- 顶部Logo：保留你的原有样式+居中 -->
-    <div class="site-header">
+    <!-- <div class="site-header">
       
-    </div>
+    </div> -->
 
     <!-- 主内容区：保留你的倒计时+特色列表+原有样式 -->
     <div class="main-container">
@@ -139,6 +139,7 @@ onUnmounted(() => {
 <style scoped>
 /* 根容器：保留你的原有暗黑主题样式，无修改 */
 .simurg-reader-page {
+  display: flex;
   min-height: 100vh !important;
   width: 100% !important;
   background: #0a0a0d !important;
@@ -201,7 +202,7 @@ onUnmounted(() => {
 
 /* 倒计时卡片：保留你的原有样式+金色主题，无修改 */
 .countdown-card {
-  background: rgba(18, 18, 24, 0.85) !important;
+  background: rgba(18, 18, 24, 0.55) !important;
   border-radius: 20px !important;
   padding: 30px 40px !important;
   text-align: center !important;

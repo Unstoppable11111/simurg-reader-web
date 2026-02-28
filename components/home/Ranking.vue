@@ -105,15 +105,15 @@ const props = defineProps({
 
 // 定义排名图标和类名
 const RANK_ICONS = {
-  first: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><defs><linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:%23FFECB3" /><stop offset="100%" style="stop-color:%23FFD700" /></linearGradient></defs><path fill="url(%23g1)" d="M12 2l2.4 7.4h7.6l-6.2 4.5 2.4 7.4-6.2-4.5-6.2 4.5 2.4-7.4-6.2-4.5h7.6z"/></svg>`,
+  first: `/icon/one.svg`,
   
-  second: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><defs><linearGradient id="g2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:%23FFFFFF" /><stop offset="100%" style="stop-color:%23BDBDBD" /></linearGradient></defs><path fill="url(%23g2)" d="M12 2l2.4 7.4h7.6l-6.2 4.5 2.4 7.4-6.2-4.5-6.2 4.5 2.4-7.4-6.2-4.5h7.6z"/></svg>`,
+  second: `/icon/two.svg`,
   
-  third: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><defs><linearGradient id="g3" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:%23FFAB91" /><stop offset="100%" style="stop-color:%23FF5722" /></linearGradient></defs><path fill="url(%23g3)" d="M12 2l2.4 7.4h7.6l-6.2 4.5 2.4 7.4-6.2-4.5-6.2 4.5 2.4-7.4-6.2-4.5h7.6z"/></svg>`,
+  third: `/icon/three.svg`,
   
-  fore: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><text x="12" y="18" font-family="Verdana" font-size="16" fill="%23888888" text-anchor="middle" font-weight="bold">4</text></svg>`,
+  fore: `/icon/fore.svg`,
   
-  five: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><text x="12" y="18" font-family="Verdana" font-size="16" fill="%23888888" text-anchor="middle" font-weight="bold">5</text></svg>`
+  five: `/icon/five.svg`
 };
 
 const RANK_CLASSES = ['first', 'second', 'third', 'fore', 'five'];
@@ -232,8 +232,11 @@ onMounted(() => {
     font-style: normal;
   }
   .ranking-icon-left, .ranking-icon-right {
-    width: 34px;
-    height: 34px;
+    display: inline-block !important;
+    vertical-align: sub !important;
+    width: 24px;
+    height: 24px;
+    color: transparent;
   }
 
   .ranking-hot-itme, 

@@ -319,8 +319,9 @@
   align-items: center;
 }
 .recommend {
-  width: 30px;
-  height: 30px;
+  width: 24px;
+  height: 24px;
+  color: transparent;
 }
 .book-carousel {
   width: 1360px;
@@ -343,9 +344,10 @@
   position: relative; /* 为了定位“更多”按钮 */
 }
 .ranking {
-  width: 46px;
-  height: 46px;
-  margin-left: -16px;
+  width: 24px;
+  height: 24px;
+  color: transparent;
+  margin-top: 2px;
 }
 .featured-title, .recommend-title, .ranking-title, .newly-signed-title, .book-cate-title {
   width: 56px;
@@ -369,11 +371,12 @@
   text-fill-color: transparent; 
 }
 .feature-noval {
-  width: 30px;
-  height: 30px;
+  width: 24px;
+  height: 24px;
+  color: transparent;
 }
 .ranking-title {
-  width: 84px;
+  width: 80px;
 }
 .ranking-more, .book-cate-more {
   position: absolute;
@@ -400,8 +403,9 @@
   width: 112px;
 }
 .i-category {
-  width: 26px;
-  height: 26px;
+  width: 24px;
+  height: 24px;
+  color: transparent;
 }
 .book-cate-container {
   display: flex;

@@ -46,7 +46,7 @@
         <div class="user-dropdown" v-show="isDropdownOpen">
           <div class="dropdown-item" @click="goToUserCenter">个人中心</div>
           <div class="dropdown-divider"></div>
-          <div class="dropdown-item logout-btn" @click="handleLogout">注销</div>
+          <div class="dropdown-item logout-btn" @click="handleLogout">退出登录</div>
         </div>
       </div>
     </div>
@@ -80,10 +80,10 @@
     try {
       isDropdownOpen.value = false;
       await authStore.logout();
-      ElMessage.success('注销成功'); 
+      ElMessage.success('成功退出登录'); 
       router.push('/');
     } catch (error) {
-      ElMessage.error('注销失败，请重试');
+      ElMessage.error('退出登录失败，请重试');
     }
   };
 

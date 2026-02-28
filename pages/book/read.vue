@@ -68,7 +68,7 @@
         <span class="table-info-book-author"> {{ book.authorPenName }} </span>
       </div>
     </div>
-    <div class="toc-list">
+    <div class="toc-list" ref="tocListRef" @scroll="handleTocScroll">
       <div class="table-of-box">
         <span class="table-of-title">目录 ·  {{ chapterCount }}</span>
         <div class="sort-btn">
@@ -78,7 +78,7 @@
       </div>
       <div class="table-of-content-list">
         <div class="table-of-content-item"
-            v-for="chapter in chapterList"
+            v-for="chapter in paginatedChapterList "
             :key="chapter.chapterNumber"
             :class="{'chapter-active' : isCurrentChapter(chapter.chapterNumber)}"
             @click="goToChapter(chapter.chapterNumber)"
@@ -87,6 +87,9 @@
           <span class="chapter-title">{{ chapter.chapterTitle }}</span>
         </div>
       </div>
+      <!-- 加载更多提示 -->
+      <div v-if="loadingMore" class="loading-more">加载中...</div>
+      <div v-if="noMoreData" class="no-more-data">已加载全部章节</div>
     </div>
   </div>
   <!-- 蒙层遮罩 -->
@@ -127,9 +130,9 @@
   <div v-if="showComment" class="comment-container" :style="{ left: commentLeft + 'px' }">
     <div class="comment-box">
       <!-- 评论列表展示框 -->
-      <div class="comment-list-box" v-if="haveComment">
+      <div class="comment-list-box" v-if="haveComment" @scroll="handleCommentScroll">
         <div class="close-comment-box" @click="closeCommentBox">x</div>
-        <div class="comment-title">评论<span class="comment-count">{{paragraphCommentList.length}}条</span></div>
+        <div class="comment-title">评论<span class="comment-count">{{totalCommentCount}}条</span></div>
         <div class="comment-item"
               v-for="(comment, index) in paragraphCommentList"
               :key="comment.commentId || index">
@@ -143,6 +146,9 @@
             <!-- <button class="reply-btn">回复</button> -->
           </div>
         </div>
+        <!-- 评论加载更多提示 -->
+        <div v-if="commentLoadingMore" class="comment-loading-more">加载中...</div>
+        <div v-if="commentNoMoreData && paragraphCommentList.length > 0" class="comment-no-more" >已加载全部评论</div>
       </div>
       <!-- 无评论展示框 -->
       <div class="no-comment-box" v-else>
@@ -170,7 +176,7 @@
               <span class="upload-img"></span>
               <span class="submit-word-count">{{ commentCount }}/500</span>
               <button class="cancel-btn">取消</button>
-              <button class="submit-btn" @click="handleCommentSubmit(commentText)">发表</button>
+              <button class="submit-btn" @click="handleCommentSubmit(commentText)" :disabled="commentSubmitting">{{commentSubmitting ? '提交中...' : '发表' }}</button>
             </div>
           </div>
         </div>
@@ -187,8 +193,6 @@ import { useAuth } from '@/composables/useAuth';
 import { decryptData } from '@/utils/crypto';
 import V3Emoji from 'vue3-emoji';
 import 'vue3-emoji/dist/style.css'
-
-
 const DEFAULT_SECRET_KEY = 'JTDDnc1mrUf7TOfuX+9I4A==';
 
 // 获取路由参数
@@ -272,6 +276,7 @@ const selectionStart = ref(0)
 const selectionEnd = ref(0)
 const showCommentBox = ref(false)
 const commentContent = ref('')
+const commentSubmitting = ref(false);
 const showSubmitBox = ref(true);
 const commentText = ref('');
 const commentCount = computed(() => {
@@ -280,6 +285,26 @@ const commentCount = computed(() => {
 const {isLoggedIn, isAuthor, userAvatar, userName} = useAuth();
 const emojiRef = ref(null)
 const showEmojiPanel = ref(true)
+
+// 分页相关状态参数定义
+const tocListRef = ref([])
+const currentPage = ref(1)
+const pageSize = ref(50)
+const loadingMore = ref(false)
+const noMoreData = ref(false)
+const paginatedChapterList = computed(() => {
+  const start = (currentPage.value - 1) * pageSize.value;
+  const end = start + pageSize.value;
+  return chapterList.value.slice(0, end);
+});
+
+// 评论分页相关参数定义
+const commentCurrentPage = ref(1)
+const commentPageSize = ref(10)
+const commentLoadingMore = ref(false)
+const commentNoMoreData = ref(false)
+const totalCommentCount = ref(0)
+
 watch(isLoggedIn, (newVal) => {
   console.log('isLoggedIn changed to:', newVal);
 }, { immediate: true });
@@ -370,27 +395,69 @@ const fetchChapterContent = async (chapterNum) => {
 fetchChapterContent(chapterNumber.value)
 
 /**
- * 获取所有已发布的章节信息
+ * 获取所有已发布的章节信息 - 支持分页
  */
-const fetchAllPublishedChapters = async () => { 
+const fetchAllPublishedChapters = async (loadMore = false) => { 
+  if (loadMore) {
+    loadingMore.value = true
+  } else {
+    // 重新加载（排序/首次加载），重置分页状态
+    currentPage.value = 1
+    noMoreData.value = false
+  }
+
   try {
     const listPublishedChaptersReq = {
       bookId: bookId,
       orderDirection: sortOrder.value,
-      page: 1,
-      size: 10
+      page: currentPage.value,
+      size: pageSize.value
     }
     const listPublishedChaptersResult = await apiRequest(API_ENDPOINTS.LIST_PUBLISHED_CHAPTERS, {
         method: "POST",
         body: JSON.stringify(listPublishedChaptersReq),
     });
     console.log("获取所有已发布的章节信息结果：｛｝", listPublishedChaptersResult);
-    console.log("获取所有已发布的章节信息结果records：｛｝", listPublishedChaptersResult.data.records);
     if (listPublishedChaptersResult.code === 200) {
-      chapterCount.value = listPublishedChaptersResult.data.records.length;
-      chapterList.value = listPublishedChaptersResult.data.records;
+      const {records, total, pages} = listPublishedChaptersResult.data
+      if (loadMore) {
+        // 加载更多：追加数据
+        chapterList.value = [...chapterList.value, ...records]
+      } else {
+        // 首次加载/排序：替换数据
+        chapterList.value = records
+      }
+      chapterCount.value = total;
+      if (currentPage.value >= pages) {
+        noMoreData.value = true
+      }
+      if (!noMoreData.value) {
+        currentPage.value += 1
+      }
+      // chapterCount.value = listPublishedChaptersResult.data.records.length;
+      // chapterList.value = listPublishedChaptersResult.data.records;
     }
   } catch (error){
+    console.log("获取章节列表失败:", error)
+  } finally {
+    loadingMore.value = false
+  }
+}
+
+/**
+ * 处理目录滚动触底
+ */
+const handleTocScroll = () => {
+  const el = tocListRef.value
+  if ( !el || loadingMore.value || noMoreData.value) return
+
+  // 计算滚动位置（距离底部小于100px时加载更多）
+  const scrollTop = el.scrollTop
+  const scrollHeight = el.scrollHeight
+  const clientHeight = el.clientHeight
+
+  if (scrollTop + clientHeight >= scrollHeight - 100) {
+    fetchAllPublishedChapters(true) // 加载更多
   }
 }
 
@@ -427,16 +494,29 @@ const handleParagraphClick = (paragraph) => {
   fetchParagraphComments(selectedParagraph.value);
 }
 
-const fetchParagraphComments = async (paragraph) => { 
-  // api=/comment/list_with_paragraph
+/**
+ * 获取评论列表
+ * @param paragraph 选中的段落
+ * @param loadMore 是否加载更多 true:加载更多，false:重新加载
+ */
+const fetchParagraphComments = async (paragraph, loadMore = false) => { 
+  // 加载更多时重置状态
+  if (loadMore) {
+    commentLoadingMore.value = true;
+    if (commentNoMoreData.value) return;
+  } else {
+    commentCurrentPage.value = 1;
+    commentNoMoreData.value = false;
+    paragraphCommentList.value = [];
+  }
   try {
     const listWithParagraphReq = {
       "bookId": bookId,
       "chapterId": book.value.chapterId,
       "paragraphStartPos": paragraph.startIndex,
       "paragraphEndPos": paragraph.endIndex,
-      "page": 1,
-      "size": 10
+      "page": commentCurrentPage.value,
+      "size": commentPageSize.value
     }
     console.log("获取段落评论请求参数：", listWithParagraphReq);
     const listWithParagraphResult = await apiRequest(API_ENDPOINTS.LIST_COMMENTS, {
@@ -445,13 +525,23 @@ const fetchParagraphComments = async (paragraph) => {
     });
     console.log("获取段落评论结果：｛｝", listWithParagraphResult);
     if (listWithParagraphResult.code === 200 && listWithParagraphResult.data) {
-      if (listWithParagraphResult.data.size > 0) {
-        paragraphCommentList.value = listWithParagraphResult.data.records
-        haveComment.value = true;
+      const {records, total, pages} = listWithParagraphResult.data
+      totalCommentCount.value = total;
+      if (loadMore) {
+        // 加载更多评论，追加评论列表
+        paragraphCommentList.value = [...paragraphCommentList.value, ...records]
       } else {
-        paragraphCommentList.value = [];
-        haveComment.value = false;
+        // 首次加载，替换评论列表
+        paragraphCommentList.value = records
       }
+      // 判断是否有更多数据
+      commentNoMoreData.value = commentCurrentPage.value >= pages
+      if (!commentNoMoreData.value) {
+        commentCurrentPage.value += 1
+      }
+      // 更新是否有评论的状态
+      haveComment.value = total > 0;
+      
     } else {
       paragraphCommentList.value = [];
       haveComment.value = false;
@@ -460,11 +550,35 @@ const fetchParagraphComments = async (paragraph) => {
     console.error("获取段落评论失败：", error);
     paragraphCommentList.value = [];
     haveComment.value = false;
+  } finally {
+    commentLoadingMore.value = false
   }
 }
 
+/**
+ * 评论下拉触底获取列表处理
+ * @param event 鼠标下滑事件
+ */
+const handleCommentScroll = (event) => { 
+  const el = event.target
+  // 过滤条件：加载中/无更多数据/无评论时不处理
+  if (commentLoadingMore.value || commentNoMoreData.value || !haveComment.value) return;
+  // 计算滚动位置（距离底部小于100px时加载更多）
+  const scrollTop = el.scrollTop
+  const scrollHeight = el.scrollHeight
+  const clientHeight = el.clientHeight
+  if (scrollTop + clientHeight >= scrollHeight - 100) {
+    fetchParagraphComments(selectedParagraph.value, true)
+  }
+  
+}
+
 const nextPage = async() => { 
-  console.log("获取下一页内容");
+  const nexChapterNum = ++route.query.chapter ;
+  console.log("下一章节：", nexChapterNum);
+  const newUrl = `/book/read?book=${bookId}&chapter=${nexChapterNum}`
+  await router.push(newUrl)
+  await fetchChapterContent(nexChapterNum);
 }
 
 const floatingButtonStyle = computed(() => {
@@ -560,16 +674,20 @@ const goToChapter = async (chapterNumber) => {
   closeToc();
 }
 
+/**
+ * 目录正序
+ */
 const sortAsc = async () => {
-  console.log("获取章节内容升序");
   sortOrder.value = 'asc'
-  await fetchAllPublishedChapters();
+  await fetchAllPublishedChapters(false);
 }
 
+/**
+ * 目录倒序
+ */
 const sortDesc = async () => { 
-  console.log("获取章节内容降序");
   sortOrder.value = 'desc'
-  await fetchAllPublishedChapters();
+  await fetchAllPublishedChapters(false);
 }
 
 const setBackground = (bgClass) => { 
@@ -628,7 +746,10 @@ const onClickEmoji = (val) => {
 }
 
 const handleCommentSubmit = async (userComment) => { 
+  // 防止空评论 + 重复提交
+  if (!userComment.trim() || commentSubmitting.value) return;
   console.log("提交评论：", userComment);
+  commentSubmitting.value = true
   try {
     const addCommentReq = {
       bookId: bookId,
@@ -648,13 +769,26 @@ const handleCommentSubmit = async (userComment) => {
       router.push(`/login?redirectPath=${encodeURIComponent(router.currentRoute.value.fullPath)}`);
     }
     if (addCommentResult.code === 200) {
-      alert("评论添加成功");
+      ElMessage.success({
+        message: "评论添加成功",
+        duration: 2000,
+      });
       commentText.value = ''
-      await fetchChapterContent(book.value.chapterNumber)
+      await fetchParagraphComments(selectedParagraph.value, false);
     } else {
-      alert("评论添加失败");
+      ElMessage.error({
+        message: "评论添加失败",
+        duration: 2000,
+      });
     }
   } catch (error) { 
+    console.log("添加评论失败：", error);
+    ElMessage.error({
+      message: "评论提交异常，请重试",
+      duration: 2000,
+    });
+  } finally {
+    commentSubmitting.value = false
   }
 }
 
@@ -698,7 +832,7 @@ onMounted(async () => {
   }catch (error){
   }
   await fetchChapterContent(chapterNumber);
-  await fetchAllPublishedChapters();
+  await fetchAllPublishedChapters(false);
   nextTick(setSidebarPosition); // 确保 DOM 渲染完成后执行
   // 监听滚动和 resize 事件
   // window.addEventListener('scroll', setSidebarPosition);
@@ -750,13 +884,11 @@ watch(
 }
 .reading-container {
   width: 800px;
-  height: 100vh;
   background: #262626;
   position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-  /* background-color: #121212; */
   color: white;
 }
 .back-book-detail {
@@ -836,6 +968,7 @@ watch(
   word-break: break-word;
   white-space: normal;
   background: #262626;
+  margin-top: 42px;
 }
 .book-text {
   font-family: PingFangSC, PingFang SC;
@@ -845,6 +978,8 @@ watch(
   line-height: 25px;
   text-align: left;
   font-style: normal;
+  margin-bottom: 10px;
+  word-spacing: 0.3em;
 }
 .next-page-btn {
   width: 118px;
@@ -858,7 +993,7 @@ watch(
   line-height: 20px;
   text-align: center;
   font-style: normal;
-  margin-top: 18px;
+  margin: 38px 0 40px 0;
 }
 .chapter-header {
   text-align: center;
@@ -887,7 +1022,7 @@ watch(
   line-height: 25px;
   text-align: left;
   font-style: normal;
-  padding: 0 50px;
+  padding: 10px 50px;
   line-height: 20px;
 }
 
@@ -1149,6 +1284,42 @@ watch(
   background: #888;
   height: 40px; /* 固定高度 */
   border-radius: 9px;
+}
+/* 新增目录分页相关样式 */
+.toc-list {
+  margin-top: 40px;
+  margin-left: 30px;
+  height: calc(100vh - 150px); /* 固定高度，开启滚动 */
+  overflow-y: auto;
+  position: relative;
+}
+
+.loading-more {
+  text-align: center;
+  padding: 10px 0;
+  color: #A2A0A0;
+  font-size: 12px;
+}
+
+.no-more-data {
+  text-align: center;
+  padding: 10px 0;
+  color: #636363;
+  font-size: 12px;
+}
+
+/* 优化目录滚动条样式 */
+.toc-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.toc-list::-webkit-scrollbar-thumb {
+  background-color: #535353;
+  border-radius: 3px;
+}
+
+.toc-list::-webkit-scrollbar-track {
+  background-color: #242424;
 }
 
 .table-of-scroll {
@@ -1528,6 +1699,34 @@ watch(
   line-height: 14px;
   text-align: left;
   font-style: normal;
+}
+
+
+// 评论加载中/无更多样式
+.comment-loading-more {
+  text-align: center;
+  padding: 8px 0;
+  font-size: 12px;
+  color: #A2A0A0;
+}
+
+.comment-no-more {
+  text-align: center;
+  padding: 8px 0;
+  font-size: 12px;
+  color: #636363;
+}
+
+// 优化评论列表滚动条
+.comment-list-box::-webkit-scrollbar {
+  width: 4px;
+}
+.comment-list-box::-webkit-scrollbar-thumb {
+  background-color: #535353;
+  border-radius: 2px;
+}
+.comment-list-box::-webkit-scrollbar-track {
+  background-color: #242424;
 }
 .reply-btn {
   font-family: PingFangSC, PingFang SC;
