@@ -46,7 +46,7 @@
         <div class="featured-section">
           <div class="featured-title-box">  
             <span class="featured-title">精选</span>
-            <SvgIcon name="feature-noval" class="feature-noval" size="34" />
+            <SvgIcon name="feature-noval" class="feature-noval" size="34" color="transport"/>
           </div>
           <!-- 这里放精选内容 -->
           <FeatureCard :books="books" />
@@ -159,13 +159,11 @@
         method: 'POST',
         body: JSON.stringify(bookSearchUrl)
       });
-      console.log('首页搜索结果:', bookSearchResult);
       if (bookSearchResult.code === 200 && bookSearchResult.data?.records) {
         searchResult.value = bookSearchResult.data.records || []; 
         isSearching.value = true;
       }
     } catch (error) {
-      console.error('首页搜索失败:', error);
       searchResult.value = [];
     } finally {
       isSearching.value = false;
@@ -189,7 +187,6 @@
   try {
     const featureBookUrl = new URL(`${API_ENDPOINTS.TAG_BOOKS}/FEATURED`);
     const bookResult = await apiRequest(featureBookUrl);
-    console.log("精选书籍", bookResult);
     if (bookResult.code === 200 && Array.isArray(bookResult.data)) {
       books.value = bookResult.data;
     }
@@ -200,7 +197,6 @@
   try {
     const recommendBookUrl = new URL(`${API_ENDPOINTS.TAG_BOOKS}/RECOMMEND`);
     const recommendBookResult = await apiRequest(recommendBookUrl);
-    console.log("推荐书籍", recommendBookResult);
     if (recommendBookResult.code === 200 && Array.isArray(recommendBookResult.data)) {
       recommendBooks.value = recommendBookResult.data.slice(0, 4);
     }
@@ -212,7 +208,6 @@
     const bookCateResult = await apiRequest(API_ENDPOINTS.CATEGORIES, {
       method: 'GET'
     });
-    console.log("书籍分类", bookCateResult)
     if (!bookCateResult.code === 200) {
       throw new Error(`HTTP error! status: ${bookCateResult.status}`)
     }
@@ -237,14 +232,12 @@
     if (recentUpdateBookResult.code === 200 && Array.isArray(recentUpdateBookResult.data)) {
       recentUpdateBooks.value = recentUpdateBookResult.data;
     }
-    console.log("最近更新书籍", recentUpdateBookResult)
   } catch (error) {
   }
 
   // 获取轮播图数据（完全保留原有逻辑）
   try {
     const bannerResult = await apiRequest(API_ENDPOINTS.BANNERS)
-    console.log("轮播图数据", bannerResult)
     if (!bannerResult.code === 200) {
       throw new Error(`HTTP error! status: ${bannerResult.status}`)
     }
@@ -281,6 +274,11 @@
   align-items: center;
   min-height: 100vh;
   overflow: hidden;
+  background-image: url('../public/icon/backgroud.svg');
+  background-size: cover;
+  background-position: unset;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
 }
 .home-content-box {
   display: flex;

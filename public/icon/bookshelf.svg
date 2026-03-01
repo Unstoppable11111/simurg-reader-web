@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="12px" height="12px" viewBox="0 0 12 12" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>书架</title>
+    <g id="书架" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <rect id="矩形" fill="#F9A825" transform="translate(2.8343, 6.9829) rotate(17) translate(-2.8343, -6.9829)" x="1.334271" y="2.19506914" width="3" height="9.57557689" rx="0.400000006"></rect>
+        <rect id="矩形备份-4" fill="#F9A825" x="9" y="1" width="3" height="11" rx="0.400000006"></rect>
+        <rect id="矩形备份-5" fill="#F9A825" x="5.66854201" y="0" width="3" height="12" rx="0.400000006"></rect>
+    </g>
+</svg>

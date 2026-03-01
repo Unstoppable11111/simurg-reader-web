@@ -15,7 +15,7 @@
           class="table-row"
         >
           <div class="tr th-book-name" @click="gotoBookDetail(book.bookId)">{{ book.title }}</div>
-          <div class="tr th-book-content-name" @click="startReading(book.bookId, book.chapterNumber)">{{ book.chapterTitle }}</div>
+          <div class="tr th-book-content-name">{{ book.chapterTitle }}</div>
           <div class="tr th-book-author" @click="gotoAuthorDetail(book.authorId)">{{ book.authorPenName }}</div>
           <div class="tr th-type">{{ book.bookCategoryResponseList && book.bookCategoryResponseList.length > 0 
               ? book.bookCategoryResponseList[0].categoryName 

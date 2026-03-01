@@ -620,11 +620,10 @@ const addToBookshelf = async() =>{
       method: 'POST',
       body: JSON.stringify(addFavoriteReq)
     });
-    console.log("添加结果",response);
     if (response.code === 2008) {
       router.push(`/login?redirectPath=${encodeURIComponent(router.currentRoute.value.fullPath)}`);
     } else if (response.code === 200) {
-      alert("已添加到书架");
+      ElMessage.success('已添加到书架！');
     }
   } catch (error) {
     console.error('Error adding book to favorite:', error);
@@ -782,7 +781,6 @@ const handleCommentSubmit = async (userComment) => {
       });
     }
   } catch (error) { 
-    console.log("添加评论失败：", error);
     ElMessage.error({
       message: "评论提交异常，请重试",
       duration: 2000,

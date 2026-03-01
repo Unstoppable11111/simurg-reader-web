@@ -48,7 +48,10 @@
           <div class="author-info-container">
             <div class="author-info-box">
               <span class="author-name" @click="gotoAuthorDetail(book.authorId)">{{ book.authorPenName }}</span>
-              <span class="author-tag">作家</span>
+              <div class="author-tag">
+                <SvgIcon name="pen" class="pen" size="34" />
+                作家
+              </div>
             </div>
             <span v-if="isLoggedIn && isFollowed" class="followed">已关注</span>
             <span v-else class="btn-follow" @click="followAuthor(authorId)">+关注</span>
@@ -122,6 +125,7 @@
 <script setup>
   import Header from '@/components/layout/Header.vue';
   import Footer from '@/components/layout/Footer.vue';
+  import SvgIcon from '@/components/SvgIcon.vue';
   import { API_ENDPOINTS , apiRequest} from '@/utils/api';
   import { formatTimestamp, formatSerialStatus } from '@/utils/dataFormatter';
   import { useAuth } from '@/composables/useAuth';
@@ -252,7 +256,9 @@
     }
   }
 
-  // 加入书架
+  /**
+   * 加入书架
+   */
   const addToBookshelf = async() =>{
     const currentBookId = route.params.id;
     const addFavoriteReq = {
@@ -264,12 +270,10 @@
         method: 'POST',
         body: JSON.stringify(addFavoriteReq)
       });
-      
-      console.log("添加结果",response);
       if (response.code === 2008) {
         router.push('/login');
       }
-      alert('添加成功！');
+      ElMessage.success('添加成功！');
     } catch (error) {
       console.error('Error adding book to favorite:', error);
     }
@@ -411,7 +415,7 @@
   .btn-read-now {
     width: 148px;
     height: 36px;
-    background-color: #e67e22;
+    background-color: #f9a825;
     color: white;
     border: none;
     border-radius: 20px;
@@ -427,8 +431,8 @@
     width: 148px;
     height: 36px;
     background-color: transparent;
-    color: #e67e22;
-    border: 1px solid #e67e22;
+    color: #f9a825;
+    border: 1px solid #f9a825;
     border-radius: 20px;
     cursor: pointer;
     font-size: 14px;
@@ -475,6 +479,7 @@
   }
   .author-info-box {
     display: flex;
+    align-items: center;
   }
   .author-creation-info {
     width: 240px;
@@ -522,15 +527,24 @@
     font-style: normal;
     &:hover {
       cursor: pointer;
-      color: #F96E08;
+      color: #f9a825;
     }
   }
   .author-tag {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     width: 36px;
     height: 14px;
-    background: linear-gradient( 180deg, #FF9D3D 0%, #FF6200 100%);
+    background: linear-gradient( 180deg, #FF9D3D 0%, #f9a825 100%);
     border-radius: 2px;
     font-size: 10px;
+    text-align: center;
+  }
+  .pen {
+    width: 10px;
+    height: 10px;
+    color: transparent;
   }
   .btn-follow {
     width: 58px;
@@ -644,7 +658,8 @@
     font-size: 16px;
   }
   .book-content-info {
-    width: 1200px
+    width: 1200px;
+    margin: 32px 0 50px 0;
   }
   .book-desc {
     font-family: PingFangSC, PingFang SC;
@@ -654,6 +669,8 @@
     line-height: 25px;
     text-align: left;
     font-style: normal;
+    margin-top: 32px;
+    word-spacing: 0.3em;
   }
   .book-table-content {
     display: flex;
@@ -661,6 +678,7 @@
     color: #fff;
     width: 1360px;
     flex-wrap: wrap;
+    margin-top: 32px;
   }
   .book-table-item {
     width: 331px;
@@ -695,8 +713,8 @@
     width: 128px;
     height: 32px;
     border-radius: 18px;
-    border: 1px solid #F96C05;
-    color: #F96C05;
+    border: 1px solid #f9a825;
+    color: #f9a825;
     text-align: center;
     line-height: 32px;
     cursor: pointer;
@@ -716,5 +734,6 @@
     word-wrap: break-word;
     word-break: break-word;
     white-space: pre-wrap;
+    word-spacing: 0.3em;
   }
 </style>

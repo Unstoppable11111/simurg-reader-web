@@ -176,6 +176,9 @@
 .header-nav-active {
   font-weight: 600;
 }
+.to-bookshelf {
+  cursor: pointer;
+}
 
 .search {
   margin-right: 44px;

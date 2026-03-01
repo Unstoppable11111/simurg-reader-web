@@ -152,10 +152,9 @@ export async function apiRequest(endpoint, options = {}) {
       ...options
     }
     const response = await fetch(endpoint, mergedOptions);
-    console.log("响应参数",response);
-    if (response.code === 2008 || response.status === 401) {
-      window.location.href = '/login'
-    }
+    // if (response.code === 2008 || response.status === 401) {
+    //   window.location.href = '/login'
+    // }
     if (!response.code === 200) {
       throw new Error(`HTTP error! status: ${response.status}`)
     }

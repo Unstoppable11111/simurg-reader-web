@@ -396,7 +396,7 @@
   font-family: PingFangSC, PingFang SC;
   font-weight: 400;
   font-size: 12px;
-  color: #F96E08;
+  color: #F9A825;
   line-height: 20px;
   text-align: center;
   font-style: normal;

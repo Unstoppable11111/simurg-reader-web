@@ -33,7 +33,7 @@
 </template>
 
 <script setup>
-  import { ref, defineProps, defineEmits, onUnmounted } from 'vue'
+  import { ref, onUnmounted } from 'vue'
   import _ from 'lodash'
   const { debounce } = _
 

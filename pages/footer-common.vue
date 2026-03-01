@@ -426,6 +426,7 @@ watch(() => route.query.section, (newSection) => {
   overflow: hidden;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   margin-top: 50px;
+  margin-bottom: 50px;
 }
 
 .sidebar {

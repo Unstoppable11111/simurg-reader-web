@@ -135,7 +135,7 @@
   white-space: nowrap;  
   cursor: pointer;
   &:hover {
-    color: #F96E08;
+    color: #F9A825;
   }
 }
 .book-author {
@@ -149,7 +149,7 @@
   margin-top: 4px;
   cursor: pointer;
   &:hover {
-    color: #F64E05;
+    color: #F9A825;
   }
 }
 .book-read-history {
@@ -162,7 +162,7 @@
   font-style: normal;
   cursor: pointer;
   &:hover {
-    color: #F64E05;
+    color: #F9A825;
   }
 }
 .book-operate {
@@ -185,7 +185,7 @@
   font-style: normal;
   cursor: pointer;
   &:hover {
-    background: linear-gradient( 90deg, #F96C05 0%, #F64E05 100%);
+    background: linear-gradient( 90deg, #F9A825 0%, #F9A825 100%);
   }
 }
 .book-delete {

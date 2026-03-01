@@ -1,10 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg width="22px" height="33.3582349px" viewBox="0 0 22 33.3582349" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-    <title>4</title>
-    <g id="4" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+    <title>4-4</title>
+    <g id="4-4" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
         <path d="M2,0 L20,0 C21.1045695,0 22,0.8954305 22,2 L22,23.0756464 C22,23.66208 21.7426206,24.2189652 21.2959588,24.5989621 L11,33.3582349 L11,33.3582349 L0.704041222,24.5989621 C0.257379427,24.2189652 1.99840144e-15,23.66208 0,23.0756464 L0,2 C0,0.8954305 0.8954305,-2.22044605e-16 2,0 Z" id="矩形"></path>
-        <text font-family="PingFangSC-Regular, PingFang SC" font-size="18" font-weight="normal" fill="#FFFFFF">
-            <tspan x="5.5" y="21.1791175">4</tspan>
-        </text>
+        <path d="M12.1881912,8.32711746 L5.932,17.0571175 L5.932,18.5954277 L12.1881912,18.5954277 L12.1881912,21.4367383 L13.7912355,21.4367383 L13.7912355,18.5954277 L16.0850443,18.5954277 L16.0850443,17.0571175 L13.7912355,17.0571175 L13.7912355,8.32711746 L12.1881912,8.32711746 Z M12.1881912,10.2531175 L12.1881912,17.0571175 L7.174,17.0571175 L12.1881912,10.2531175 Z" id="形状" fill="#FFFFFF" fill-rule="nonzero"></path>
     </g>
 </svg>

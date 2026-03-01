@@ -25,12 +25,10 @@ export const useAuthStore = defineStore('auth', {
           method: 'POST',
           body: { account, password }
         })
-        console.log("账号登录成功:", response);
         if (response.code === 200) {
           this.handleLoginSuccess(response.data.thirdPartyUserInfo, response.data.tokenInfo.accessToken, response.data.tokenInfo.refreshToken, 'account')
           // 登录成功后获取用户信息
           const userInfoResult = await apiRequest(API_ENDPOINTS.USER_INFO);
-          console.log("获取登录成功的用户信息：", userInfoResult);
           this.isAuthor = userInfoResult.data.roles.includes('2');
           localStorage.setItem('isAuthor', this.isAuthor.toString());
         }
@@ -99,7 +97,6 @@ export const useAuthStore = defineStore('auth', {
         const response = await apiRequest(API_ENDPOINTS.LOGOUT, {
           method: 'POST'
         })
-        console.log("登出成功:", response);
         if (response.code === 200) {
           this.handleLogoutSuccess(null, '', '')
           return response

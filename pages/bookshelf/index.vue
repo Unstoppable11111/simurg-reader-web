@@ -208,11 +208,11 @@ const deleteBookShelf = async (bookId) => {
       method: 'POST',
       body: JSON.stringify(deleteFavoriteReq)
     });
-    console.log("删除用户收藏的该书籍成功", response);
-    alert("删除成功");
+    ElMessage.success('删除成功');
     queryMyBookShelf();
   } catch (error) {
     console.error('删除用户收藏的该书籍失败：', error);
+    ElMessage.error('删除失败');
   }
 }
 

@@ -37,13 +37,17 @@
       class="my-book-shelf" 
       :class="{ 'active': activeNav === 'bookshelf' }"
       @click="$emit('switch-tab', 'bookshelf')">
+      <SvgIcon name="bookshelf" class="bookshelf" size="34" />
       我的书架
+      <SvgIcon name="arrow-right" class="arrow-right" size="34" color="#F9A825"/>
     </div>
     <div 
       class="my-history"  
       :class="{ 'active': activeNav === 'history' }"
       @click="$emit('switch-tab', 'history')">
+      <SvgIcon name="bookshelfTest" class="bookshelfTest" size="34" color="red"/>
       历史记录
+      <SvgIcon name="arrow-right" class="arrow-right" size="34" color="#fff"/>
     </div>
 
     <!-- 头像裁剪弹窗：居中+背景模糊 -->
@@ -101,6 +105,7 @@
 
 <script setup>
   import { ref, onMounted } from 'vue'
+  import SvgIcon from '@/components/SvgIcon.vue';
   import { EditPen } from '@element-plus/icons-vue'
   import { VueCropper } from 'vue-cropper' // 引入裁切组件
   import { API_ENDPOINTS, apiRequest } from "@/utils/api" // 假设你有接口请求工具
@@ -295,7 +300,7 @@
   margin-top: 16px;
   cursor: pointer;
   &:hover {
-    color: #F96E08;
+    color: #F9A825;
   }
 }
 .edit-icon {
@@ -314,7 +319,7 @@
   margin-top: 4px;
   cursor: pointer;
   &:hover {
-    color: #F64E05;
+    color: #F9A825;
   }
 }
 .follow-box { 
@@ -336,7 +341,7 @@
 .author-follow-num, .author-fan-num { 
   color: #fff;
   &:hover {
-    color: #F96E08;
+    color: #F9A825;
   }
 }
 .author-follow { 
@@ -369,7 +374,7 @@
   font-family: PingFangSC, PingFang SC;
   font-weight: 600;
   font-size: 18px;
-  color: #F96E08;
+  color: #F9A825;
   line-height: 25px;
   text-align: left;
   font-style: normal;
@@ -390,6 +395,9 @@
   margin-top: 16px;
 }
 .my-book-shelf, .my-history { 
+  position: relative;
+  display: flex;
+  align-items: center;
   width: 220px;
   height: 48px;
   background: #424242;
@@ -405,8 +413,21 @@
 .my-book-shelf { 
   margin-top: 6px;
 }
+.bookshelf, .history, .ranking-hot, .bookshelfTest {
+  width: 12px;
+  height: 12px;
+  color: transparent;
+  margin: 0 6px 0 16px;
+}
+.arrow-right {
+  position: absolute;
+  right: 16px;
+  width: 12px;
+  height: 12px;
+  color: transparent;
+}
 .active {
-  color: #F96E08;
+  color: #F9A825;
 }
 
 /* 新增：头像弹窗样式 */
@@ -493,7 +514,7 @@
   border-radius: 4px;
   cursor: pointer;
   &:hover {
-    background: #F96E08;
+    background: #F9A825;
   }
 }
 
@@ -520,7 +541,7 @@
 .save-btn {
   padding: 8px 20px;
   border: none;
-  background: #F96E08;
+  background: #F9A825;
   color: #fff;
   border-radius: 4px;
   cursor: pointer;

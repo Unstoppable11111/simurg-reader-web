@@ -631,9 +631,6 @@
           inputErrorMessage: '输入内容不匹配，请重新输入'
         }
       ).then(async ({ value }) => {
-        // 只有校验通过才会进入这里
-        // console.log('用户输入了:', value); 
-
         // 发送删除请求
         const res = await apiRequest(`${API_ENDPOINTS.DELETE_BOOK}/${currentBookId.value}`, {
           method: 'DELETE',
