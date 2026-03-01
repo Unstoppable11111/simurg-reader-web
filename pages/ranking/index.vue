@@ -194,20 +194,20 @@
     color: #FFFFFF;
   }
   .active {
-    background: rgba(249,110,8,0.65);
+    background: linear-gradient(90deg, #F9A825 0%, #ED5B00 100%);
     color: #FFFFFF;
   }
   
   .ranking-title-box {
     width: 982px;
     height: 78px;
-    background: linear-gradient( 270deg, #FE5C54 0%, #F1951E 100%);
-    border-radius: 10px 10px 0px 0px;
+    // background: linear-gradient( 270deg, #FE5C54 0%, #F1951E 100%);
+    // border-radius: 10px 10px 0px 0px;
   }
   .ranking-title {
     font-family: PingFangSC, PingFang SC;
     font-weight: 600;
-    font-size: 24px;
+    font-size: 20px;
     color: #FFFFFF;
     line-height: 33px;
     text-align: left;
@@ -259,19 +259,20 @@
     font-weight: 600 !important;
     color: #D8D8D8 !important;
   }
-  .ranking-book-box {
-    // margin-top: 34px;
+  .ranking-book-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 26px;
   }
   .ranking-book-item {
     display: flex;
-    padding: 34px;
-    // border-radius: 10px;
+    flex-direction: column;
     margin-bottom: 20px;
-    // &:hover {
-    //   /* 只改变容器背景，不影响子元素 */
-    //   background: linear-gradient(270deg, #FE5C54 0%, #F1951E 100%);
-    //   opacity: 0.4;
-    // }
+    width: 310px;
+    height: 480px;
+    background: rgba(255,255,255,0.2);
+    box-shadow: inset 0px 0px 8px 0px #FFFFFF;
+    border-radius: 30px;
   }
   .ranking-book-item:hover {
     background: linear-gradient(270deg, #783535 0%, #734C1F 100%);
@@ -280,13 +281,23 @@
   .book-info {
     display: flex;
     flex-direction: column;
-    padding-left: 16px;
+    width: 310px;
+    height: 182px;
+    background: #FFFFFF;
+    border-radius: 16px;
+    margin-top: -50px;
+    z-index: 2;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.15));
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    color: #fff;
   }
   .book-img {
-    width: 156px;
-    height: 208px;
+    width: 240px;
+    height: 320px;
     border-radius: 10px;
     z-index: 2;
+    margin: 28px 35px 0 35px;
   }
   .ranking-book-item:hover {
     .book-info {
@@ -297,22 +308,32 @@
   .book-title {
     font-family: PingFangSC, PingFang SC;
     font-weight: 600;
-    font-size: 20px;
+    font-size: 16px;
     color: #FFFFFF;
-    line-height: 28px;
-    margin-bottom: 10px;
+    line-height: 22px;
+    margin: 16px 14px 0 14px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
     &:hover {
-      color: #EA7D2B;
+      color: #F9A825;
       cursor: pointer;
     }
   }
   .book-author {
     font-family: PingFangSC, PingFang SC;
     font-weight: 400;
-    font-size: 16px;
+    font-size: 14px;
     color: #B2B2B2;
-    line-height: 22px;
-    margin-bottom: 10px;
+    line-height: 20px;
+    margin: 0 14px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    &:hover {
+      color: #F9A825;
+      cursor: pointer;
+    }
   }
   .book-desc {
     font-family: PingFangSC, PingFang SC;
@@ -320,13 +341,28 @@
     font-size: 14px;
     color: #B2B2B2;
     line-height: 20px;
-    margin-bottom: 10px;
+    /** 超出3行显示省略号 */
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin: 0 14px;
+    &:hover {
+      color: #F9A825;
+      cursor: pointer;
+    }
   }
   .book-status {
     font-family: PingFangSC, PingFang SC;
     font-weight: 400;
-    font-size: 14px;
+    font-size: 12px;
     color: #B2B2B2;
-    line-height: 20px;
+    line-height: 18px;
+    margin: 20px 0 0 14px;
+    &:hover {
+      color: #F9A825;
+      cursor: pointer;
+    }
   }
 </style>

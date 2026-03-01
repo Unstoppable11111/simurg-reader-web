@@ -45,7 +45,7 @@
       class="my-history"  
       :class="{ 'active': activeNav === 'history' }"
       @click="$emit('switch-tab', 'history')">
-      <SvgIcon name="bookshelfTest" class="bookshelfTest" size="34" color="red"/>
+      <SvgIcon name="setting" class="setting" size="34" color="red"/>
       历史记录
       <SvgIcon name="arrow-right" class="arrow-right" size="34" color="#fff"/>
     </div>
@@ -414,6 +414,12 @@
   margin-top: 6px;
 }
 .bookshelf, .history, .ranking-hot, .bookshelfTest {
+  width: 12px;
+  height: 12px;
+  color: transparent;
+  margin: 0 6px 0 16px;
+}
+.setting {
   width: 12px;
   height: 12px;
   color: transparent;
