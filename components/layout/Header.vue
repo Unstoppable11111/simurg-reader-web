@@ -10,13 +10,14 @@
         :class="{ 'header-nav-active': $route.path === '/bookshelf' }"
       >书架</a>
       <NuxtLink to="/ranking" class="header-nav to-ranking" :class="{ 'header-nav-active': $route.path === '/ranking' }">排行榜</NuxtLink>
-      <a
+      <client-only>
+      <NuxtLink 
         v-if="!isAuthor"
         @click="handleBecomeAuthorClick" 
         class="header-nav to-become-author"
         :class="{ 'header-nav-active': $route.path === '/becomeAuthor' }">
         成为作家
-      </a>
+      </NuxtLink >
       <NuxtLink 
         v-else 
         to="/author" 
@@ -24,6 +25,8 @@
         :class="{ 'header-nav-active': $route.path === '/author' }">
         作家专区
       </NuxtLink>
+      </client-only>
+      
       
       <Search class="search" 
         placeholder="请输入书名或作者名"
