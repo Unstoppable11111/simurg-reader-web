@@ -53,8 +53,8 @@
                 作家
               </div>
             </div>
-            <span v-if="isLoggedIn && isFollowed" class="followed">已关注</span>
-            <span v-else class="btn-follow" @click="followAuthor(authorId)">+关注</span>
+            <span v-if="isLoggedIn && isFollowed" class="followed" @click="followAuthor(book.authorId)">已关注</span>
+            <span v-else class="btn-follow" @click="followAuthor(book.authorId)">+关注</span>
           </div>
         </div>
         
@@ -266,7 +266,7 @@
     };
     
     try {
-      const response = await apiRequest(API_ENDPOINTS.ADD_BOOKS_TO_FAVORITE, {
+      const response = await apiAuthRequest(API_ENDPOINTS.ADD_BOOKS_TO_FAVORITE, {
         method: 'POST',
         body: JSON.stringify(addFavoriteReq)
       });
@@ -287,22 +287,72 @@
       method: 'GET'
     });
     console.log("检查是否关注作者：{}, {}", authorId, checkFollowStatusResult);
+    if (checkFollowStatusResult.code === 200) {
+      isFollowed.value = checkFollowStatusResult.data
+    }
   } catch (error) {
     console.error('Error fetching book data:', error);
   }
 
-  // 开始阅读
+  /**
+   * 开始阅读
+   */
   const startReading = async() => {
     router.push(`/book/read?book=${bookId}&chapter=1`);
   }
 
-  // 点击作者跳转到作者详情页
+  /**
+   * 点击作者跳转到作者详情页
+   * @param authorId 作者id
+   */
   const gotoAuthorDetail = (authorId) => {
     console.log('点击作者', authorId)
     router.push(`/author/${authorId}`)
   }
 
-  const followAuthor = (authorId) => { 
+  /**
+   * 关注作者
+   * @param authorId 作者id
+   */
+  const followAuthor = async (authorId) => { 
+    // 检查用户是否登录
+    if (!isLoggedIn.value) {
+      router.push('/login');
+      ElMessage.warning('请先登录');
+      return;
+    }
+    const operationType = isFollowed.value ? 1 : 0;
+    console.log(operationType == 0 ? '关注作者' : '取消关注', authorId);
+    try {
+      const followReq = {
+        userId: authorId,           // 被关注者ID
+        type: operationType,        // 操作类型：0关注，1取消关注
+        bookId: parseInt(bookId)    // 关联书籍ID
+      };
+
+      const response = await apiRequest(API_ENDPOINTS.FOLLOW, {
+        method: 'POST',
+        body: JSON.stringify(followReq)
+      });
+
+      if (response.code === 200) {
+        // 成功后更新关注状态
+        isFollowed.value = !isFollowed.value;
+        
+        // 显示相应提示
+        if (isFollowed.value) {
+          ElMessage.success('关注作者成功！');
+        } else {
+          ElMessage.info('已取消关注');
+        }
+      } else {
+        // 处理其他错误
+        ElMessage.error(response.message || '操作失败');
+      }
+    } catch (error) {
+      console.error('关注作者失败:', error);
+      ElMessage.error('网络错误，请稍后重试');
+    }
   }
 
   // 设置页面标题

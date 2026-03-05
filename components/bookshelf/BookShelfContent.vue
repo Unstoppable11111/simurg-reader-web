@@ -18,10 +18,10 @@
         </div>
       </div>
       <!-- 添加喜欢的小说按钮 -->
-      <div class="add-book-btn-box">
+      <NuxtLink class="add-book-btn-box" to="/">
         <el-icon class="icon-plus"><Plus /></el-icon>
         <button class="add-book-btn">点击添加你喜欢的小说</button>
-      </div>
+      </NuxtLink>
     </div>
   </div>
 </template>
@@ -61,6 +61,9 @@
 .icon-plus { 
   font-size: 28px;
   color: #fff;
+  &:hover { 
+    cursor: pointer;
+  }
 }
 .add-book-btn {
   background-color: transparent;

@@ -92,8 +92,16 @@
 
   const goToUserCenter = () => {
     isDropdownOpen.value = false; 
-    isAuthor.value ? router.push('/author?tab=personal-info') : router.push('/user');
+    // isAuthor.value ? router.push('/author?tab=author-home') : router.push('/user');
+    isAuthor.value ? toAuthorHome() : router.push('/user');
   };
+
+  const toAuthorHome = () => {
+    useRouter().push({
+      path: '/author',
+      query: { tab: 'author-home' }
+    })
+  }
 
   const handleBookShelfClick = () => {
     !isLoggedIn.value ? router.push('/login?redirectPath=/bookshelf') : router.push('/bookshelf');

@@ -75,7 +75,7 @@ export const API_ENDPOINTS = {
 
   /** 成为作者接口开始 */
   BECOME_AUTHOR: `${API_BASE_URL}/oauth/user/become/author`,
-  AUTHO_INFO: `${API_BASE_URL}/author/oauth/info/`,
+  AUTHO_INFO: `${API_BASE_URL}/author/info/`,
   AUTHO_INFO_BY_ID: `${API_BASE_URL}/author/info`,
   UPDATE_AUTHOR_INFO: `${API_BASE_URL}/author/oauth/update_info`,
   /** 成为作者接口结束 */
@@ -124,7 +124,51 @@ function getRefreshToken() {
   return null;
 }
 
-// 通用的fetch请求函数（不需要认证和登录）
+// 通用的fetch请求函数（需要登录和认证）
+export async function apiAuthRequest(endpoint, options = {}) {
+  try {
+    // 获取accessToken
+    const accessToken = getAccessToken()
+    const refreshToken = getRefreshToken()
+    // 设置默认选项
+    const defaultOptions = {
+      headers: {
+      'Content-Type': 'application/json',
+      ...options.headers
+      }
+    }
+    
+    if (accessToken) {
+       defaultOptions.headers.Authorization = `${accessToken}`
+    }
+    if (refreshToken) {
+      defaultOptions.headers.RefreshToken = `${refreshToken}`
+    }
+    
+    // 合并选项
+    const mergedOptions = {
+      ...defaultOptions,
+      ...options
+    }
+    const response = await fetch(endpoint, mergedOptions);
+    if (response.code === 2008 || response.status === 401) {
+      window.location.href = '/login'
+    }
+    if (!response.code === 200) {
+      throw new Error(`HTTP error! status: ${response.status}`)
+    }
+    // TODO: 如果返回的参数请求头有accessToken，需要替换
+    if (response.headers.get('X-New-Access-Token')) {
+      console.log("返回的请求头参数有新的accessToken，", response.headers.get('X-New-Access-Token'));
+      localStorage.setItem('auth_token', response.headers.get('accessToken'))
+    }
+    return await response.json()
+  } catch (error) {
+    console.error('API request failed:', error)
+    throw error
+  }
+}
+
 export async function apiRequest(endpoint, options = {}) {
   try {
     // 获取accessToken

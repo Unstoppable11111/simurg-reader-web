@@ -17,13 +17,13 @@
         >
           作品管理
         </div>
-        <div 
+        <!-- <div 
           class="nav-item" 
           :class="{ active: activeNav === 'work-data' }"
           @click="switchNav('work-data')"
         >
           作品数据
-        </div>
+        </div> -->
         <div 
           class="nav-item" 
           :class="{ active: activeNav === 'author-info' }"

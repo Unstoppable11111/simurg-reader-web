@@ -126,6 +126,7 @@
   const cropperAvatar = ref('') // 修复：声明裁剪用的头像变量
   const cropImg = ref('') // 待裁剪的图片（上传后赋值）
   const uploadInput = ref(null) // 上传input实例  // 编辑用户信息（原有逻辑）
+  const localUserInfo = ref({ ...props.userInfo })
   // 打开弹窗
   const openAvatarModal = async() => {
      // 解构props中的userInfo，避免直接赋值
@@ -262,7 +263,7 @@
       if (userData.pictureUrl) {
         userData.pictureUrl = await convertImgToBase64(userData.pictureUrl);
       }
-      userInfo.value = userData;
+      localUserInfo.value = userData;
     }
   });
 </script>
