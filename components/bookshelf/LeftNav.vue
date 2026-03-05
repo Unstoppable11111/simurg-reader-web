@@ -107,7 +107,7 @@
   import { ref, onMounted } from 'vue'
   import SvgIcon from '@/components/SvgIcon.vue';
   import { EditPen } from '@element-plus/icons-vue'
-  import { VueCropper } from 'vue-cropper' // 引入裁切组件
+  
   import { API_ENDPOINTS, apiRequest } from "@/utils/api" // 假设你有接口请求工具
 
   const props = defineProps({

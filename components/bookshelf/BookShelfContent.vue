@@ -11,7 +11,8 @@
         <img class="book-img" :src="book.coverImageUrl" :alt="book.title">
         <div class="book-title">{{ book.title }}</div>
         <div class="book-author">{{ book.penName }}</div>
-        <div class="book-read-history">最近阅读至：第{{book.currentReadingChapterNumber}}章 {{ book.chapterTitle }}</div>
+        <div class="book-read-history" v-if="book.currentReadingChapterNumber != null && book.currentReadingChapterNumber !== '' && 
+                book.chapterTitle != null && book.chapterTitle !== ''" >最近阅读至：第{{book.currentReadingChapterNumber}}章 {{ book.chapterTitle }}</div>
         <div class="book-operate">
           <div class="continue-read" @click="continueRead(book.bookId, book.currentReadingChapterNumber)">继续阅读</div>
           <div class="book-delete" @click.stop="$emit('delete-book', book.bookId)">删除</div>
