@@ -1,9 +1,1 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg width="12px" height="12px" viewBox="0 0 12 12" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-    <title>书架</title>
-    <g id="书架" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-        <rect id="矩形" fill="#F9A825" transform="translate(2.8343, 6.9829) rotate(17) translate(-2.8343, -6.9829)" x="1.334271" y="2.19506914" width="3" height="9.57557689" rx="0.400000006"></rect>
-        <rect id="矩形备份-4" fill="#F9A825" x="9" y="1" width="3" height="11" rx="0.400000006"></rect>
-        <rect id="矩形备份-5" fill="#F9A825" x="5.66854201" y="0" width="3" height="12" rx="0.400000006"></rect>
-    </g>
-</svg>
+<?xml version="1.0" standalone="no"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd"><svg t="1772687021373" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2342" xmlns:xlink="http://www.w3.org/1999/xlink" width="200" height="200"><path d="M669.3 961h-146c-22.1 0-40-17.9-40-40V103c0-22.1 17.9-40 40-40h146c22.1 0 40 17.9 40 40v818c0 22.1-17.9 40-40 40zM918 961H772c-22.1 0-40-17.9-40-40V178.7c0-22.1 17.9-40 40-40h146c22.1 0 40 17.9 40 40V921c0 22.1-17.9 40-40 40zM235.4 958.5L95 918.5c-21.2-6.1-33.6-28.2-27.5-49.4l168.7-592c6.1-21.2 28.2-33.6 49.4-27.5l140.4 40c21.2 6.1 33.6 28.2 27.5 49.4L284.9 931c-6.1 21.2-28.2 33.5-49.5 27.5z" p-id="2343"></path></svg>

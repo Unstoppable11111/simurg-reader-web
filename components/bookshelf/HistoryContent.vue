@@ -60,8 +60,12 @@
         method: 'POST',
         body: JSON.stringify(addFavoriteReq)
       });
-      console.log("添加结果",response);
-      ElMessage.success('添加成功！');
+      if (response.code === 200 ) {
+        console.log("添加结果",response);
+        ElMessage.success('添加成功！');
+      } else {
+        ElMessage.error('添加失败！');
+      }
     } catch (error) {
       ElMessage.error('Error adding book to favorite:', error);
     }

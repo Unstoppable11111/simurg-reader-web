@@ -8,7 +8,7 @@
       display: 'inline-block',
       verticalAlign: 'middle',
       overflow: 'hidden',
-      color: color !== 'currentColor' ? color : {}
+      color: color
     }"
     fill="inherit"
     stroke="inherit"
@@ -44,7 +44,7 @@ const props = defineProps({
   },
   size: {
     type: [String, Number],
-    default: '16px'
+    default: ''
   }
 })
 
@@ -59,12 +59,13 @@ const symbolId = computed(() => `#${props.prefix}-${props.name}`)
 
 </script>
 
-<style scoped>
+<style>
 .svg-icon {
   box-sizing: border-box !important;
   preserveAspectRatio: xMidYMid meet;
-  fill: currentColor !important;
-  stroke: currentColor !important;
+  color: inherit;
+  fill: currentColor;
+  stroke: currentColor;
 }
 
 /* 关键：通过样式强制 use 标签填满 svg 容器 */
@@ -72,5 +73,7 @@ const symbolId = computed(() => `#${props.prefix}-${props.name}`)
   display: block;
   width: 100% !important;
   height: 100% !important;
+  fill: currentColor !important;
+  stroke: currentColor !important;
 }
 </style>

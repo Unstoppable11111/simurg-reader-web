@@ -37,17 +37,17 @@
       class="my-book-shelf" 
       :class="{ 'active': activeNav === 'bookshelf' }"
       @click="$emit('switch-tab', 'bookshelf')">
-      <SvgIcon name="bookshelf" class="bookshelf" size="34" />
+      <SvgIcon name="bookshelf" class="bookshelf" :class="{ 'active-icon': activeNav === 'bookshelf' }" size="34" />
       我的书架
-      <SvgIcon name="arrow-right" class="arrow-right" size="34" color="#F9A825"/>
+      <SvgIcon name="arrow-right" class="arrow-right" :class="{ 'active-icon': activeNav === 'bookshelf' }" size="34"/>
     </div>
     <div 
       class="my-history"  
       :class="{ 'active': activeNav === 'history' }"
       @click="$emit('switch-tab', 'history')">
-      <SvgIcon name="setting" class="setting" size="34" color="red"/>
+      <SvgIcon name="history" class="history" :class="{ 'active-icon': activeNav === 'bookshelf' }" size="34" />
       历史记录
-      <SvgIcon name="arrow-right" class="arrow-right" size="34" color="#fff"/>
+      <SvgIcon name="arrow-right" class="arrow-right" :class="{ 'active-icon': activeNav === 'bookshelf' }" size="34" />
     </div>
 
     <!-- 头像裁剪弹窗：居中+背景模糊 -->
@@ -419,12 +419,6 @@
   color: transparent;
   margin: 0 6px 0 16px;
 }
-.setting {
-  width: 12px;
-  height: 12px;
-  color: transparent;
-  margin: 0 6px 0 16px;
-}
 .arrow-right {
   position: absolute;
   right: 16px;
@@ -433,6 +427,9 @@
   color: transparent;
 }
 .active {
+  color: #F9A825;
+}
+.active-icon {
   color: #F9A825;
 }
 

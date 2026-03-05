@@ -1,7 +1,1 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg width="12px" height="12px" viewBox="0 0 12 12" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-    <title>历史记录备份</title>
-    <g id="历史记录备份" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-        <path d="M6,0 C9.3137085,0 12,2.6862915 12,6 C12,9.3137085 9.3137085,12 6,12 C2.6862915,12 0,9.3137085 0,6 C0,2.6862915 2.6862915,0 6,0 Z M6,2 C5.58578644,2 5.25,2.33578644 5.25,2.75 L5.25,6 C5.25,6.41421356 5.58578644,6.75 6,6.75 L8.5,6.75 C8.91421356,6.75 9.25,6.41421356 9.25,6 C9.25,5.58578644 8.91421356,5.25 8.5,5.25 L6.75,5.25 L6.75,2.75 C6.75,2.33578644 6.41421356,2 6,2 Z" id="形状结合" fill="#F9A825"></path>
-    </g>
-</svg>
+<?xml version="1.0" standalone="no"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd"><svg t="1772687077548" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2509" xmlns:xlink="http://www.w3.org/1999/xlink" width="200" height="200"><path d="M512 213.3c-30.9 0-56 25.1-56 56V512c0 30.9 25.1 56 56 56h186.7c30.9 0 56-25.1 56-56s-25.1-56-56-56H568V269.3c0-30.9-25.1-56-56-56zM512 64c247.4 0 448 200.6 448 448S759.4 960 512 960 64 759.4 64 512 264.6 64 512 64z" p-id="2510"></path></svg>
