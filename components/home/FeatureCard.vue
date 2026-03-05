@@ -56,7 +56,6 @@ import { Swiper, SwiperSlide } from 'swiper/vue';
 import { Navigation } from 'swiper/modules';
 import { useRouter } from 'vue-router';
 
-// 必须引入的 Swiper 样式
 import 'swiper/css';
 import 'swiper/css/navigation';
 
@@ -77,38 +76,37 @@ const gotoBookDetail = (bookId) => {
 </script>
 
 <style lang="scss" scoped>
-/* 统一定义尺寸变量 */
 $base-w: 168px;
 $base-h: 224px;
-$active-w: 216px;
+/* 这里的 active 尺寸用于计算比例，我们主要通过 scale 实现等比放大 */
+$active-w: 216px; 
 $active-h: 288px;
-$info-h: 50px; // 文字区域高度
+$info-h: 60px;
 
 .feature-card-carousel {
   width: 1200px;
   position: relative;
   margin: 0 auto;
-  overflow: visible;
+  padding: 50px 0; /* 上下留出空间给放大后的图片 */
 }
 
 .view-port {
   width: 100%;
-  /* 顶部留白 = 大图高度 - 小图高度 (288-224=64px)，确保大图不被裁切 */
-  padding-top: 64px; 
 }
 
-/* 关键：设置 Slide 底部对齐 */
 :deep(.swiper-slide) {
   display: flex;
   justify-content: center;
-  align-items: flex-end; 
-  height: 350px; // 固定高度，包含图片和文字
+  align-items: center; /* 改为居中对齐，实现上下等比放大 */
+  height: 400px; 
+  transition: transform 0.4s ease;
 }
 
 .feature-card {
   width: $base-w;
   display: flex;
   flex-direction: column;
+  align-items: center;
   cursor: pointer;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 
@@ -128,9 +126,11 @@ $info-h: 50px; // 文字区域高度
   }
 
   .book-info {
-    margin-top: 12px;
+    margin-top: 15px;
     height: $info-h;
+    text-align: center;
     transition: inherit;
+    width: 100%; 
     
     .book-title {
       font-size: 14px;
@@ -138,6 +138,7 @@ $info-h: 50px; // 文字区域高度
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      font-weight: 400;
       &:hover { color: #F9A825; }
     }
     .book-cate {
@@ -147,55 +148,60 @@ $info-h: 50px; // 文字区域高度
     }
   }
 
-  /* 激活状态：向两侧和向上生长 */
+  /* 激活状态 */
   &.active-part {
-    width: $active-w;
+    /* 通过 transform 实现中心等比放大 */
+    transform: scale(1.25); 
+    z-index: 10;
 
     .book-img-box {
-      width: $active-w;
-      height: $active-h;
-      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
     }
 
     .book-info {
-      .book-title { font-size: 16px; }
-      .book-cate { font-size: 14px; }
+      /* 放大后图片变长，为了不遮挡文字且保持视觉比例，轻微向下偏移 */
+      transform: translateY(10px); 
+      
+      .book-title {
+        font-weight: 800; /* 字体加重 */
+        color: #FFFFFF;
+        /* 抵消整体 scale 导致的模糊，微调字号 */
+        font-size: 14px; 
+      }
+      .book-cate {
+        font-weight: 600;
+        color: #F9A825; /* 选中时类别文字高亮，增加质感 */
+      }
     }
   }
 }
 
-/* 按钮精准对齐普通卡片（非选中图）的中心 */
 .carousel-arrow {
   position: absolute;
   z-index: 100;
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background-color: rgba(0, 0, 0, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background-color: rgb(255, 255, 255, 0.5);
+  // border: 1px solid rgb(255, 255, 255, 0.3);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
+  top: -3%;
+  transform: translateY(-50%); /* 按钮居中 */
   transition: all 0.3s;
 
-  /* 计算公式：
-     padding-top (64px) + 普通图片高度一半 (112px) = 176px
-  */
-  top: 224px; 
-  
   &:hover {
-    background-color: rgba(0, 0, 0, 0.9);
-    transform: scale(1.1);
+    background-color: rgba(255, 255, 255, 0.3);
+    transform: translateY(-50%) scale(1.1);
   }
   
   &:disabled, &.swiper-button-disabled {
     opacity: 0.3;
-    cursor: not-allowed;
   }
 }
 
-.left-arrow { left: -60px; }
-.right-arrow { right: -60px; }
-
+.left-arrow { left: 0px; }
+.right-arrow { right: 0px; }
 </style>
