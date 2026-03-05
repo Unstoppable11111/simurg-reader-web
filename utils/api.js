@@ -2,8 +2,8 @@ import axios from 'axios'
 /**
  * 开发、测试、生产
  */
-// const API_BASE_URL = "http://localhost:8082/api"
-const API_BASE_URL = "http://www.sr-web-test.tata.org.cn:8082/api";
+const API_BASE_URL = "http://localhost:8082/api"
+// const API_BASE_URL = "http://www.sr-web-test.tata.org.cn:8082/api";
 
 // const API_BASE_URL = config.public.API_BASE_URL
 // const API_BASE_URL = process.env.NUXT_API_BASE_URL || 'http://8.129.12.50:8082/simurg_reader_web/api'
@@ -68,6 +68,7 @@ export const API_ENDPOINTS = {
   LIST_FAVORITE_BOOKS: `${API_BASE_URL}/oauth/favorite/list`,
   ADD_BOOKS_TO_FAVORITE: `${API_BASE_URL}/oauth/favorite/add`,
   DELETE_BOOKS_FROM_FAVORITE: `${API_BASE_URL}/oauth/favorite/cancel`,
+  UPLOAD_READING_RECORDS: `${API_BASE_URL}/oauth/reading-record/progress`,
 
   CHAPTER_DETAIL: `${API_BASE_URL}/chapters/chapter/detail`,
   /** 书架相关接口结束 */
@@ -247,5 +248,13 @@ export async function apiFileRequest(endpoint, options = {}) {
     console.error('API request failed:', error)
     throw error
   }
+}
+
+/**
+ * 生成后端需要的时间戳
+ * @returns {Number} 毫秒级时间戳
+ */
+export const generateTimestamp = () => {
+  return Date.now();
 }
 

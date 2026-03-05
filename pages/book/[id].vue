@@ -146,7 +146,7 @@
   const chapterList = ref([]);
   const hasNextChapter = ref(false);
   const currentPage = ref(1); // 当前页码
-  const pageSize = ref(20);   // 每页条数
+  const pageSize = ref(9);   // 每页条数
   const isLoading = ref(false); // 加载状态
   
   const chapterNumber = ref(1);

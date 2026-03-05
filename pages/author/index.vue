@@ -12,7 +12,7 @@
           @to-create-book="handleToCreateBook"
         />
         <WorkManagement 
-          v-if="activeNav === 'work-management'"
+          v-show="activeNav === 'work-management'"
           ref="workManagementRef"
         />
         <AuthorInfo 

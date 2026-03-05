@@ -187,12 +187,13 @@
 
 <script setup>
 import CryptoJS from 'crypto-js';
-import { API_ENDPOINTS, apiRequest } from '@/utils/api.js'
+import { API_ENDPOINTS, apiRequest, generateTimestamp } from '@/utils/api.js'
 import { formatTimestamp, formatSerialStatus } from '@/utils/dataFormatter';
 import { useAuth } from '@/composables/useAuth';
 import { decryptData } from '@/utils/crypto';
 import V3Emoji from 'vue3-emoji';
 import 'vue3-emoji/dist/style.css'
+
 const DEFAULT_SECRET_KEY = 'JTDDnc1mrUf7TOfuX+9I4A==';
 
 // 获取路由参数
@@ -305,6 +306,31 @@ const commentLoadingMore = ref(false)
 const commentNoMoreData = ref(false)
 const totalCommentCount = ref(0)
 
+// 新增阅读记录上报相关状态
+const readCharacterIndex = ref(0) // 阅读字符索引
+const scrollTop = ref('0') // 滚动条位置
+const hasScrolled = ref(false) // 是否有滚动行为
+const stayStartTime = ref(null) // 停留开始时间
+const hasReportedCurrentChapter = ref(false) // 当前章节是否已上报过
+const reportDebounce = ref(null) // 防抖定时器
+
+const prevChapterInfo = ref({
+  bookId: '',
+  chapterId: '',
+  chapterNumber: '',
+  readCharacterIndex: 0,
+  scrollTop: '0',
+  hasScrolled: false,
+  stayStartTime: Date.now()
+});
+const currentChapterStatus = ref({
+  hasScrolled: false,
+  stayStartTime: Date.now(),
+  hasReported: false,
+  readCharacterIndex: 0,
+  scrollTop: '0',
+});
+
 watch(isLoggedIn, (newVal) => {
   console.log('isLoggedIn changed to:', newVal);
 }, { immediate: true });
@@ -372,6 +398,10 @@ const applyFontSizeAndLineHeight = () => {
   }
 };
 
+/**
+ * 获取书籍章节信息
+ * @param chapterNum 章节序号
+ */
 const fetchChapterContent = async (chapterNum) => { 
   try {
     const getChapterDetailReq = {
@@ -483,6 +513,10 @@ const handleTextSelection = (event) => {
   }
 }
 
+/**
+ * 处理段落点击事件
+ * @param paragraph 
+ */
 const handleParagraphClick = (paragraph) => {
   console.log('点击段落:', paragraph);
   console.log(`段落范围: ${paragraph.startIndex} - ${paragraph.endIndex}`);
@@ -573,12 +607,22 @@ const handleCommentScroll = (event) => {
   
 }
 
+/**
+ * 获取下一章节
+ */
 const nextPage = async() => { 
+  cacheCurrentToPrev();
+  // 切换前上报当前章节记录
+  await uploadReadingRecord(true);
+
   const nexChapterNum = ++route.query.chapter ;
   console.log("下一章节：", nexChapterNum);
   const newUrl = `/book/read?book=${bookId}&chapter=${nexChapterNum}`
   await router.push(newUrl)
   await fetchChapterContent(nexChapterNum);
+
+  // 重置当前章节阅读状态
+  resetChapterReadState();
 }
 
 const floatingButtonStyle = computed(() => {
@@ -599,6 +643,9 @@ const floatingButtonStyle = computed(() => {
   }
 })
 
+/**
+ * 添加到书架
+ */
 const addToBookshelf = async() =>{
   console.log(isLoggedIn.value)
   if (!isLoggedIn.value) {
@@ -665,12 +712,22 @@ const containerMarginRight = computed(() => {
   // return showComment.value ? '400px' : '0'
 })
 
+/**
+ * 切换章节
+ * @param chapterNumber 章节序号
+ */
 const goToChapter = async (chapterNumber) => { 
+  cacheCurrentToPrev();
+  // 切换前上报当前章节记录
+  await uploadReadingRecord(true);
+
   console.log("跳转到章节：", chapterNumber);
   const newUrl = `/book/read?book=${bookId}&chapter=${chapterNumber}`
   await router.push(newUrl)
   await fetchChapterContent(chapterNumber);
   closeToc();
+  // 重置当前章节阅读状态
+  resetChapterReadState();
 }
 
 /**
@@ -689,6 +746,10 @@ const sortDesc = async () => {
   await fetchAllPublishedChapters(false);
 }
 
+/**
+ * 设置阅读背景色
+ * @param bgClass 
+ */
 const setBackground = (bgClass) => { 
   activeBackground.value = bgClass
   const config = backgroundConfigs[bgClass]
@@ -808,6 +869,169 @@ const setSidebarPosition = async() => {
   }
 };
 
+/**
+ * 自定义防抖函数
+ * @param func 
+ * @param wait 
+ */
+const debounce = (func, wait) => {
+  let timeout;
+  return function(...args) {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func.apply(this, args), wait);
+  }
+}
+
+/**
+ * 滚动阅读内容
+ * @param {*} scrollTop 
+ */
+const handleContentScroll = () => { 
+  if (!bookContentRef) return;
+  // 标记滚动行为
+  currentChapterStatus.value.hasScrolled = true;
+  // 获取滚动位置
+  currentChapterStatus.value.scrollTop = bookContentRef.value.scrollTop.toString();
+  // 计算已读字符索引
+  calculateReadCharacterIndex();
+}
+
+/**
+ * 计算已读字符索引
+ */
+const calculateReadCharacterIndex = () => {
+  if (!bookContentRef.value || !chapterContent.value.length) {
+    currentChapterStatus.value.readCharacterIndex = 0;
+    return;
+  }
+  const scrollTopVal = bookContentRef.value.scrollTop;
+  const totalChars = 0;
+  // 便利所有段落，计算滚动位置前的总字符数
+  for (const paragraph of chapterContent.value) {
+    const el = bookContentRef.value.querySelector(`.book-text[key="${paragraph.id}"]`);
+    if (!el) continue;
+    
+    const rect = el.getBoundingClientRect();
+    const containerRect = bookContentRef.value.getBoundingClientRect();
+    
+    // 段落完全在可视区域上方：累计全部字符
+    if (rect.bottom < containerRect.top) {
+      totalChars += paragraph.content.length;
+    } 
+    // 段落部分在可视区域：计算可视比例
+    else if (rect.top < containerRect.bottom && rect.bottom > containerRect.top) {
+      const visibleHeight = Math.max(0, Math.min(rect.bottom, containerRect.bottom) - Math.max(rect.top, containerRect.top));
+      const ratio = visibleHeight / rect.height;
+      totalChars += Math.floor(paragraph.content.length * ratio);
+      break; // 只计算到可视段落
+    } 
+    // 段落完全在可视区域下方：停止计算
+    else {
+      break;
+    }
+  }
+  currentChapterStatus.value.readCharacterIndex = totalChars;
+}
+
+/**
+ * 上报阅读历史记录进度
+ * @param isChapterChange 是否章节切换 true-是，false-否
+ */
+const uploadReadingRecord = async (isChapterChange = false) => { 
+  let targetChapterInfo;
+  // 章节切换 -> 上报上一章节
+  if (isChapterChange) {
+    if (!prevChapterInfo.value.bookId || !prevChapterInfo.value.chapterId) {
+      console.log("无有效的上一章节缓存，跳过上报")
+      return;
+    }
+    targetChapterInfo = {
+      bookId: prevChapterInfo.value.bookId,
+      chapterId: prevChapterInfo.value.chapterId,
+      readCharacterIndex: prevChapterInfo.value.readCharacterIndex,
+      scrollTop: prevChapterInfo.value.scrollTop,
+      timestamp: generateTimestamp()
+    }
+    const stayTime = Math.floor((Date.now() - stayStartTime.value) / 1000);
+    if (stayTime <= 10) {
+      console.log(`停留时间${stayTime}s过短，取消上报`)
+      return;
+    }
+  } else {
+    if (!bookId || !book.value.chapterId) {
+      console.log("无有效的当前章节信息，跳过上报")
+      return;
+    }
+    if (currentChapterStatus.value.hasScrolled) {
+      console.log("当前章节已上报，跳过上报")
+      return;
+    }
+    targetChapterInfo = {
+      bookId: bookId,
+      chapterId: book.value.chapterId,
+      readCharacterIndex: currentChapterStatus.value.readCharacterIndex,
+      scrollTop: currentChapterStatus.value.scrollTop,
+      timestamp: generateTimestamp()
+    }
+    // 计算停留时间
+     const stayTime = Math.floor((Date.now() - stayStartTime.value) / 1000);
+     if (stayTime <= 10) {
+      console.log(`停留时间${stayTime}s过短，取消上报`)
+      return;
+    }
+  }
+  try {
+    console.log("上报进度参数：", targetChapterInfo);
+    const uploadResult = await apiRequest(API_ENDPOINTS.UPLOAD_READING_RECORDS, {
+      method: "POST",
+      body: JSON.stringify(targetChapterInfo)
+    });
+    console.log("上报进度结果：", uploadResult);
+    if (uploadResult.code === 200) {
+      currentChapterStatus.value.hasReported = true;
+    }
+  } catch (error) { 
+    console.error(`上报失败 ${isChapterChange ? '上一章节' : '当前章节'}:`, error);
+  }
+
+}
+
+/**
+ * 缓存当前章节为上一章节（章节切换前调用）
+ */
+const cacheCurrentToPrev = () => { 
+  console.log ('cacheCurrentToPrev', bookId, book.value.chapterId);
+  if ( !bookId || !book.value.chapterId) return;
+  prevChapterInfo.value = {
+    bookId: bookId,
+    chapterId: book.value.chapterId,
+    chapterNumber: chapterNumber.value,
+    readCharacterIndex: currentChapterStatus.value.readCharacterIndex,
+    scrollTop: currentChapterStatus.value.scrollTop,
+    hasScrolled: currentChapterStatus.value.hasScrolled,
+    stayStartTime: currentChapterStatus.value.stayStartTime,
+    timestamp: generateTimestamp()
+  }
+  console.log('缓存当前章节为上一章节:', prevChapterInfo.value);
+}
+
+/**
+ * 重置章节状态（章节切换后调用）
+ */
+const resetChapterReadState = () => {
+  currentChapterStatus.value = {
+    hasScrolled: false,
+    stayStartTime: Date.now(),
+    hasReported: false,
+    readCharacterIndex: 0,
+    scrollTop: '0'
+  }
+  if (bookContentRef.value) {
+    bookContentRef.value.scrollTop = 0;
+  }
+}
+
+
 // 初始化：组件挂载后计算位置
 onMounted(async () => {
   if (!bookId) {
@@ -832,10 +1056,13 @@ onMounted(async () => {
   await fetchChapterContent(chapterNumber);
   await fetchAllPublishedChapters(false);
   nextTick(setSidebarPosition); // 确保 DOM 渲染完成后执行
-  // 监听滚动和 resize 事件
-  // window.addEventListener('scroll', setSidebarPosition);
-  // window.addEventListener('resize', setSidebarPosition);
-  // 设置监听器
+  // 初始化停留时间
+  currentChapterStatus.value.stayStartTime = Date.now();
+  // 监听滚动时间
+  if (bookContentRef.value) {
+    bookContentRef.value.addEventListener('scroll', handleContentScroll);
+
+  }
   watch(
     () => chapterNumber,
     async (newChapter, oldChapter) => {
@@ -857,6 +1084,13 @@ onMounted(async () => {
 onUnmounted( () => {
   window.removeEventListener('scroll', setSidebarPosition);
   window.removeEventListener('resize', setSidebarPosition);
+  // 移除滚动事件监听
+  if (bookContentRef.value) {
+    bookContentRef.value.removeEventListener('scroll', handleContentScroll);
+  }
+  // 清除防抖定时器
+  if (reportDebounce.value) clearTimeout(reportDebounce.value);
+  uploadReadingRecord(false);
 });
 
 watch(
@@ -866,7 +1100,22 @@ watch(
       await fetchChapterContent(bookId.value);
     }
   },
-  { immediate: true } // 立即执行一次
+  { immediate: true }, // 立即执行一次
+  
+  () => chapterNumber.value,
+  async (newChapter, oldChapter) => { 
+    if (newChapter !== oldChapter && oldChapter) {
+      cacheCurrentToPrev();
+      // 章节变化时上报上一章节
+      await uploadReadingRecord(true);
+    }
+    if (newChapter !== oldChapter) {
+      await fetchChapterContent(newChapter);
+      // 重置新章节阅读状态
+      resetChapterReadState();
+    }
+  },
+  { immediate: true }
 )
 
 </script>
