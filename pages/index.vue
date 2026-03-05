@@ -46,7 +46,7 @@
         <div class="featured-section">
           <div class="featured-title-box">  
             <span class="featured-title">精选</span>
-            <SvgIcon name="feature-noval" class="feature-noval" size="34" color="transport"/>
+            <SvgIcon name="feature-noval" class="feature-noval" size="34" color="none"/>
           </div>
           <!-- 这里放精选内容 -->
           <FeatureCard :books="books" />
@@ -56,7 +56,7 @@
         <div class="recommend-section">
           <div class="recommend-title-box">
             <span class="recommend-title">推荐</span>
-            <SvgIcon name="recommend" class="recommend" size="34" />
+            <SvgIcon name="recommend" class="recommend" size="34" color="none"/>
           </div>
           <Recommend :recommendBooks="recommendBooks" />
         </div>
@@ -66,7 +66,7 @@
           <!-- 这里放排行榜内容 -->
           <div class="ranking-title-h2">
             <span class="ranking-title">排行榜</span>
-            <SvgIcon name="ranking" class="ranking" size="34" />
+            <SvgIcon name="ranking" class="ranking" size="34" color="none"/>
             <NuxtLink to="/ranking" class="ranking-more">
               更多
               <el-icon class="arrow-right"><ArrowRight /></el-icon>
@@ -85,7 +85,7 @@
         <div class="book-cate-section">
           <div class="book-cate-container">
             <span class="book-cate-title">分类</span>
-            <SvgIcon name="i-category" class="i-category" size="34" />
+            <SvgIcon name="i-category" class="i-category" size="34" color="none"/>
             <NuxtLink to="/bookcate" class="book-cate-more">
               更多
               <el-icon class="arrow-right"><ArrowRight /></el-icon>
