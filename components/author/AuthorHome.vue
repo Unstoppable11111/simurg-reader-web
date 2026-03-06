@@ -6,7 +6,7 @@
       <img class="author-avatar" :src="authorInfo?.pictureUrl || userAvatar" alt="">
       <div class="author-info">
         <div class="author-name"> {{authorInfo?.penName}}，{{ greetingMessage }}</div>
-        <div class="welcome-author-desc">今天是你在simurg reader创作的第1天，继续努力码字吧~</div>
+        <div class="welcome-author-desc">今天是你在simurg reader创作的第{{ creationDays }}天，继续努力码字吧~</div>
       </div>
       <div class="author-work-num-box">
         <label class="author-work-num-label">作品数量</label>
@@ -25,54 +25,42 @@
     <!-- 作品小说 -->
     <div class="author-works-box">
       <div style="position: relative;height: 68px;">
-        <label class="author-works-box-title">作品小说</label>
-        <span class="to-work-management" @click="handleMoreWork">更多<el-icon><ArrowRight /></el-icon></span>
+        <label class="author-works-box-title">新建小说</label>
       </div>
       <!-- 作者作品管理 -->
-      <div v-if="true" class="author-works-content-box">
-        <div class="author-create-book-box">
-          <el-upload
-            class="create-book-img-upload"
-            action="http://localhost:8082/api/file/upload"
-            :show-file-list="false"
-            :on-success="handleAvatarSuccess"
-            :before-upload="beforeAvatarUpload"
-          >
-            <img v-if="coverImageUrl" :src="coverImageUrl" class="create-book-img" />
-            <el-icon v-else class="book-img-upload-icon"><Plus /></el-icon>
-          </el-upload>
-          <div class="create-book-info">
-            <span class="create-book-title">来创作新书吧~</span>
-            <span class="create-book-desc">码字码字</span>
-            <button class="create-book-btn" @click="handleCreateBook">新建小说</button>
-          </div>
-        </div>
-
-        <div class="author-recent-book-box">
-          <img class="book-img" :src="authorBookInfo.coverImageUrl" alt="">
+      <div class="author-works-content-box">
+        <img src="" class="create-book-img"/>
+        <p class="create-book-desc">快去创建你的新作品吧~</p>
+        <button class="create-book-btn" @click="handleCreateBook">新建小说</button>
+      </div>
+    </div>
+    <div v-if="authorBookList && authorBookList.length > 0" class="author-recent-book-container">
+      <div style="position: relative;height: 68px;">
+        <label class="author-works-box-title">作品小说</label>
+        <span class="to-work-management" @click="handleMoreWork">更多<SvgIcon name="arrow-right" class="arrow-right" width="8px" height="16px"/></span>
+      </div>
+      <div class="author-recent-book-box">
+        <div class="author-recent-book-item"
+          v-for="(book, index) in authorBookList"
+          :key="book.bookId || index">
+          <img class="book-img" :src="book.coverImageUrl" alt="">
           <div class="book-info">
-            <span class="book-title">{{ authorBookInfo.title }}</span>
-            <span class="book-update-info">最近更新：{{ authorBookInfo.currentChapterTitle }}</span>
+            <span class="book-title">{{ book.title }}</span>
+            <span class="book-update-info">最近更新：{{ book.currentChapterTitle }}</span>
             <div class="book-detail-info-box">
-              <span class="book-chapter-count">{{ authorBookInfo.totalChapters }}章</span>
+              <span class="book-chapter-count">{{ book.totalChapters }}章</span>
               <span class="divider"></span>
-              <span class="book-word-count">{{ authorBookInfo.totalCharCount }}字</span>
+              <span class="book-word-count">{{ book.totalCharCount }}字</span>
               <span class="divider"></span>
-              <span class="book-status">{{ formatSerialStatus(authorBookInfo.serialStatus) }}</span>
+              <span class="book-serial-status">{{ formatSerialStatus(book.serialStatus) }}</span>
+              <span class="book-status" :class="getBookStatusClass(book.bookStatus)">{{ formatBookStatus(book.bookStatus) }}</span>
             </div>
             <div class="book-btn-box">
-              <button class="edit-book-btn" @click="handleOpenBookSetting()">作品设置</button>
-              <button class="create-chapter-btn" @click="handleCreateChapter">创建章节</button>
+              <button class="edit-book-btn" @click="handleOpenBookSetting(book)">作品设置</button>
+              <button class="create-chapter-btn" @click="handleCreateChapter(book)">创建章节</button>
             </div>
           </div>
         </div>
-      </div>
-
-      <!-- 如果作者还没创建作品，则展示空的盒子 -->
-      <div v-else class="empty-box">
-        <img class="empty-img" src="" alt="">
-        <label class="empty-label">你还没有作品，快去创建你的新作品吧～</label>
-        <button class="to-write-book" @click="handleCreateBook">新建小说</button>
       </div>
     </div>
     <el-calendar ref="calendar" class="calendar">
@@ -103,17 +91,46 @@
   import { useAuth } from '@/composables/useAuth';
   import type { CalendarInstance, CalendarDateType} from 'element-plus'
   import {Plus, ArrowRight } from '@element-plus/icons-vue'
-  import { formatTimestamp, formatSerialStatus } from '@/utils/dataFormatter';
+  import { formatBookStatus, formatSerialStatus } from '@/utils/dataFormatter';
 
   const props = defineProps<{
     authorInfo: any
   }>()
   const emit = defineEmits(['to-edit-book', 'to-work-management', 'to-create-book']);
   const router = useRouter();
-  const authorBookInfo = ref({});
+  const authorBookList = ref([]);
   const coverImageUrl = ref('')
   const { userAvatar, userName } = useAuth();
   const calendar = ref<CalendarInstance>()
+
+  const getBookStatusClass = (statusCode) => {
+    switch (statusCode) {
+      case 0:
+        return 'book-status-unpublished';
+      case 1:
+        return 'book-status-review';
+      case 2:
+        return 'book-status-published';
+      case 3:
+        return 'book-status-offline';
+      default:
+        return 'book-status-unknown';
+    }
+  };
+
+  const creationDays = computed(() => {
+    if ( !props.authorInfo || !props.authorInfo.registTime) {
+      return 1;// 如果没有注册时间，默认为第1天
+    }
+    const registryTime = props.authorInfo.registTime;
+    const currentTime = Date.now();
+    const timeDiff = currentTime - registryTime;
+    const dayDiff = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+    console.log('dayDiff', dayDiff)
+    return Math.max(1, dayDiff + 1);
+
+  });
+
   // 计算属性：根据土耳其时间动态显示问候语
   const greetingMessage = computed(() => {
     // 获取当前时间（土耳其时间）
@@ -176,30 +193,30 @@
   }
 
   // 作品设置按钮处理逻辑
-  const handleOpenBookSetting = () => {
-    if (!authorBookInfo.value || !authorBookInfo.value.bookId) {
+  const handleOpenBookSetting = (book) => {
+    if (!book.value || !book.value.bookId) {
       ElMessage.warning('暂无书籍信息');
       return;
     }
     // 发射事件给 index.vue，携带当前书籍信息
-    emit('to-edit-book', authorBookInfo.value);
+    emit('to-edit-book', book.value);
   }
   // 创建章节按钮处理函数
-  const handleCreateChapter = () => { 
+  const handleCreateChapter = (book) => { 
     console.log('handleCreateChapter');
-    if (!authorBookInfo.value || !authorBookInfo.value.bookId) {
+    if (!book.value || !book.value.bookId) {
       ElMessage.warning('暂无书籍信息，无法创建章节');
       return;
     }
     
-    const bookDataStr = JSON.stringify(authorBookInfo.value);
+    const bookDataStr = JSON.stringify(book.value);
     // 这里保持与 WorkManagement 一致的编码逻辑
     const encodedBookData = btoa(encodeURIComponent(bookDataStr)); 
     
     router.push({
       path: '/author/writeBook',
       query: {
-        bookId: authorBookInfo.value.bookId,
+        bookId: book.value.bookId,
         bookData: encodedBookData,
         from: 'create-chapter',
         opType: 'createChapter'
@@ -207,7 +224,7 @@
     });
   }
   // 获取作者书籍列表
-  const getAuthorBookInfo = async () => { 
+  const listAuthorBooks = async () => { 
     try { 
       // 获取当前作者所有未发布的书籍
       const authorBookListResult = await apiRequest(API_ENDPOINTS.LIST_ALL_BOOS_BY_AUTHOR, {
@@ -215,7 +232,7 @@
       });
       console.log("获取作者未发布书籍列表", authorBookListResult);
       if (authorBookListResult.code === 200 && authorBookListResult.data) {
-        authorBookInfo.value = authorBookListResult.data[0];
+        authorBookList.value = authorBookListResult.data.slice(0, 4);
       }
     } catch (error) {
       console.error(error)
@@ -223,7 +240,7 @@
   }
 
   onMounted(() => { 
-    getAuthorBookInfo();
+    listAuthorBooks();
   })
 
 </script>
@@ -333,7 +350,7 @@
   right: 24px;
   font-family: PingFangSC, PingFang SC;
   font-weight: 400;
-  font-size: 16px;
+  font-size: 12px;
   color: #A2A0A0;
   line-height: 22px;
   text-align: left;
@@ -342,28 +359,26 @@
   display: flex;
   align-items: center;
 }
+.arrow-right {
+  margin-left: 8px;
+}
 .author-works-content-box {
   display: flex;
+  flex-direction: column;
+  align-items: center;
   margin-top: 12px;
+}
+.create-book-img {
+  width: 100px;
+  height: 100px;
+  background: #A2A0A0;
+  border-radius: 4px;
 }
 .author-create-book-box { 
   display: flex;
   width: 468px;
   height: 152px;
   margin-left: 24px;
-}
-.create-book-img-upload {
-  display: flex;
-  width: 114px;
-  height: 152px;
-  background: #A2A0A0;
-  border-radius: 4px;
-  justify-content: center;
-}
-.create-book-img {
-  width: 114px;
-  height: 152px;
-  border-radius: 4px;
 }
 .book-img-upload-icon {
   font-size: 38px;
@@ -391,30 +406,45 @@
   line-height: 17px;
   text-align: left;
   font-style: normal;
-  margin-top: 10px;
+  margin-top: 6px;
 }
 .create-book-btn {
-  width: 120px;
-  height: 28px;
-  background: linear-gradient( 90deg, #F9A825 0%, #F9A825 100%);
-  border-radius: 18px;
+  width: 168px;
+  height: 48px;
+  background: linear-gradient(90deg, #F9A825 0%, #ED5B00 100%);
+  border-radius: 24px;
   font-family: PingFangSC, PingFang SC;
   font-weight: 400;
-  font-size: 12px;
+  font-size: 18px;
   color: #FFFFFF;
-  line-height: 28px;
+  line-height: 48px;
   text-align: center;
   font-style: normal;
-  margin-top: 75px;
+  margin-top: 16px;
+}
+.author-recent-book-container {
+  width: 1016px;
+  background: #424242;
+  border-radius: 6px;
+  margin-top: 16px;
 }
 .author-recent-book-box {
   display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+}
+.author-recent-book-item {
+  display: flex;
   margin-left: 32px;
+}
+.author-recent-book-item:last-child {
+  margin-bottom: 40px;
 }
 .book-img {
   width: 114px;
   height: 152px;
   background: #424242;
+  border-radius: 6px;
 }
 .book-info {
   display: flex;
@@ -444,7 +474,7 @@
   display: flex;
   margin-top: 42px;
 }
-.book-chapter-count, .book-word-count, .book-status {
+.book-chapter-count, .book-word-count, .book-serial-status {
   font-family: PingFangSC, PingFang SC;
   font-weight: 400;
   font-size: 12px;
@@ -454,13 +484,36 @@
   font-style: normal;
   margin-right: 10px;
 }
+.book-status {
+  font-family: PingFangSC, PingFang SC;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 17px;
+  text-align: left;
+  font-style: normal;
+}
+.book-status-unpublished {
+  color: #F9A825 !important
+}
+.book-status-review {
+  color: #A2A0A0 !important
+}
+.book-status-published {
+  color: #66A96B !important
+}
+.book-status-offline {
+  color: #ED5B00 !important
+}
+.book-status-unkonw {
+  color: #999797 !important;
+}
 .book-btn-box {
   margin-top: 16px;
 }
 .edit-book-btn, .create-chapter-btn {
   width: 120px;
   height: 28px;
-  background: linear-gradient( 90deg, #F9A825 0%, #F9A825 100%);
+  background: linear-gradient(90deg, #F9A825 0%, #ED5B00 100%);
   border-radius: 18px;
   font-family: PingFangSC, PingFang SC;
   font-weight: 400;

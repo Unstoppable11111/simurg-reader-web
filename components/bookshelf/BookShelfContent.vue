@@ -157,6 +157,7 @@
   }
 }
 .book-read-history {
+  width: 210px;
   font-family: PingFangSC, PingFang SC;
   font-weight: 400;
   font-size: 12px;
@@ -165,6 +166,9 @@
   text-align: left;
   font-style: normal;
   cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   &:hover {
     color: #F9A825;
   }

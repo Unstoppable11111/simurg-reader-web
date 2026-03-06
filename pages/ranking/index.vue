@@ -11,8 +11,8 @@
               class="ranking-nav-item"
               :class="{ 'active': item.active }"
               @click="selectRanking(item)">
-                <SvgIcon :name="item.active ? item.iconActivePath : item.iconPath" :class="item.active ? item.iconActivePath : item.iconPath" size="34" color=""/>
-                <div style="margin-left: 10px;">{{ item.name }}</div>
+                <SvgIcon :name="item.active ? item.iconActivePath : item.iconPath" :class="item.active ? item.iconActivePath : item.iconPath" color=""/>
+                <div style="margin-left: 10px;" :class="{ 'active-text': item.active }">{{ item.name }}</div>
             </div>
           </div>
         </div>
@@ -148,12 +148,12 @@
     align-items: center;
     justify-content: center;
     width: 180px;
-    height: 82px;
+    height: 58px;
     text-align: center;
-    line-height: 82px;
+    line-height: 72px;
     font-family: PingFangSC, PingFang SC;
     font-weight: 400;
-    font-size: 18px;
+    font-size: 16px;
     color: #A2A0A0;
     text-align: center;
     font-style: normal;
@@ -179,10 +179,16 @@
   .active {
     background: linear-gradient(90deg, #F9A825 0%, #ED5B00 100%);
     color: #FFFFFF;
+    font-weight: 600;
   }
   .ranking-hot, .ranking-new, 
   .ranking-hot-active, .ranking-new-active {
+    width: 22px;
+    height: 22px;
     color: transparent;
+  }
+  .ranking-hot, .ranking-hot-active {
+    width: 20px;
   }
   
   .ranking-title-box {
@@ -274,9 +280,10 @@
     border-radius: 16px;
     margin-top: -50px;
     z-index: 2;
-    background: linear-gradient(to top, rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.15));
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    // background: linear-gradient(to top, rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.15));
+    background: linear-gradient(to top, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.1));
+    backdrop-filter: blur(13px);
+    -webkit-backdrop-filter: blur(13px);
     color: #fff;
   }
   .book-img {

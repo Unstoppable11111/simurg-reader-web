@@ -75,7 +75,7 @@ export const API_ENDPOINTS = {
 
   /** 成为作者接口开始 */
   BECOME_AUTHOR: `${API_BASE_URL}/oauth/user/become/author`,
-  AUTHO_INFO: `${API_BASE_URL}/author/info/`,
+  AUTHO_INFO: `${API_BASE_URL}/author/oauth/info`,
   AUTHO_INFO_BY_ID: `${API_BASE_URL}/author/info`,
   UPDATE_AUTHOR_INFO: `${API_BASE_URL}/author/oauth/update_info`,
   /** 成为作者接口结束 */

@@ -37,17 +37,17 @@
       class="my-book-shelf" 
       :class="{ 'active': activeNav === 'bookshelf' }"
       @click="$emit('switch-tab', 'bookshelf')">
-      <SvgIcon name="bookshelf" class="bookshelf" :class="{ 'active-icon': activeNav === 'bookshelf' }" size="34" />
+      <SvgIcon name="bookshelf" class="bookshelf" :class="{ 'active-icon': activeNav === 'bookshelf' }" size="12" />
       我的书架
-      <SvgIcon name="arrow-right" class="arrow-right" :class="{ 'active-icon': activeNav === 'bookshelf' }" size="34"/>
+      <SvgIcon name="arrow-right" class="arrow-right" :class="{ 'active-icon': activeNav === 'bookshelf' }" size="12"/>
     </div>
     <div 
       class="my-history"  
       :class="{ 'active': activeNav === 'history' }"
       @click="$emit('switch-tab', 'history')">
-      <SvgIcon name="history" class="history" :class="{ 'active-icon': activeNav === 'bookshelf' }" size="34" />
+      <SvgIcon name="history" class="history" :class="{ 'active-icon': activeNav === 'bookshelf' }" size="12" />
       历史记录
-      <SvgIcon name="arrow-right" class="arrow-right" :class="{ 'active-icon': activeNav === 'bookshelf' }" size="34" />
+      <SvgIcon name="arrow-right" class="arrow-right" :class="{ 'active-icon': activeNav === 'bookshelf' }" size="12" />
     </div>
 
     <!-- 头像裁剪弹窗：居中+背景模糊 -->

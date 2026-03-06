@@ -4,9 +4,9 @@
     <div class="ranking-hot-section" v-if="hotBooks.length > 0">
       <div class="ranking-hot-list">
         <div>
-          <SvgIcon name="ranking-icon-left" class="ranking-icon-left" color="none"/>
+          <SvgIcon name="ranking-icon-left" class="ranking-icon-left" width="12px" height="24px" color="none"/>
           <span class="ranking-hot-title">大热榜</span>
-          <SvgIcon name="ranking-icon-right" class="ranking-icon-right" color="none"/>
+          <SvgIcon name="ranking-icon-right" class="ranking-icon-right" width="12px" height="24px" color="none"/>
         </div>
         <!-- 使用v-for循环渲染列表项 -->
         <div 
@@ -34,9 +34,9 @@
     <!-- 新书榜 -->
     <div class="ranking-new-section" v-if="newBooks.length > 0">
       <div class="ranking-new-list">
-        <SvgIcon name="ranking-icon-left" class="ranking-icon-left" color="none"/>
+        <SvgIcon name="ranking-icon-left" class="ranking-icon-left" width="12px" height="24px" color="none"/>
         <span class="ranking-new-title">新书榜</span>
-        <SvgIcon name="ranking-icon-right" class="ranking-icon-right" color="none"/>
+        <SvgIcon name="ranking-icon-right" class="ranking-icon-right" width="12px" height="24px" color="none"/>
         <!-- 使用v-for循环渲染列表项 -->
         <div 
           class="ranking-new-itme" 
@@ -63,9 +63,9 @@
     <!-- 畅销榜 -->
     <div class="ranking-best-sellers-section" v-if="bestSellersBooks.length > 0">
       <div class="ranking-best-sellers-list">
-        <SvgIcon name="ranking-icon-left" class="ranking-icon-left" color="none"/>
+        <SvgIcon name="ranking-icon-left" class="ranking-icon-left" width="12px" height="24px" color="none"/>
         <span class="ranking-best-sellers-title">完结榜</span>
-        <SvgIcon name="ranking-icon-right" class="ranking-icon-right" color="none"/>
+        <SvgIcon name="ranking-icon-right" class="ranking-icon-right" width="12px" height="24px" color="none"/>
         <!-- 使用v-for循环渲染列表项 -->
         <div 
           class="ranking-best-sellers-itme" 
@@ -230,6 +230,7 @@ onMounted(() => {
     line-height: 40px;
     text-align: left;
     font-style: normal;
+    margin: 0 5px;
   }
   .ranking-icon-left, .ranking-icon-right {
     display: inline-block !important;
