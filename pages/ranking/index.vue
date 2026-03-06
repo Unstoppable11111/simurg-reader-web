@@ -11,7 +11,8 @@
               class="ranking-nav-item"
               :class="{ 'active': item.active }"
               @click="selectRanking(item)">
-                <div>{{ item.name }}</div>
+                <SvgIcon :name="item.active ? item.iconActivePath : item.iconPath" :class="item.active ? item.iconActivePath : item.iconPath" size="34" color=""/>
+                <div style="margin-left: 10px;">{{ item.name }}</div>
             </div>
           </div>
         </div>
@@ -23,21 +24,6 @@
               {{ currentRanking }}
           </div>
         </div>
-        <!-- <div class="ranking-desc-box">
-          <div class="ranking-desc-text">基于昨日书籍热度排行</div>
-          <div 
-            class="ranking-day"
-            :class="{ 'active-type': rankingType === '日榜' }"
-            @click="selectRankingType('日榜')">
-            日榜
-          </div>
-          <div 
-            class="ranking-month"
-            :class="{ 'active-type': rankingType === '月榜' }"
-            @click="selectRankingType('月榜')">
-            月榜
-          </div>
-        </div> -->
         <div class="ranking-book-box">
           <div class="ranking-book-list">
             <div 
@@ -64,16 +50,17 @@
 
 <script setup>
   import Header from "@/components/layout/Header.vue";
+  import SvgIcon from "@/components/SvgIcon.vue";
   import { formatTimestamp, formatSerialStatus } from '@/utils/dataFormatter';
   
   // 榜单导航项数据
   const rankingNavItems = ref([
-    { id: 1, name: '热门榜', code: '1', active: true },
-    { id: 2, name: '新书榜', code: '2', active: false },
-    { id: 3, name: '畅销榜', code: '3', active: false },
-    { id: 4, name: '完结榜', code: '4', active: false },
-    { id: 5, name: '大神榜', code: '5', active: false },
-    { id: 6, name: '热搜榜', code: '6', active: false }
+    { id: 1, name: '热门榜', code: '1', active: true, iconPath: 'ranking-hot', iconActivePath: 'ranking-hot-active', },
+    { id: 2, name: '新书榜', code: '2', active: false, iconPath: 'ranking-new', iconActivePath: 'ranking-new-active', },
+    { id: 3, name: '畅销榜', code: '3', active: false, iconPath: 'ranking-selling', iconActivePath: 'ranking-selling-active', },
+    { id: 4, name: '完结榜', code: '4', active: false, iconPath: 'ranking-finish', iconActivePath: 'ranking-finish-active', },
+    { id: 5, name: '大神榜', code: '5', active: false, iconPath: 'ranking-god', iconActivePath: 'ranking-god-active', },
+    { id: 6, name: '热搜榜', code: '6', active: false, iconPath: 'ranking-search', iconActivePath: 'ranking-search-active', }
   ]);
   
   // 当前选中的榜单
@@ -128,13 +115,6 @@
     await fetchRankingData(currentRankingCode.value);
     
   };
-  
-  // 选择榜单类型
-  const selectRankingType = (type) => {
-    rankingType.value = type;
-    // 这里可以添加请求对应榜单类型数据的逻辑
-    console.log(`切换到${type}`);
-  };
 
   // 点击书籍跳转到详情页
   const gotoBookDetail = (bookId) => {
@@ -164,6 +144,9 @@
     flex-direction: column;
   }
   .ranking-nav-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     width: 180px;
     height: 82px;
     text-align: center;
@@ -196,6 +179,10 @@
   .active {
     background: linear-gradient(90deg, #F9A825 0%, #ED5B00 100%);
     color: #FFFFFF;
+  }
+  .ranking-hot, .ranking-new, 
+  .ranking-hot-active, .ranking-new-active {
+    color: transparent;
   }
   
   .ranking-title-box {
