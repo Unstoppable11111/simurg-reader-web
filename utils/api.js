@@ -2,8 +2,8 @@ import axios from 'axios'
 /**
  * 开发、测试、生产
  */
-// const API_BASE_URL = "http://localhost:8082/api"
-const API_BASE_URL = "http://www.sr-web-test.tata.org.cn:8082/api";
+const API_BASE_URL = "http://localhost:8082/api"
+// const API_BASE_URL = "http://www.sr-web-test.tata.org.cn:8082/api";
 
 // const API_BASE_URL = config.public.API_BASE_URL
 // const API_BASE_URL = process.env.NUXT_API_BASE_URL || 'http://8.129.12.50:8082/simurg_reader_web/api'

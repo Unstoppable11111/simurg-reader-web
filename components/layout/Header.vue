@@ -93,7 +93,7 @@
   const goToUserCenter = () => {
     isDropdownOpen.value = false; 
     // isAuthor.value ? router.push('/author?tab=author-home') : router.push('/user');
-    isAuthor.value ? toAuthorHome() : router.push('/user');
+    isAuthor.value ? toAuthorHome() : router.push('/bookshelf');
   };
 
   const toAuthorHome = () => {
