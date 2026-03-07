@@ -40,11 +40,44 @@
 						placeholder="请输入作家简介" maxlength="30"
 						show-word-limit/>
 				</el-form-item>
+				<!-- 真实姓名 -->
+				<el-form-item class="real-name-item" label="真实姓名" prop="realName"> 
+					<el-input 
+						type="text" class="real-name-input" 
+						v-model="authorInfo.realName" 
+						placeholder="请输入真实姓名" maxlength="10"
+						show-word-limit/>
+				</el-form-item>
 
+				<!-- 身份证号 -->
+				<el-form-item class="idcard-item" label="身份证号" prop="idcard"> 
+					<el-input 
+						type="text" class="idcard-input" 
+						v-model="authorInfo.idcard" 
+						placeholder="请输入身份证号" maxlength="18"
+						show-word-limit/>
+				</el-form-item>
+				<!-- 地址 -->
+				<el-form-item class="address-item" label="地址" prop="address"> 
+					<el-input class="address-input" 
+						v-model="authorInfo.address" placeholder="请输入地址" maxlength="10"
+						show-word-limit/>
+				</el-form-item>
+				<!-- 国家 -->
+				<el-form-item class="country-item" label="国家" prop="country"> 
+					<el-input class="country-input" 
+						v-model="authorInfo.country" placeholder="请输入国家" maxlength="10"
+						show-word-limit/>
+				</el-form-item>
 				<div class="author-contact-title">联系方式</div>
 				<!-- 邮箱 -->
 				<el-form-item class="author-email-item" label="邮箱号" prop="email"> 
 					<el-input type="text" class="author-email-input" v-model="authorInfo.email" placeholder="请输入邮箱号"/>
+				</el-form-item>
+				
+				<!-- 邮箱 -->
+				<el-form-item class="mobile-item" label="电话" prop="mobile"> 
+					<el-input type="text" class="mobile-input" v-model="authorInfo.mobile" placeholder="请输入手机号"/>
 				</el-form-item>
 
 				<div class="author-account-title">账号信息</div>
@@ -58,15 +91,12 @@
 </template>
 
 <script setup lang="ts">
-	import { useAuth } from '@/composables/useAuth';
 	import type { UploadProps } from 'element-plus';
-import auth from '~/plugins/auth';
-	const {isLoggedIn, isAuthor, userId} = useAuth();
 	const authorInfo = ref({});
 	const authorAvatarUrl = ref(null);
 
 	const initAuthroInfo = async () => { 
-		const getAuthorInfoUrl = `${API_ENDPOINTS.AUTHO_INFO}${userId.value}`;
+		const getAuthorInfoUrl = `${API_ENDPOINTS.AUTHO_INFO}`;
 		const authorInfoResult = await apiRequest(getAuthorInfoUrl, {
 			method: 'GET'
 		});
@@ -167,7 +197,6 @@ import auth from '~/plugins/auth';
 <style scoped lang="scss">
 	.author-info-container {
 		width: 1016px;
-		height: 730px;
 		background: #424242;
 		border-radius: 6px;
 	}
@@ -249,7 +278,7 @@ import auth from '~/plugins/auth';
 		border: none;
 		margin-left: 20px;
 	}
-	.pen-name-item { 
+	.pen-name-item, .real-name-item, .idcard-item, .address-item, .country-item { 
 		margin-top: 28px;
 
 		/* 如果是单行输入框 (type="text")，类名稍有不同，通用写法如下 */
@@ -257,11 +286,18 @@ import auth from '~/plugins/auth';
 			background: transparent !important;
 		}
 	}
-	.pen-name-input, .author-desc-input, .author-email-input {
+	.pen-name-input, 
+	.author-desc-input,
+	.real-name-input, 
+	.idcard-input, 
+	.address-input,
+	.country-input,
+	.author-email-input,
+	.mobile-input {
 		width: 842px;
 		height: 44px;
 		border-radius: 6px;
-		margin-left: 93px;
+		margin-left: 70px;
 
 		::v-deep(.el-input__wrapper) {
 			background: #424242;
@@ -288,8 +324,8 @@ import auth from '~/plugins/auth';
 			background: transparent !important;
 		}
 	}
-	.author-desc-input {
-		margin-left: 64px;
+	.author-desc-input, .real-name-input, .idcard-input {
+		margin-left: 42px;
 	}
 	.author-contact-title, .author-account-title {
 		font-family: PingFangSC, PingFang SC;
@@ -305,7 +341,7 @@ import auth from '~/plugins/auth';
 		margin-top: 38px;
 	}
 	.author-email-input {
-		margin-left: 78px;
+		margin-left: 56px;
 	}
 	.author-id {
 		margin-left: 68px;

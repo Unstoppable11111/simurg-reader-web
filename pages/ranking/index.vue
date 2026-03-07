@@ -182,7 +182,11 @@
     font-weight: 600;
   }
   .ranking-hot, .ranking-new, 
-  .ranking-hot-active, .ranking-new-active {
+  .ranking-hot-active, .ranking-new-active,
+  .ranking-selling, .ranking-selling-active,
+  .ranking-finish, .ranking-finish-active,
+  .ranking-god, .ranking-god-active,
+  .ranking-search, .ranking-search-active {
     width: 22px;
     height: 22px;
     color: transparent;

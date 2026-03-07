@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>icon/完结榜-白</title>
+    <defs>
+        <linearGradient x1="50%" y1="36.4748827%" x2="50%" y2="100%" id="linearGradient-1">
+            <stop stop-color="#FFD50D" offset="0%"></stop>
+            <stop stop-color="#ED5B00" offset="100%"></stop>
+        </linearGradient>
+    </defs>
+    <g id="icon/完结榜-白" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <rect id="矩形" x="0" y="0" width="24" height="24"></rect>
+        <g id="编组" transform="translate(5, 2)">
+            <rect id="矩形" fill="url(#linearGradient-1)" x="0" y="0" width="14" height="20" rx="2"></rect>
+            <g id="编组-39" transform="translate(5.6265, 12.0503)" fill="#FFFFFF">
+                <rect id="矩形" transform="translate(3.8986, 2.4749) rotate(45) translate(-3.8986, -2.4749)" x="3.39860331" y="-0.525126266" width="1" height="6" rx="0.5"></rect>
+                <rect id="矩形备份-15" transform="translate(1.4142, 3.5355) rotate(-45) translate(-1.4142, -3.5355)" x="0.914213562" y="2.03553391" width="1" height="3" rx="0.5"></rect>
+            </g>
+            <rect id="矩形备份-28" fill="#FFFFFF" transform="translate(4.8282, 4.5) rotate(-270) translate(-4.8282, -4.5)" x="4.3281577" y="2.6718423" width="1" height="3.6563154" rx="0.5"></rect>
+            <rect id="矩形备份-29" fill="#FFFFFF" transform="translate(5.786, 6.5) rotate(-270) translate(-5.786, -6.5)" x="5.28598901" y="3.71401099" width="1" height="5.57197801" rx="0.5"></rect>
+            <rect id="矩形备份-30" fill="#FFFFFF" transform="translate(5.786, 8.5) rotate(-270) translate(-5.786, -8.5)" x="5.28598901" y="5.71401099" width="1" height="5.57197801" rx="0.5"></rect>
+        </g>
+    </g>
+</svg>
