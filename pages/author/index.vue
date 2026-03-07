@@ -12,7 +12,7 @@
           @to-create-book="handleToCreateBook"
         />
         <WorkManagement 
-          v-show="activeNav === 'work-management'"
+          v-if="activeNav === 'work-management'"
           ref="workManagementRef"
         />
         <AuthorInfo 
@@ -47,6 +47,7 @@
   // 处理authorHome的作品设置点击事件
   const handleToEditBook = async (bookData: any) => {
     if (authorContainer.value) {
+      console.log('跳转作品管理');
       authorContainer.value.switchNav('work-management');
     }
     await nextTick();

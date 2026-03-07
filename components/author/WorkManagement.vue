@@ -1,5 +1,10 @@
 <!-- components/author/WorkManagement.vue -->
 <template>
+  <div class="confetti-container">
+    <Confetti  ref="confettiRef"
+      class="confetti-component"
+      :manualstart="true"/>
+  </div>
   <div class="author-content-section">
     <!-- 默认作品列表视图 -->
     <div v-if="currentView === 'list'">
@@ -66,7 +71,7 @@
         </el-form-item>
 
         <el-form-item class="create-book-label" label="作品分类" prop="bookCategoryList">
-          <el-select class="create-book-select" v-model="ruleForm.bookCategoryList" placeholder="请选择作品类型" multiple>
+          <el-select class="create-book-select" popper-class="create-book-select-dropdown" v-model="ruleForm.bookCategoryList" placeholder="请选择作品类型" multiple>
             <el-option
               v-for="item in categoryList"
               :key="item.categoryId"
@@ -76,7 +81,7 @@
         </el-form-item>
 
         <el-form-item class="create-book-label" label="作品标签" prop="bookTagList">
-          <el-select class="create-book-select" v-model="ruleForm.bookTagList" placeholder="请选择标签" multiple>
+          <el-select class="create-book-select" popper-class="create-book-select-dropdown" v-model="ruleForm.bookTagList" placeholder="请选择标签" multiple>
             <el-option
               v-for="item in bookTagTypeList"
               :key="item.key"
@@ -104,7 +109,6 @@
         </el-form-item>
 
         <el-form-item class="create-book-btn-box">
-          <el-button class="cancel-create-book-btn" @click="switchView('list')">取消</el-button>
           <el-button v-if="!isEditing" class="create-book-btn" @click="continueCreateChapter(ruleFormRef)">确认创建</el-button>
           <el-button v-else class="create-book-btn" @click="handleEditBook(ruleFormRef)">确认修改</el-button>
           <template v-if="isEditing">
@@ -189,8 +193,10 @@
   import { Plus } from '@element-plus/icons-vue'
   import { useDictStore } from "@/stores/dict";
   import { formatTimestamp, formatSerialStatus } from '@/utils/dataFormatter';
-  import { rule } from 'postcss';
-
+  import { Confetti } from '../ui/confetti';
+  import { ConfettiButton } from '../ui/confetti';
+  
+  
   const dictStore = useDictStore();
   const router = useRouter()
   const bookTagTypeList = computed(() => {
@@ -285,6 +291,34 @@
     }
     return ''
   }
+  const confettiRef = ref(null);
+  const fireConfetti = () => {
+    console.log('fireConfetti init');
+    if (confettiRef.value) {
+      // 先重置/停止可能的自动播放，再手动触发
+      confettiRef.value.reset?.(); // 可选：重置组件状态
+      confettiRef.value.fire({
+        // 可自定义特效参数（如数量、颜色、持续时间）
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.6 }
+      });
+    }
+    // confettiRef.value?.fire({});
+  }
+
+  /**
+   * 外部组件打开作品设置
+   * @param bookItem 书籍信息
+   */
+  const openBookSettingWithBook = (bookItem: any) => {
+    openBookSetting(bookItem);
+  };
+
+  /**
+   * 打开书籍作品设置
+   * @param bookItem 书籍信息
+   */
   const openBookSetting = (bookItem: any) => {
     console.log("打开书籍设置", bookItem)
     console.log("表单数据:", ruleForm)
@@ -303,6 +337,8 @@
   };
   // 视图切换方法 - 合并为一个通用函数
   const switchView = (view: 'list' | 'create-book' | 'book-setting' | 'chapter-management' | 'create-chapter') => {
+    console.log('view', view);
+    resetForm();
     currentView.value = view
   }
   // 打开创建新书视图方法
@@ -312,15 +348,21 @@
     if (bookData) {
       isEditing.value = true;
       // 填充表单数据（根据实际接口字段调整）
-      ruleForm.value = {
-        bookName: bookData.title || '',
-        coverImageUrl: bookData.coverImageUrl || '',
-        bookCategoryList: bookData.categoryIds || [],
-        bookTagList: bookData.tagIds || [],
-        bookProtagonist: bookData.protagonist || '',
-        bookDesc: bookData.description || '',
-        agreeProtocol: true
-      };
+      // ruleForm.value = {
+      //   bookName: bookData.title || '',
+      //   coverImageUrl: bookData.coverImageUrl || '',
+      //   bookCategoryList: bookData.categoryIds || [],
+      //   bookTagList: bookData.tagIds || [],
+      //   bookProtagonist: bookData.protagonist || '',
+      //   bookDesc: bookData.description || '',
+      //   agreeProtocol: true
+      // };
+      ruleForm.bookName = bookData.title || ''
+      ruleForm.coverImageUrl = bookData.coverImageUrl || ''
+      ruleForm.bookCategoryList = bookData.bookCategoryList || []
+      ruleForm.bookProtagonist = bookData.protagonist || ''
+      ruleForm.bookDesc = bookData.description || ''
+      ruleForm.agreeProtocol = true
       coverImageUrl.value = bookData.coverImageUrl || '';
     } else {
       // 新建模式：重置表单
@@ -655,7 +697,14 @@
       }
     }
   };
-  // 完结书籍
+
+  /**
+   * 炫酷撒花特效
+   */
+
+  /**
+   * 申请完结书籍
+   */
   const handleFinishBook = async () => { 
     try {
       await ElMessageBox.confirm(
@@ -669,22 +718,27 @@
           center: true,
         }
       );
-      // const finishReq = {
-      //   bookId: currentBookId.value,
-      //   bookStatus: 1 // 假设 1 代表完结，具体看后端定义
-      // };
-      // const res = await apiRequest(`${API_ENDPOINTS.UPDATE_BOOK_STATUS}/${currentBookId.value}/finish`, {
-      //   method: 'POST'
-      // });
-
-      // if (res.code === 200) {
-      //   ElMessage.success('恭喜，作品已成功申请完结！');
-      //   listAuthoBook(); // 刷新列表
-      //   switchView('list'); // 返回列表
-      // } else {
-      //   ElMessage.error(res.msg || '操作失败，请重试');
-      // }
-
+      const finishReq = {
+        bookId: currentBookId.value,
+        toSerialStatus: 1 // 0-连载中，1-完结
+      };
+      const res = await apiAuthRequest(`${API_ENDPOINTS.UPDATE_BOOK_SERIAL_STATUS}`, {
+        method: 'POST',
+        body: JSON.stringify(finishReq)
+      });
+      console.log("申请完结结果：", res.code);
+      if (res.code === 200) {
+        fireConfetti();
+        ElMessage.success('恭喜，作品已成功申请完结！');
+        listAuthoBook(); // 刷新列表
+        switchView('list'); // 返回列表
+      } else {
+        console.log("申请完结失败",res);
+        ElMessage.error(res.msg || '操作失败，请重试');
+      }
+      
+      // listAuthoBook(); 
+      // switchView('list'); 
     } catch (error) {
       if (error !== 'cancel') {
         console.error(error);
@@ -698,39 +752,42 @@
   })
   // 2. 关键：将 openBookSetting 暴露出去
   defineExpose({
-    openBookSetting,
+    openBookSetting: openBookSettingWithBook,
     openCreateBook
   });
 </script>
 
 <style lang="scss" scoped>
 // components/author/WorkManagement.style
-:deep(.custom-delete-dialog) {
-  .el-message-box {
-    background-color: #777777 !important;
-    border: none !important;
-  }
+.confetti-container {
+  position: absolute;
+  top: 0;
+  left: 25%;
+  width: 500px; // 固定宽度为 300px
+  height: 100vh; // 全屏高度
+  z-index: 9999; // 确保在最顶层
+  pointer-events: none; // 确保不影响页面其他交互
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.confetti-component {
+  width: 500px;
+  height: 500px;
   
-  .el-message-box__header {
-    background-color: #777777 !important;
-    border-bottom: 1px solid #555555 !important;
+  // 如果组件内部有 canvas 或其他元素，可能需要进一步覆盖
+  canvas {
+    width: 100% !important;
+    height: 100% !important;
   }
-  
-  .el-message-box__content {
-    background-color: #777777 !important;
-  }
-  
-  .el-message-box__title {
-    color: #FFFFFF !important;
-  }
-  
-  .el-message-box__message {
-    color: #FFFFFF !important;
-  }
-  
-  .el-message-box__btns {
-    border-top: 1px solid #555555 !important;
-  }
+}
+
+.author-content-section {
+  position: relative;
+  width: 100%;
+  background: #424242;
+  border-radius: 6px;
 }
 .author-content-section {
   position: relative;
@@ -788,6 +845,7 @@
 
 .work-book-info {
   position: relative;
+  width: 200px;
   display: flex;
   flex-direction: column;
   margin: 12px 0 0 12px;
@@ -960,10 +1018,12 @@
   line-height: 20px;
   text-align: left;
   font-style: normal;
+  width: 686px;
 }
 
 .create-book-input {
   ::v-deep(.el-input__wrapper) {
+    width: 686px;
     background: #424242;
     border-radius: 6px;
     border: 1px solid transparent;
@@ -1023,15 +1083,17 @@
   display: flex;
   justify-content: center;
   flex: 1;
+  width: 686px;
   ::v-deep(.el-form-item__content) {
     display: flex;
+    gap: 32px;
     justify-content: center;
   }
 }
 
 .cancel-create-book-btn, .create-book-btn, .delete-book-btn, .finish-book-btn {
-  width: 132px;
-  height: 42px;
+  width: 168px;
+  height: 34px;
   background: #646261;
   border-radius: 24px;
   font-family: PingFangSC, PingFang SC;
@@ -1044,14 +1106,9 @@
   border: none;
 }
 
-:deep(.custom-delete-dialog .el-message-box__header),
-:deep(.custom-delete-dialog .el-message-box__content) {
-  background-color: #777777 !important;
-}
-
 .cancel-create-book-btn, .delete-book-btn {
   // margin: 0 0 0 228px;
-  width: 100px;
+  // width: 100px;
 }
 .cancel-create-book-btn {
   &:hover { 
@@ -1071,7 +1128,33 @@
   border: 1px solid transparent;
   &:focus-within { 
     box-shadow: 1px 1px 2px 0px rgba(249,110,8,0.3), -1px -1px 2px 0px rgba(249,110,8,0.3);
-    border: 1px solid #F96E08;
+    border: 1px solid #f9a825;
+  }
+}
+.create-book-select {
+  ::v-deep(.el-tag) {
+    background-color: transparent !important;
+    // border: 1px solid #FFFFFF !important;
+    color: #FFFFFF !important;
+
+    .el-tag__close {
+      color: #FFFFFF !important;
+      &:hover {
+        background-color: transparent !important;
+        color: #F9A825 !important;
+      }
+    }
+  }
+
+  ::v-deep(.el-input__wrapper) {
+    background-color: #424242 !important;
+    box-shadow: 0 0 0 1px #555 inset !important;
+    .el-input__inner {
+      color: #FFFFFF !important;
+      &::placeholder {
+        color: #A2A0A0 !important;
+      }
+    }
   }
 }
 
@@ -1235,4 +1318,165 @@
     color: #f9a825;
   }
 }
+</style>
+
+<style lang="scss">
+// 精准匹配 Element Plus 2.11.1 的下拉框选择器
+.create-book-select-dropdown {
+  background-color: #424242 !important;
+  border: 1px solid #555 !important;
+  box-shadow: none !important;
+
+  .el-popper__arrow {
+    display: none !important;
+  }
+
+  // 下拉列表容器
+  .el-select-dropdown__list {
+    background-color: #424242 !important;
+    
+    // 下拉选项项
+    .el-select-dropdown__item {
+      background-color: #424242 !important;
+      color: #FFFFFF !important; /* 未选中文字：浅灰色 */
+      position: relative;
+
+      // 悬浮样式
+      &.hover,
+      &:hover {
+        background-color: #674b36 !important;
+        color: #FFFFFF !important;
+      }
+
+      // 选中状态
+      &.selected {
+        color: #F9A825 !important; /* 已选文字：橙色 */
+        background-color: transparent !important;
+      }
+
+      // 选中+悬浮
+      &.selected.hover,
+      &.selected:hover {
+        color: #f9a825 !important;
+        background-color: #525252 !important;
+      }
+
+      // 核心：覆盖选中对勾图标（最高优先级）
+      &.selected .el-icon-check {
+        color: #F9A825 !important; /* 图标文字色 */
+        fill: #F9A825 !important;   /* 图标填充色 */
+        stroke: #F9A825 !important; /* 图标描边色 */
+        font-weight: bold !important;
+      }
+
+      // 兼容不同 Element Plus 版本的图标类名
+      &.selected .el-icon {
+        color: #F9A825 !important;
+        fill: #F9A825 !important;
+        stroke: #F9A825 !important;
+      }
+
+      // 强制覆盖内联样式（如果有）
+      &.selected [class^="el-icon-"],
+      &.selected [class*=" el-icon-"] {
+        color: #F9A825 !important;
+        fill: #F9A825 !important;
+        stroke: #F9A825 !important;
+      }
+    }
+  }
+
+  // 额外：覆盖多选标签内的对勾（如果需要）
+  .el-select__tags .el-tag__close+.el-icon-check {
+    color: #F9A825 !important;
+    fill: #F9A825 !important;
+  }
+}
+
+// 兜底：全局覆盖下拉多选的对勾图标（防止局部样式未生效）
+:root {
+  --el-color-primary: #F9A825 !important; // 直接修改 Element 主色调为橙色
+  --el-color-primary-light-3: #f9b958 !important;
+  --el-color-primary-light-5: #fbc87a !important;
+  --el-color-primary-light-7: #fcd89d !important;
+  --el-color-primary-light-8: #fde3ae !important;
+  --el-color-primary-light-9: #fef3d1 !important;
+}
+
+.custom-delete-dialog {
+  // 确认框整体背景
+  background-color: #424242 !important;
+  border: 1px solid #555 !important;
+  border-radius: 4px !important;
+
+  // 标题栏
+  .el-message-box__header {
+    border-bottom: 1px solid #555 !important;
+    padding: 15px 20px !important;
+
+    .el-message-box__title {
+      color: #FFFFFF !important; // 标题白色
+    }
+
+    .el-message-box__close {
+      color: #A2A0A0 !important; // 关闭按钮浅灰
+      &:hover {
+        color: #F9A825 !important; // 悬停橙色
+      }
+    }
+  }
+
+  // 内容区域
+  .el-message-box__content {
+    padding: 20px !important;
+    color: #FFFFFF !important; // 内容文字白色
+
+    .el-message-box__status {
+      color: #F9A825 !important; // 提示图标橙色
+    }
+  }
+
+  // 按钮区域
+  .el-message-box__btns {
+    padding: 10px 20px 15px !important;
+    border-top: 1px solid #555 !important;
+
+    // 「我再想想」取消按钮
+    .el-button {
+      background-color: #646261 !important;
+      border-radius: 24px;
+      color: #FFFFFF !important;
+      border: none;
+      &:hover {
+        background-color: #666 !important;
+        border-color: #777 !important;
+      }
+    }
+
+    // 「确认完结」主要按钮
+    .el-button--primary {
+      background-color: #F9A825 !important; // 主题橙色
+      border: 1px solid #F9A825 !important;
+      color: #FFFFFF !important;
+      border-radius: 24px;
+      &:hover {
+        background-color: #e69500 !important; // 悬停深橙
+      }
+    }
+  }
+}
+
+// 可选：仅修改 finish-book-btn 按钮本身的样式（如果需要）
+.finish-book-btn {
+  background-color: #F9A825 !important;
+  border-color: #F9A825 !important;
+  color: #FFFFFF !important;
+
+  &:hover {
+    background-color: #e69500 !important;
+    border-color: #e69500 !important;
+  }
+}
+
+//花瓣特效
 </style>

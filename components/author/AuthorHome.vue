@@ -194,29 +194,30 @@
 
   // 作品设置按钮处理逻辑
   const handleOpenBookSetting = (book) => {
-    if (!book.value || !book.value.bookId) {
+    if (!book || !book.bookId) {
       ElMessage.warning('暂无书籍信息');
       return;
     }
     // 发射事件给 index.vue，携带当前书籍信息
-    emit('to-edit-book', book.value);
+    emit('to-edit-book', book);
   }
   // 创建章节按钮处理函数
   const handleCreateChapter = (book) => { 
-    console.log('handleCreateChapter');
-    if (!book.value || !book.value.bookId) {
+    console.log('handleCreateChapter', book);
+    console.log('handleCreateChapter', book.bookId);
+    if (!book || !book.bookId) {
       ElMessage.warning('暂无书籍信息，无法创建章节');
       return;
     }
     
-    const bookDataStr = JSON.stringify(book.value);
+    const bookDataStr = JSON.stringify(book);
     // 这里保持与 WorkManagement 一致的编码逻辑
     const encodedBookData = btoa(encodeURIComponent(bookDataStr)); 
     
     router.push({
       path: '/author/writeBook',
       query: {
-        bookId: book.value.bookId,
+        bookId: book.bookId,
         bookData: encodedBookData,
         from: 'create-chapter',
         opType: 'createChapter'

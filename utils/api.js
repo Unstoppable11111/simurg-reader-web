@@ -31,6 +31,7 @@ export const API_ENDPOINTS = {
   CREATE_BOOK: `${API_BASE_URL}/author/oauth/create_book`,
   UPDATE_BOOK: `${API_BASE_URL}/author/oauth/update_book`,
   DELETE_BOOK: `${API_BASE_URL}/author/oauth/delete_book`,
+  UPDATE_BOOK_SERIAL_STATUS: `${API_BASE_URL}/author/oauth/update/serial_status`,
   LIST_ALL_BOOS_BY_AUTHOR: `${API_BASE_URL}/author/oauth/all_book`,
   LIST_PUBLISHED_BOOKS: `${API_BASE_URL}/book/list/published_book/author/`,
   
