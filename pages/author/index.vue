@@ -4,20 +4,20 @@
     <Header :margin-left="'360px'" :isAuthor="true"/>
     <AuthorContainer ref="authorContainer">
       <template #default="{ activeNav }">
-        <AuthorHome 
-          v-if="activeNav === 'author-home'"
-          :author-info="authorInfo"
-          @to-edit-book="handleToEditBook" 
-          @to-work-management="handleToWorkManagement"
-          @to-create-book="handleToCreateBook"
-        />
-        <WorkManagement 
-          v-if="activeNav === 'work-management'"
-          ref="workManagementRef"
-        />
-        <AuthorInfo 
-          v-if="activeNav === 'author-info'"
-        />
+        <div class="author-nav-content" key="author-home" v-if="activeNav === 'author-home'">
+          <AuthorHome 
+            :author-info="authorInfo"
+            @to-edit-book="handleToEditBook" 
+            @to-work-management="handleToWorkManagement"
+            @to-create-book="handleToCreateBook"
+          />
+        </div>
+        <ClientOnly>
+          <WorkManagement v-if="activeNav === 'work-management'" ref="workManagementRef" />
+        </ClientOnly>
+        <div class="author-nav-content" key="author-info" v-if="activeNav === 'author-info'">
+          <AuthorInfo />
+        </div>
       </template>
     </AuthorContainer>
   </div>
@@ -30,6 +30,8 @@
   import AuthorInfo from "@/components/author/AuthorInfo.vue";
   import WorkManagement from "@/components/author/WorkManagement.vue";
   import { useAuth } from '@/composables/useAuth';
+import { resolve } from "node:dns";
+import { tr } from "element-plus/es/locale/index.mjs";
 
   const route = useRoute();
   const {isLoggedIn, isAuthor, userId} = useAuth();
@@ -46,14 +48,23 @@
   authorInfo.value = authorInfoResult.data;
   // 处理authorHome的作品设置点击事件
   const handleToEditBook = async (bookData: any) => {
-    if (authorContainer.value) {
-      console.log('跳转作品管理');
-      authorContainer.value.switchNav('work-management');
+    if ( !authorContainer.value ) return;
+    authorContainer.value.switchNav('work-management');
+    const maxWaitTime = 2000;
+    const checkInterval = 50;
+    let elapsedTime = 0;
+    let isMounted = false;
+    while ( elapsedTime < maxWaitTime ) {
+      if (workManagementRef.value && typeof workManagementRef.value.openCreateBook === 'function') {
+        workManagementRef.value.openCreateBook(bookData);
+        isMounted = true;
+        break;
+      }
+      await new Promise(resolve => setTimeout(resolve, checkInterval));
+      elapsedTime += checkInterval;
     }
-    await nextTick();
-    if (workManagementRef.value) {
-      console.log("调用子组件打开设置", workManagementRef.value);
-      workManagementRef.value.openCreateBook(bookData);
+    if (!isMounted) {
+      console.error('❌ WorkManagement 组件或 openCreateBook 方法未找到');
     }
   };
   // 点击更多跳转到作品管理
@@ -64,23 +75,23 @@
   };
   // 新增跳转到创建新书
   const handleToCreateBook = async () => {
-    // 1. 强制客户端执行标签页切换
-  if (process.client && authorContainer.value) {
+    if ( !process.client || !authorContainer.value) return;
     authorContainer.value.switchNav('work-management');
-    // 2. 等待DOM更新 + 组件挂载（延长等待，适配Nuxt异步渲染）
-    await nextTick();
-    await new Promise(resolve => setTimeout(resolve, 100)); // 兜底等待（可调整时长）
+
     
-    // 3. 校验ref是否获取到实例
-    console.log('WorkManagement实例:', workManagementRef.value);
+    const maxWaitTime = 1000;
+    const checkInterval = 50;
+    let elapsedTime = 0;
+    while ( !workManagementRef.value && elapsedTime < maxWaitTime) {
+      await new Promise(resolve => setTimeout(resolve, checkInterval)); 
+      elapsedTime += checkInterval;
+    }  
+    
     if (workManagementRef.value) {
       workManagementRef.value.openCreateBook();
     } else {
       console.error('❌ WorkManagement ref为空，请检查：');
-      console.error('- 标签页是否真的切换到了「作品管理」');
-      console.error('- WorkManagement组件是否加了 <ClientOnly> 但未处理');
     }
-  }
   }
 
   watch(

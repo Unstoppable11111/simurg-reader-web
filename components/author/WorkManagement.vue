@@ -345,29 +345,22 @@
   const openCreateBook = (bookData?: any) => {
     // 如果有bookData，说明是编辑模式
     console.log("打开创建新书视图", bookData)
+    if ( !ruleForm ) return;
     if (bookData) {
       isEditing.value = true;
-      // 填充表单数据（根据实际接口字段调整）
-      // ruleForm.value = {
-      //   bookName: bookData.title || '',
-      //   coverImageUrl: bookData.coverImageUrl || '',
-      //   bookCategoryList: bookData.categoryIds || [],
-      //   bookTagList: bookData.tagIds || [],
-      //   bookProtagonist: bookData.protagonist || '',
-      //   bookDesc: bookData.description || '',
-      //   agreeProtocol: true
-      // };
-      ruleForm.bookName = bookData.title || ''
-      ruleForm.coverImageUrl = bookData.coverImageUrl || ''
-      ruleForm.bookCategoryList = bookData.bookCategoryList || []
-      ruleForm.bookProtagonist = bookData.protagonist || ''
-      ruleForm.bookDesc = bookData.description || ''
-      ruleForm.agreeProtocol = true
+      Object.assign(ruleForm, {
+        bookName: bookData.title || '',
+        coverImageUrl: bookData.coverImageUrl || '',
+        bookCategoryList: bookData.bookCategoryList || [],
+        bookProtagonist: bookData.protagonist || '',
+        bookDesc: bookData.description || '',
+        agreeProtocol: true
+      });
       coverImageUrl.value = bookData.coverImageUrl || '';
     } else {
       // 新建模式：重置表单
       isEditing.value = false;
-      ruleForm.value = {
+      Object.assign(ruleForm, {
         bookName: '',
         coverImageUrl: '',
         bookCategoryList: [],
@@ -375,7 +368,7 @@
         bookProtagonist: '',
         bookDesc: '',
         agreeProtocol: false
-      };
+      });
       coverImageUrl.value = '';
     }
     // 切换到创建/编辑表单视图
@@ -753,7 +746,7 @@
   // 2. 关键：将 openBookSetting 暴露出去
   defineExpose({
     openBookSetting: openBookSettingWithBook,
-    openCreateBook
+    openCreateBook: openCreateBook
   });
 </script>
 
@@ -926,6 +919,7 @@
 }
 
 .create-book-form-box {
+  width: 1016px;
   height: 640px;
 }
 

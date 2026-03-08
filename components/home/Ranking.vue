@@ -149,7 +149,6 @@ const fetchRankingData = async () => {
       body: JSON.stringify(hotRankingData)
     });
     const result = response;
-    console.log('热门榜数据:', result);
     if (result.code === 200 && result.data) {
       hotBooks.value = result.data || [];
     }
@@ -168,7 +167,6 @@ const fetchRankingData = async () => {
       body: JSON.stringify(newBookRankingData)
     });
     const result = response;
-    console.log('新书榜数据:', result);
     if (result.code === 200 && result.data) {
       newBooks.value = result.data || [];
     }
@@ -187,7 +185,6 @@ const fetchRankingData = async () => {
       body: JSON.stringify(bestsellerRankingData)
     });
     const result = response;
-    console.log('完结榜数据:', result);
     if (result.code === 200 && result.data) {
       bestSellersBooks.value = result.data || [];
     }
