@@ -82,7 +82,6 @@ let timer: NodeJS.Timeout | null = null
 
 // 传送门Ref绑定：替换useTemplateRef为Vue原生ref，按官方示例命名，兼容TS
 const cosmicPortal = ref<InstanceType<typeof CosmicPortal> | null>(null)
-
 // 补零函数：保留你的原有代码
 const addZero = (num: number) => num < 10 ? `0${num}` : num
 
