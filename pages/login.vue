@@ -535,6 +535,8 @@ const handleLoginByAccount = async () => {
     border: 1px solid #333; /* 保留边框，适配黑色系 */
     background-color: #1a1a1a;
     margin-bottom: 10px;
+    border-radius: 12px;
+    padding: 16px;
   }
   
   .social-buttons {

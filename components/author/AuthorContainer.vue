@@ -117,4 +117,38 @@ defineExpose({
 .home, .personal-msg, .bookshelf {
   margin-right: 4px;
 }
+
+@media (max-width: 768px) {
+  .author-container {
+    flex-direction: column;
+    margin-top: 90px;
+    width: 100%;
+    padding: 0 16px;
+  }
+  .author-left-nav-box {
+    width: 100%;
+  }
+  .nav-list {
+    flex-direction: row;
+    gap: 8px;
+  }
+  .nav-item {
+    width: calc(33.333% - 6px);
+    height: 40px;
+    line-height: 40px;
+    border-radius: 10px;
+    font-size: 12px;
+  }
+  .nav-item:first-child.active,
+  .nav-item:first-child:hover,
+  .nav-item:last-child.active,
+  .nav-item:last-child:hover {
+    border-radius: 10px;
+  }
+  .author-right-content-box {
+    width: 100%;
+    margin-left: 0;
+    margin-top: 12px;
+  }
+}
 </style>

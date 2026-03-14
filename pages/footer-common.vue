@@ -566,5 +566,12 @@ watch(() => route.query.section, (newSection) => {
   .main-content {
     padding: 20px;
   }
+
+  .content-section h2 {
+    font-size: 20px;
+  }
+  .content-wrapper p {
+    font-size: 14px;
+  }
 }
 </style>

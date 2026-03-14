@@ -63,4 +63,29 @@ const props = defineProps({
       box-shadow: 0px 8px 15px 0px rgba(197,195,195,0.7); /* 增强阴影 */
     }
   }
+  @media (max-width: 768px) {
+    .book-cate-box {
+      width: 100%;
+    }
+    .book-cate-list {
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .book-cate-item {
+      width: calc(33.333% - 8px);
+    }
+    .cate-img {
+      width: 100%;
+      height: 120px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .book-cate-item {
+      width: calc(50% - 6px);
+    }
+    .cate-img {
+      height: 140px;
+    }
+  }
 </style>

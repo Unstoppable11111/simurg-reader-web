@@ -26,3 +26,21 @@ onMounted(() => {
   }
 })
 </script>
+
+<style scoped>
+.page-404 {
+  min-height: 60vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 40px 16px;
+  color: #fff;
+  text-align: center;
+}
+.page-404 a {
+  color: #f9a825;
+  text-decoration: none;
+}
+</style>

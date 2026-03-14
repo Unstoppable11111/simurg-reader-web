@@ -719,4 +719,34 @@ import { Title } from '#components';
     text-align: center;
     font-style: normal;
   }
+
+  @media (max-width: 768px) {
+    .write-book-header-box {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 16px;
+    }
+    .write-book-info-box {
+      margin-left: 0;
+      width: 100%;
+    }
+    .wirte-book-main-box {
+      padding: 0 16px 80px;
+    }
+    .write-book-chapter-box {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 8px;
+    }
+    .write-book-textarea,
+    .author-note-textarea {
+      width: 100%;
+    }
+    .write-book-footer-box {
+      width: 100%;
+      left: 0;
+      padding: 0 16px;
+    }
+  }
 </style>

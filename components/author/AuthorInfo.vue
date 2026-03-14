@@ -346,5 +346,71 @@
 	.author-id {
 		margin-left: 68px;
 	}
+
+	@media (max-width: 768px) {
+		.author-info-container {
+			width: 100%;
+			padding: 16px;
+		}
+		.author-info-header-box {
+			position: static;
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			gap: 8px;
+			margin-bottom: 16px;
+		}
+		.author-info-header-title {
+			position: static;
+			margin-right: auto;
+		}
+		.cancle,
+		.save {
+			position: static;
+			width: auto;
+			height: 32px;
+			padding: 0 14px;
+		}
+		.author-info-content-box {
+			margin: 0;
+		}
+		.author-avatar-label,
+		.pen-name-item,
+		.author-email-item,
+		.author-account-item {
+			align-items: flex-start;
+		}
+		.author-avatar-img {
+			margin-left: 0;
+		}
+		.upload-img-btn {
+			margin-left: 0;
+			margin-top: 8px;
+		}
+		.pen-name-input, 
+		.author-desc-input,
+		.real-name-input, 
+		.idcard-input, 
+		.address-input,
+		.country-input,
+		.author-email-input,
+		.mobile-input {
+			width: 100%;
+			margin-left: 0;
+		}
+		.author-desc-input, .real-name-input, .idcard-input {
+			margin-left: 0;
+		}
+		.author-email-input {
+			margin-left: 0;
+		}
+		.author-id {
+			margin-left: 0;
+		}
+		.author-contact-title,
+		.author-account-title {
+			margin-top: 24px;
+		}
+	}
 	
 </style>

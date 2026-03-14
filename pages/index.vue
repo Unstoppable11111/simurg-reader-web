@@ -563,4 +563,53 @@
   color: #FFFFFF;
   padding: 40px 0;
 }
+@media (max-width: 768px) {
+  .home-page {
+    background-attachment: scroll;
+  }
+  .home-content-box {
+    width: 100%;
+    padding: 0 16px;
+  }
+  .carousel {
+    height: 220px;
+  }
+  .featured-section,
+  .recommend-section,
+  .ranking-section,
+  .book-cate-section,
+  .last-update-book-section,
+  .search-result-section {
+    width: 100%;
+    height: auto;
+  }
+  .featured-title-box,
+  .recommend-title-box,
+  .ranking-title-h2,
+  .book-cate-container {
+    width: 100%;
+  }
+  .ranking-more,
+  .book-cate-more {
+    position: static;
+    margin-left: auto;
+  }
+  .search-result-list {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+  .book-cover {
+    height: 160px;
+  }
+  .ranking-section {
+    margin-top: 32px;
+  }
+  .back-to-top {
+    right: 16px;
+    bottom: 16px;
+    width: 40px;
+    height: 40px;
+    font-size: 18px;
+  }
+}
 </style>

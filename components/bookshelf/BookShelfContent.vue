@@ -216,4 +216,40 @@
     color: #A3A3A3;
   }
 }
+
+@media (max-width: 768px) {
+  .bookshelf-book-list {
+    width: 100%;
+    gap: 12px;
+    margin-right: 0;
+  }
+  .book-item,
+  .add-book-btn-box {
+    width: calc(50% - 6px);
+    height: auto;
+    padding-bottom: 12px;
+  }
+  .book-img {
+    width: 96px;
+    height: 128px;
+    margin-top: 16px;
+  }
+  .book-read-history {
+    width: 90%;
+  }
+  .book-operate {
+    position: static;
+    margin-top: 12px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: center;
+  }
+  .continue-read,
+  .book-delete {
+    position: static;
+    width: 70%;
+  }
+}
 </style>

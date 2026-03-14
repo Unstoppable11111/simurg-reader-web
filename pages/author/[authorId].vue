@@ -390,4 +390,53 @@
     text-align: center;
     font-style: normal;
   }
+
+  @media (max-width: 768px) {
+    .author-container {
+      height: auto;
+      padding: 16px;
+    }
+    .author-box {
+      width: 100%;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 12px;
+    }
+    .author-detail-info {
+      position: static;
+      width: 100%;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+    .author-all-book-title,
+    .author-book-list {
+      width: 100%;
+      padding: 0 16px;
+    }
+    .author-book-item {
+      width: 100%;
+      height: auto;
+      flex-direction: column;
+    }
+    .book-info-box {
+      margin-left: 0;
+      margin-top: 8px;
+    }
+    .book-img {
+      width: 96px;
+      height: 128px;
+    }
+    .book-tag {
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .startReadBtn,
+    .addBookShelfBtn {
+      position: static;
+      width: 110px;
+      height: 30px;
+      margin-top: 10px;
+    }
+  }
 </style>

@@ -17,6 +17,7 @@
           prevEl: '.left-arrow',
           nextEl: '.right-arrow',
         }"
+        :breakpoints="breakpoints"
         class="mySwiper"
       >
         <swiper-slide 
@@ -69,6 +70,29 @@ const props = defineProps({
 
 const modules = [Navigation];
 const router = useRouter();
+
+const breakpoints = {
+  0: {
+    slidesPerView: 2.2,
+    spaceBetween: 12,
+    centeredSlides: false
+  },
+  540: {
+    slidesPerView: 3.2,
+    spaceBetween: 12,
+    centeredSlides: false
+  },
+  768: {
+    slidesPerView: 4,
+    spaceBetween: 16,
+    centeredSlides: true
+  },
+  1024: {
+    slidesPerView: 6,
+    spaceBetween: 24,
+    centeredSlides: true
+  }
+};
 
 const gotoBookDetail = (bookId) => {
   router.push(`/book/${bookId}`);
@@ -204,4 +228,23 @@ $info-h: 60px;
 
 .left-arrow { left: 0px; }
 .right-arrow { right: 0px; }
+
+@media (max-width: 768px) {
+  .feature-card-carousel {
+    width: 100%;
+    padding: 24px 0;
+  }
+  :deep(.swiper-slide) {
+    height: 300px;
+  }
+  .feature-card {
+    transform: none;
+  }
+  .feature-card.active-part {
+    transform: none;
+  }
+  .carousel-arrow {
+    display: none;
+  }
+}
 </style>

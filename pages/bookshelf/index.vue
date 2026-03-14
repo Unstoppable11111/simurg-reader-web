@@ -268,4 +268,23 @@ onMounted(() => {
   border-radius: 6px;
   margin-left: 24px;
 }
+
+@media (max-width: 768px) {
+  .book-shelf-box {
+    flex-direction: column;
+    width: 100%;
+    margin-top: 90px;
+    padding: 0 16px;
+  }
+  .left-nav {
+    margin-left: 0;
+    width: 100%;
+  }
+  .book-shelf-right-nav-box {
+    width: 100%;
+    height: auto;
+    margin-left: 0;
+    margin-top: 16px;
+  }
+}
 </style>

@@ -49,7 +49,11 @@ onMounted(async () => {
 
 <style scoped>
 .callback-page {
+  min-height: 60vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   text-align: center;
-  padding: 50px;
+  padding: 40px 16px;
 }
 </style>

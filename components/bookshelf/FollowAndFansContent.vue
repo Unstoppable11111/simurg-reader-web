@@ -421,4 +421,37 @@
   text-align: center;
   font-style: normal;
 }
+
+@media (max-width: 768px) {
+  .follow-box {
+    width: 100%;
+    height: auto;
+  }
+  .follow-header-box {
+    width: 100%;
+  }
+  .follow-content-box {
+    width: 100%;
+    min-height: auto;
+  }
+  .follow-item,
+  .fan-item {
+    flex-direction: column;
+    align-items: flex-start;
+    height: auto;
+    gap: 8px;
+    padding: 12px;
+  }
+  .follow-user-info,
+  .fan-user-info {
+    margin-left: 0;
+  }
+  .follow-status,
+  .follow-back-btn,
+  .following-btn {
+    position: static;
+    width: 120px;
+    margin-top: 4px;
+  }
+}
 </style>

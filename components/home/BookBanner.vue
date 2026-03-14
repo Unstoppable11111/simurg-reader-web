@@ -72,4 +72,13 @@
   height: 100%;
   object-fit: cover;
 }
+
+@media (max-width: 768px) {
+  .custom-carousel {
+    height: 220px !important;
+  }
+  :deep(.custom-carousel .el-carousel__container) {
+    height: 220px !important;
+  }
+}
 </style>

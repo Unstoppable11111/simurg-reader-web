@@ -438,5 +438,13 @@ watch(() => route.query.sub, (newSub) => {
   .main-content {
     padding: 20px;
   }
+
+  .container {
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .content-section {
+    padding-bottom: 8px;
+  }
 }
 </style>

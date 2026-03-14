@@ -345,4 +345,25 @@ onMounted(() => {
     // 可选：添加亮度调整
     filter: brightness(1.05);
   }
+  @media (max-width: 768px) {
+    .ranking-box {
+      flex-direction: column;
+      gap: 24px;
+    }
+    .ranking-hot-section,
+    .ranking-new-section,
+    .ranking-best-sellers-section {
+      width: 100%;
+      height: auto;
+    }
+    .ranking-hot-itme,
+    .ranking-new-itme,
+    .ranking-best-sellers-itme {
+      width: 100%;
+      margin-bottom: 12px;
+    }
+    .book-info {
+      width: 100%;
+    }
+  }
 </style>

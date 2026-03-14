@@ -147,4 +147,10 @@ import { tr } from "element-plus/es/locale/index.mjs";
   font-style: normal;
   margin: 35px 0 0 24px;
 }
+
+@media (max-width: 768px) {
+  .author-page {
+    padding: 0 12px;
+  }
+}
 </style>

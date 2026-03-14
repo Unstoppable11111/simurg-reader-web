@@ -363,4 +363,63 @@
       cursor: pointer;
     }
   }
+
+  @media (max-width: 768px) {
+    .ranking-container {
+      width: 100%;
+      flex-direction: column;
+      padding: 90px 16px 0;
+    }
+    .ranking-box {
+      width: 100%;
+      margin: 0 0 16px 0;
+    }
+    .ranking-nav-list {
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .ranking-nav-item {
+      width: calc(50% - 4px);
+      height: 44px;
+      line-height: 44px;
+      border-radius: 10px;
+    }
+    .ranking-title-box {
+      width: 100%;
+      height: auto;
+    }
+    .ranking-title {
+      padding-left: 0;
+      line-height: 40px;
+    }
+    .ranking-book-list {
+      gap: 12px;
+      justify-content: space-between;
+    }
+    .ranking-book-item {
+      width: calc(50% - 6px);
+      height: auto;
+      border-radius: 16px;
+    }
+    .book-img {
+      width: 100%;
+      height: 200px;
+      margin: 16px 0 0 0;
+    }
+    .book-info {
+      width: 100%;
+      height: auto;
+      margin-top: -24px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .ranking-book-item {
+      width: 100%;
+    }
+    .book-img {
+      height: 220px;
+    }
+  }
 </style>

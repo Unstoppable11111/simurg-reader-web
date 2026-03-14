@@ -550,4 +550,44 @@
   border-radius: 4px;
   cursor: pointer;
 }
+
+@media (max-width: 768px) {
+  .book-shelf-left-nav-box {
+    width: 100%;
+    height: auto;
+  }
+  .author-avatar-box {
+    width: 100%;
+    height: auto;
+    padding: 16px 0;
+    border-radius: 6px;
+  }
+  .follow-box {
+    width: 100%;
+  }
+  .author-follow,
+  .author-fan {
+    width: 50%;
+  }
+  .user-balance-box {
+    width: 100%;
+    height: auto;
+    padding-bottom: 12px;
+  }
+  .balance-recharge-box {
+    justify-content: space-between;
+    padding: 0 8px;
+  }
+  .balance-recharge-btn,
+  .balance-recharge-record-btn {
+    width: 50%;
+  }
+  .my-book-shelf,
+  .my-history {
+    width: 100%;
+  }
+  .avatar-modal-content {
+    width: 90vw;
+  }
+}
 </style>

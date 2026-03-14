@@ -158,4 +158,31 @@
   text-align: left;
   font-style: normal;
 }
+
+@media (max-width: 768px) {
+  .last-update-book-box {
+    width: 100%;
+  }
+  .table-header {
+    display: none;
+  }
+  .table-row {
+    flex-direction: column;
+    gap: 6px;
+    padding: 12px 0;
+  }
+  .table-row .tr {
+    height: auto;
+    line-height: 20px;
+    font-size: 14px;
+  }
+  .th-book-content-name,
+  .th-book-author,
+  .th-type {
+    display: none;
+  }
+  .th-book-update-time {
+    width: auto;
+  }
+}
 </style>

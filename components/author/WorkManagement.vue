@@ -1473,4 +1473,86 @@
 }
 
 //花瓣特效
+@media (max-width: 768px) {
+  .confetti-container {
+    left: 0;
+    width: 100%;
+  }
+  .confetti-component {
+    width: 100%;
+    height: 260px;
+  }
+  .author-content-section {
+    border-radius: 8px;
+  }
+  .work-management-title-box {
+    padding: 16px 16px 0;
+  }
+  .author-work-title,
+  .create-novel {
+    position: static;
+    display: inline-block;
+  }
+  .create-novel {
+    margin-left: auto;
+  }
+  .work-item-list {
+    padding: 16px;
+  }
+  .work-item {
+    width: 100%;
+    height: auto;
+    flex-direction: column;
+    gap: 10px;
+    padding-bottom: 12px;
+  }
+  .work-book-img {
+    margin: 0;
+  }
+  .work-book-info {
+    width: 100%;
+    margin: 0;
+  }
+  .work-book-detail-info {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .work-book-setting-btn,
+  .work-chapter-manage-btn,
+  .work-create-chapter-btn {
+    width: 100%;
+    margin: 6px 0 0;
+  }
+  .create-book-form-box {
+    padding: 16px;
+  }
+  .create-book-title-box {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .create-book-form {
+    width: 100%;
+    max-width: none;
+  }
+  .create-book-img-upload {
+    margin: 0 auto 12px;
+  }
+  .upload-warn-info-box {
+    width: 100%;
+  }
+  .create-book-input,
+  .create-book-select {
+    width: 100%;
+  }
+  .create-book-btn-box {
+    flex-direction: column;
+    gap: 10px;
+  }
+  .create-book-btn,
+  .delete-book-btn,
+  .finish-book-btn {
+    width: 100%;
+  }
+}
 </style>

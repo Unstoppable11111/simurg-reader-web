@@ -438,4 +438,58 @@
     margin-top: 30px;
     padding-bottom: 60px;
   }
+
+  @media (max-width: 768px) {
+    .book-cate-box {
+      width: 100%;
+      height: auto;
+      margin-left: 0;
+      padding: 80px 16px 0;
+    }
+    .book-cate-content-box {
+      flex-direction: column;
+      gap: 12px;
+    }
+    .book-cate-content-title {
+      align-items: flex-start;
+      width: auto;
+    }
+    .book-cate-item-box,
+    .book-status-item-box,
+    .book-word-item-box {
+      gap: 12px;
+    }
+    .book-cate-item,
+    .book-status-item,
+    .book-word-item,
+    .without-div {
+      margin-left: 0;
+      margin-bottom: 12px;
+    }
+    .book-cate-item-box .book-cate-item ~ .book-cate-item,
+    .book-status-item-box .book-status-item ~ .book-status-item,
+    .book-word-item-box .book-word-item ~ .book-word-item {
+      margin-left: 0;
+    }
+    .book-cate-book-list {
+      flex-direction: column;
+      gap: 16px;
+    }
+    .book-cate-book-item {
+      width: 100%;
+      height: auto;
+      padding: 12px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.04);
+    }
+    .book-img {
+      width: 96px;
+      height: 128px;
+    }
+    .book-tag {
+      position: static;
+      margin-top: 8px;
+      flex-wrap: wrap;
+    }
+  }
 </style>

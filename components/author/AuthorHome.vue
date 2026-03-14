@@ -597,4 +597,82 @@
     color: #ff984e;
   }
 }
+
+@media (max-width: 768px) {
+  .author-info-box,
+  .author-works-box,
+  .author-recent-book-container,
+  .calendar {
+    width: 100%;
+  }
+  .author-info-box {
+    height: auto;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 16px;
+  }
+  .author-avatar {
+    margin: 0 0 8px 0;
+  }
+  .author-work-num-box,
+  .author-reader-num-box,
+  .author-word-num-box {
+    margin-left: 0;
+    min-width: 33%;
+  }
+  .author-works-box {
+    height: auto;
+    padding: 12px 0 16px;
+  }
+  .author-works-content-box {
+    margin-top: 32px;
+  }
+  .author-works-box-title,
+  .to-work-management {
+    top: 16px;
+  }
+  .author-recent-book-box {
+    flex-direction: column;
+    gap: 12px;
+    padding: 0 12px 16px;
+  }
+  .author-recent-book-item {
+    margin-left: 0;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .book-info {
+    margin-left: 0;
+  }
+  .book-detail-info-box {
+    margin-top: 10px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .book-btn-box {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .edit-book-btn,
+  .create-chapter-btn {
+    width: calc(50% - 4px);
+    margin-left: 0;
+  }
+  .calendar {
+    padding: 0 8px 12px;
+  }
+  .calendar :deep(.el-calendar__header) {
+    flex-direction: column;
+    gap: 8px;
+  }
+  .calendar :deep(.el-button-group) {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .calendar :deep(.el-button) {
+    width: calc(50% - 3px);
+  }
+}
 </style>

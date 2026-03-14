@@ -64,7 +64,7 @@
 <style lang="scss" scoped>
 .recommend-box {
     display: flex;
-    width: 1200;
+    width: 1200px;
     padding: 38px 0;
     gap: 28px; /* 替代margin-right，更适合flex布局 */
 }
@@ -218,5 +218,79 @@
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(5px); }
     to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 768px) {
+  .recommend-box {
+   width: auto !important;
+    flex-direction: column;
+    gap: 16px;
+    padding: 8px 0 4px;
+  }
+  .recommend-book-item {
+    width: 100%;
+    min-height: 0;
+    background: linear-gradient(180deg, rgba(30,30,30,0.98) 0%, rgba(22,22,22,0.98) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    padding: 0;
+    overflow: hidden;
+    box-shadow: 0 10px 26px rgba(0, 0, 0, 0.4);
+  }
+  .book-img {
+    width: 100%;
+    height: 210px;
+    border-radius: 16px 16px 0 0;
+  }
+  .book-text {
+    margin-top: 0;
+    padding: 12px 12px 14px;
+    gap: 6px;
+  }
+  .book-recommend-active {
+    width: 100%;
+    height: auto;
+    flex-direction: column;
+  }
+  .book-recommend-active .book-img {
+    width: 100%;
+    height: 210px;
+  }
+  .book-recommend-active .book-text {
+    margin-left: 0;
+    margin-top: 0;
+  }
+  .book-details {
+    display: none;
+  }
+  .book-hot {
+    display: block;
+    margin-top: 6px;
+  }
+  .book-desc {
+    width: 100%;
+    margin-top: 12px;
+  }
+  .book-tags {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .tag-delimiter {
+    padding: 0 8px;
+  }
+  .book-title {
+    font-size: 16px;
+    line-height: 22px;
+    white-space: normal;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .book-hot {
+    font-size: 12px;
+    color: #F9A825;
+    margin-top: 2px;
+  }
 }
 </style>

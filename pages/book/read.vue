@@ -1311,12 +1311,34 @@ watch(
 /* 响应式 */
 @media (max-width: 768px) {
   .reading-container {
-    width: 90%;
-    padding: 20px;
+    width: 100%;
+    padding: 16px;
   }
 
   .book-text {
     font-size: 16px;
+  }
+  .back-book-detail {
+    position: static;
+    margin: 8px 0 0;
+    align-self: flex-start;
+  }
+  .book-table-content,
+  .book-content {
+    width: 100%;
+  }
+  .book-info-box {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .book-table-title {
+    margin-top: 64px;
+  }
+  .book-content {
+    margin-top: 24px;
+  }
+  .next-page-btn {
+    width: 100%;
   }
 }
 /* 悬浮按钮样式 */
@@ -1368,15 +1390,16 @@ watch(
 /* 响应式 */
 @media (max-width: 768px) {
   .reading-container {
-    width: 90%;
-    padding: 20px;
+    width: 100%;
+    padding: 16px;
   }
   .book-text {
     font-size: 16px;
   }
   
   .floating-buttons {
-    right: 15px;
+    right: 12px;
+    bottom: 16px;
   }
   
   .floating-btn {
@@ -1390,6 +1413,14 @@ watch(
   
   .btn-text {
     font-size: 10px;
+  }
+}
+
+@media (max-width: 768px) {
+  .toc-sidebar {
+    width: 100%;
+    left: 0 !important;
+    right: 0;
   }
 }
 

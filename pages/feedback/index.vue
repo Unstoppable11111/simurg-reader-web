@@ -490,5 +490,11 @@ const resetForm = () => {
     width: 100%;
     padding: 14px 0;
   }
+
+  .feedback-form {
+    padding: 16px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.04);
+  }
 }
 </style>

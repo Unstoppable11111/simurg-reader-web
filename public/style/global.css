@@ -1,7 +1,40 @@
+ :root {
+  --bg-0: #141414;
+  --bg-1: #1b1b1b;
+  --bg-2: #242424;
+  --card-1: rgba(255, 255, 255, 0.04);
+  --card-2: rgba(255, 255, 255, 0.06);
+  --border-1: rgba(255, 255, 255, 0.08);
+  --text-1: #ffffff;
+  --text-2: #d5d5d5;
+  --text-3: #a2a0a0;
+  --brand-1: #f9a825;
+  --brand-2: #ed5b00;
+  --shadow-1: 0 8px 22px rgba(0, 0, 0, 0.35);
+  --shadow-2: 0 4px 12px rgba(0, 0, 0, 0.25);
+  --radius-1: 10px;
+  --radius-2: 14px;
+  --radius-3: 18px;
+  --space-1: 8px;
+  --space-2: 12px;
+  --space-3: 16px;
+  --space-4: 20px;
+  --space-5: 24px;
+  --ease-1: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
 body {
   margin: 0;
   padding: 0;
-  background: #141414;
+  background: var(--bg-0);
+  color: var(--text-1);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: rgba(249, 168, 37, 0.35);
+  color: #fff;
 }
 
 a {

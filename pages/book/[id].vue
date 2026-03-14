@@ -786,4 +786,93 @@
     white-space: pre-wrap;
     word-spacing: 0.3em;
   }
+@media (max-width: 768px) {
+  .book-detail-page {
+    flex-direction: column;
+    height: auto;
+    margin-top: 80px;
+    padding: 0 16px;
+  }
+  .breadcrumb {
+    margin: 16px 0 0 0;
+  }
+  .book-info {
+    position: static;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    margin-top: 16px;
+  }
+  .book-content {
+    width: 100%;
+  }
+  .book-actions {
+    position: static;
+    margin-top: 16px;
+    flex-wrap: wrap;
+  }
+  .btn-read-now,
+  .btn-add-to-bookshelf {
+    flex: 1 1 calc(50% - 8px);
+    max-width: calc(50% - 8px);
+  }
+  .book-tags {
+    flex-wrap: wrap;
+  }
+  .divider {
+    display: none;
+  }
+  .author-info {
+    position: static;
+    width: 100%;
+    height: auto;
+    margin-top: 24px;
+    padding: 12px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.04);
+  }
+  .author-creation-info {
+    width: 100%;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .book-desc-container,
+  .book-table-container,
+  .book-content-container {
+    width: 100%;
+    margin-top: 32px;
+  }
+  .book-desc-box,
+  .book-table-box,
+  .book-content-box {
+    margin-left: 0;
+    padding: 16px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.04);
+  }
+  .book-desc-title,
+  .book-table-content-title,
+  .book-content-title {
+    width: 100%;
+  }
+  .book-desc-title-text,
+  .book-table-content-title-text,
+  .book-content-title-text {
+    left: 16px;
+  }
+  .book-desc-content,
+  .book-content-info {
+    width: 100%;
+  }
+  .book-table-content {
+    width: 100%;
+  }
+  .book-table-item,
+  .book-table-item-title {
+    width: 100%;
+  }
+  .book-table-item {
+    margin: 12px 0;
+  }
+}
 </style>

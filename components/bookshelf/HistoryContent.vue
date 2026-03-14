@@ -225,4 +225,40 @@
     font-style: normal;
     margin-top: 4px;
   }
+
+  @media (max-width: 768px) {
+    .history-header-box {
+      width: 100%;
+    }
+    .history-content-box {
+      width: 100%;
+    }
+    .history-item {
+      flex-direction: column;
+      padding: 12px;
+    }
+    .book-img {
+      width: 90px;
+      height: 120px;
+    }
+    .book-info {
+      margin-left: 0;
+      margin-top: 8px;
+    }
+    .book-title {
+      margin-top: 0;
+    }
+    .book-chapter {
+      margin-top: 8px;
+    }
+    .add-bookshelf-btn,
+    .had-bookshelf-btn {
+      position: static;
+      margin-top: 10px;
+      width: 120px;
+    }
+    .history-item:not(:last-child)::after {
+      left: 0;
+    }
+  }
 </style>
