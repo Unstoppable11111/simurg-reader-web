@@ -50,7 +50,7 @@ const props = defineProps({
     border-radius: 10px;
     transition: transform 0.3s ease; /* 添加过渡效果 */
     &:not(:valid) {
-      background-color: #828282;
+      // background-color: #828282;
     }
   }
   
