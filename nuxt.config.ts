@@ -37,9 +37,12 @@ export default defineNuxtConfig({
     importStyle: 'theme-chalk',
   },
   nitro: {
-    prerender: {
-      routes: ['/']
-    }
+    // prerender: {
+    //   routes: ['/'] // 预渲染根路径
+    // }
+  },
+  cache: {
+    enabled: false  // 关闭 Nuxt 缓存
   },
   app: {
     pageTransition: { name: 'page', mode: 'out-in' },
