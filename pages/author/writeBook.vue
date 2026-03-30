@@ -345,7 +345,7 @@ import { Title } from '#components';
   };
   
   const goBack = () => {
-    const from = route.query.from as string;
+    let from = route.query.from as string;
     if (!from) {
       console.log("没有来源信息");
       from = currentFrom.value;
