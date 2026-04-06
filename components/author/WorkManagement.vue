@@ -1,12 +1,13 @@
 <!-- components/author/WorkManagement.vue -->
 <template>
-  <div class="confetti-container">
-    <Confetti  ref="confettiRef"
-      class="confetti-component"
-      :manualstart="true"/>
-  </div>
-  <div class="author-content-section">
-    <!-- 默认作品列表视图 -->
+  <div class="work-management-root">
+    <div class="confetti-container">
+      <Confetti  ref="confettiRef"
+        class="confetti-component"
+        :manualstart="true"/>
+    </div>
+    <div class="author-content-section">
+      <!-- 默认作品列表视图 -->
     <div v-if="currentView === 'list'">
       <div class="work-management-title-box">
         <div class="author-work-title">我的小说</div>
@@ -185,6 +186,7 @@
       </div>
     </div>
   </div>
+</div>
 </template>
 
 <script setup lang="ts">
@@ -746,7 +748,8 @@
   // 2. 关键：将 openBookSetting 暴露出去
   defineExpose({
     openBookSetting: openBookSettingWithBook,
-    openCreateBook: openCreateBook
+    openCreateBook: openCreateBook,
+    setViewList: () => switchView('list')
   });
 </script>
 

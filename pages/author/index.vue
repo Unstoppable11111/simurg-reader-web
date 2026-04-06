@@ -2,7 +2,7 @@
 <template>
   <div class="author-page">
     <Header :margin-left="'360px'" :isAuthor="true"/>
-    <AuthorContainer ref="authorContainer">
+    <AuthorContainer ref="authorContainer" @nav-change="handleNavChange">
       <template #default="{ activeNav }">
         <div class="author-nav-content" key="author-home" v-if="activeNav === 'author-home'">
           <AuthorHome 
@@ -13,7 +13,7 @@
           />
         </div>
         <ClientOnly>
-          <WorkManagement v-if="activeNav === 'work-management'" ref="workManagementRef" />
+          <WorkManagement v-show="activeNav === 'work-management'" ref="workManagementRef" />
         </ClientOnly>
         <div class="author-nav-content" key="author-info" v-if="activeNav === 'author-info'">
           <AuthorInfo />
@@ -24,6 +24,7 @@
 </template>
 
 <script setup lang="ts">
+  import { nextTick } from 'vue';
   import Header from "@/components/layout/Header.vue";
   import AuthorContainer from "@/components/author/AuthorContainer.vue";
   import AuthorHome from "@/components/author/AuthorHome.vue";
@@ -35,9 +36,10 @@ import { tr } from "element-plus/es/locale/index.mjs";
 
   const route = useRoute();
   const {isLoggedIn, isAuthor, userId} = useAuth();
-  const authorContainer = ref();
+  const authorContainer = ref<{ switchNav: (nav: string) => void } | null>(null);
   const authorInfo = ref(null);
-  const workManagementRef = ref(null);
+  const workManagementRef = ref<{ openCreateBook?: (bookData?: any) => void; setViewList?: () => void } | null>(null);
+  const pendingCreateFromHome = ref(false);
 
   // 查询作者信息
   const getAuthorInfoUrl = `${API_ENDPOINTS.AUTHO_INFO}`;
@@ -48,24 +50,16 @@ import { tr } from "element-plus/es/locale/index.mjs";
   authorInfo.value = authorInfoResult.data;
   // 处理authorHome的作品设置点击事件
   const handleToEditBook = async (bookData: any) => {
-    if ( !authorContainer.value ) return;
+    if (!authorContainer.value) return;
+    pendingCreateFromHome.value = true;
     authorContainer.value.switchNav('work-management');
-    const maxWaitTime = 2000;
-    const checkInterval = 50;
-    let elapsedTime = 0;
-    let isMounted = false;
-    while ( elapsedTime < maxWaitTime ) {
-      if (workManagementRef.value && typeof workManagementRef.value.openCreateBook === 'function') {
-        workManagementRef.value.openCreateBook(bookData);
-        isMounted = true;
-        break;
-      }
-      await new Promise(resolve => setTimeout(resolve, checkInterval));
-      elapsedTime += checkInterval;
-    }
-    if (!isMounted) {
+    await nextTick();
+    if (workManagementRef.value?.openCreateBook) {
+      workManagementRef.value.openCreateBook(bookData);
+    } else {
       console.error('❌ WorkManagement 组件或 openCreateBook 方法未找到');
     }
+    pendingCreateFromHome.value = false;
   };
   // 点击更多跳转到作品管理
   const handleToWorkManagement  = async (chapterData: any) => { 
@@ -75,29 +69,28 @@ import { tr } from "element-plus/es/locale/index.mjs";
   };
   // 新增跳转到创建新书
   const handleToCreateBook = async () => {
-    if ( !process.client || !authorContainer.value) return;
+    if (!process.client || !authorContainer.value) return;
+    pendingCreateFromHome.value = true;
     authorContainer.value.switchNav('work-management');
-
-    
-    const maxWaitTime = 1000;
-    const checkInterval = 50;
-    let elapsedTime = 0;
-    while ( !workManagementRef.value && elapsedTime < maxWaitTime) {
-      await new Promise(resolve => setTimeout(resolve, checkInterval)); 
-      elapsedTime += checkInterval;
-    }  
-    
-    if (workManagementRef.value) {
+    await nextTick();
+    if (workManagementRef.value?.openCreateBook) {
       workManagementRef.value.openCreateBook();
     } else {
       console.error('❌ WorkManagement ref为空，请检查：');
     }
+    pendingCreateFromHome.value = false;
   }
+  const handleNavChange = async (nav: string) => {
+    if (nav === 'work-management' && !pendingCreateFromHome.value) {
+      await nextTick();
+      workManagementRef.value?.setViewList?.();
+    }
+  };
 
   watch(
     () => route.query.tab,
     (newTab) => {
-      if (newTab && authorContainer.value && ['work-data', 'income-management', 'personal-info', 'notifications', 'benefits', 'contracts'].includes(newTab)) {
+      if (typeof newTab === 'string' && authorContainer.value && ['work-data', 'income-management', 'personal-info', 'notifications', 'benefits', 'contracts'].includes(newTab)) {
         authorContainer.value.switchNav(newTab)
       }
     },
@@ -105,8 +98,9 @@ import { tr } from "element-plus/es/locale/index.mjs";
   )
 
   onMounted(() => {
-    if (route.query.tab && authorContainer.value) {
-      authorContainer.value.switchNav(route.query.tab);
+    const initialTab = route.query.tab;
+    if (typeof initialTab === 'string' && authorContainer.value) {
+      authorContainer.value.switchNav(initialTab);
     }
   });
 </script>

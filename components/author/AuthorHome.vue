@@ -34,35 +34,6 @@
         <button class="create-book-btn" @click="handleCreateBook">新建小说</button>
       </div>
     </div>
-    <div v-if="authorBookList && authorBookList.length > 0" class="author-recent-book-container">
-      <div style="position: relative;height: 68px;">
-        <label class="author-works-box-title">作品小说</label>
-        <span class="to-work-management" @click="handleMoreWork">更多<SvgIcon name="arrow-right" class="arrow-right" width="8px" height="16px"/></span>
-      </div>
-      <div class="author-recent-book-box">
-        <div class="author-recent-book-item"
-          v-for="(book, index) in authorBookList"
-          :key="book.bookId || index">
-          <img class="book-img" :src="book.coverImageUrl" alt="">
-          <div class="book-info">
-            <span class="book-title">{{ book.title }}</span>
-            <span class="book-update-info">最近更新：{{ book.currentChapterTitle }}</span>
-            <div class="book-detail-info-box">
-              <span class="book-chapter-count">{{ book.totalChapters }}章</span>
-              <span class="divider"></span>
-              <span class="book-word-count">{{ book.totalCharCount }}字</span>
-              <span class="divider"></span>
-              <span class="book-serial-status">{{ formatSerialStatus(book.serialStatus) }}</span>
-              <span class="book-status" :class="getBookStatusClass(book.bookStatus)">{{ formatBookStatus(book.bookStatus) }}</span>
-            </div>
-            <div class="book-btn-box">
-              <button class="edit-book-btn" @click="handleOpenBookSetting(book)">作品设置</button>
-              <button class="create-chapter-btn" @click="handleCreateChapter(book)">创建章节</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
     <el-calendar ref="calendar" class="calendar">
       <template #header="{ date }">
         <span class="calendar-title">作者更新日历</span>

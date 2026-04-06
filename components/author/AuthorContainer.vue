@@ -44,10 +44,14 @@
 
 <script setup lang="ts">
 import SvgIcon from "@/components/SvgIcon.vue";
+const emits = defineEmits<{
+  (e: 'nav-change', nav: string): void
+}>();
 const activeNav = ref('author-home');
 
 const switchNav = (nav: string) => {
   activeNav.value = nav;
+  emits('nav-change', nav);
 };
 
 defineExpose({
