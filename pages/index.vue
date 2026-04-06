@@ -286,10 +286,10 @@
   align-items: center;
 }
 .carousel {
-  width: 100vw;  /* 使用视口宽度单位，占满整个浏览器宽度 */
+  width: 100vw;
   height: 420px;
-  max-width: 100%; /* 确保不会超出视口 */
-  /* 可选：移除可能存在的内边距或边框 */
+  max-width: 100%;
+  overflow: hidden;
 }
 .featured-section {
   display: flex;
@@ -572,6 +572,7 @@
     padding: 0 16px;
   }
   .carousel {
+    max-width: 100vw;
     height: 220px;
   }
   .featured-section,

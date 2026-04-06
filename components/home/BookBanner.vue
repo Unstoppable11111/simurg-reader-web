@@ -26,6 +26,8 @@
 
 <style scoped>
 .custom-carousel {
+  width: 100%;
+  max-width: 100%;
   /* 修改指示器激活状态的颜色 */
   --el-carousel-indicator-active-color: #ff9b51;
   /* 修改指示器默认状态的颜色 */
@@ -68,6 +70,7 @@
   background-color: #d3dce6;
 }
 .banner-img {
+  display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
