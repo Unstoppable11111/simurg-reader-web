@@ -52,7 +52,7 @@
       >
         <el-upload
           class="create-book-img-upload"
-          action="http://localhost:8082/api/file/upload"
+          :action="API_ENDPOINTS.FILE_UPLOAD"
           :show-file-list="false"
           :on-success="handleAvatarSuccess"
           :before-upload="beforeAvatarUpload"

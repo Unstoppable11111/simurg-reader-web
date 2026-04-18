@@ -6,12 +6,17 @@
     "build": "nuxt build",
     "build:test": "nuxt build --dotenv .env.test",
     "build:prod": "nuxt build --dotenv .env.production",
+    "postbuild": "npm run clean:archives",
+    "postbuild:test": "npm run clean:archives",
+    "postbuild:prod": "npm run clean:archives",
     "dev": "nuxt dev --dotenv .env.development",
     "dev:test": "nuxt dev --dotenv .env.test",
     "generate": "nuxt generate",
+    "postgenerate": "npm run clean:archives",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
-    "clear": "nuxt build --clean"
+    "clear": "nuxt build --clean",
+    "clean:archives": "node --input-type=module -e \"import { readdirSync, rmSync } from 'node:fs'; for (const f of readdirSync('.')) { if (/\\\\.tar(\\\\.gz)?$/.test(f)) rmSync(f, { force: true }); }\""
   },
   "dependencies": {
     "@ckeditor/ckeditor5-vue": "^7.3.0",
