@@ -78,27 +78,17 @@
             <div class="contact-info">
               <div class="contact-item">
                 <h3>客服邮箱</h3>
-                <p>support@simurgreader.com</p >
-              </div>
-              
-              <div class="contact-item">
-                <h3>商务合作</h3>
-                <p>business@simurgreader.com</p >
+                <p>destek@simurg.top</p >
               </div>
               
               <div class="contact-item">
                 <h3>作者投稿</h3>
-                <p>author@simurgreader.com</p >
-              </div>
-              
-              <div class="contact-item">
-                <h3>技术问题</h3>
-                <p>tech@simurgreader.com</p >
+                <p>basvuru@simurg.top</p >
               </div>
               
               <div class="contact-item">
                 <h3>媒体联络</h3>
-                <p>media@simurgreader.com</p >
+                <p>待提供</p >
               </div>
             </div>
           </div>

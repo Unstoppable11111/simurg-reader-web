@@ -127,7 +127,7 @@
     if (file && file.type.startsWith('image/')) {
       uploadAvatar(file);
     } else {
-      alert('请上传有效的图片文件');
+      ElMessage.error('请上传有效的图片文件');
     }
   };
 
@@ -162,7 +162,7 @@
       }
     } catch (error) {
       console.error('上传错误:', error);
-      alert('头像上传失败，请重试');
+      ElMessage.error('头像上传失败，请重试');
     }
   };
 
@@ -197,7 +197,7 @@
       }
     } catch (error) {
       console.error('提交错误:', error);
-      alert('提交失败，请检查填写的表单数据');
+      ElMessage.error('提交失败，请检查填写的表单数据');
     }
   };
 </script>

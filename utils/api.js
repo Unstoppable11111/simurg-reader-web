@@ -176,9 +176,14 @@ export async function apiRequest(endpoint, options = {}) {
     const accessToken = getAccessToken()
     const refreshToken = getRefreshToken()
     // 设置默认选项
+
+    const clientIP = await getUserIp();
+
     const defaultOptions = {
       headers: {
       'Content-Type': 'application/json',
+      'X-Real-IP': clientIP,
+      'X-Forwarded-For': clientIP,
       ...options.headers
       }
     }
@@ -301,5 +306,43 @@ export async function apiFileRequest(endpoint, options = {}) {
  */
 export const generateTimestamp = () => {
   return Date.now();
+}
+
+
+let cachedIp = null; // 内存缓存，比 localStorage 更快
+
+export async function getUserIp() {
+  // 1. 内存缓存优先
+  if (cachedIp) {
+    return cachedIp;
+  }
+
+  // 2. 读 localStorage 缓存
+  const CACHE_KEY = "client_ip_cache";
+  const storedIp = process.client ? localStorage.getItem(CACHE_KEY) : null;
+  if (storedIp) {
+    cachedIp = storedIp;
+    return storedIp;
+  }
+
+  // 3. 调用自己的 Nuxt 接口获取 IP（无跨域）
+  try {
+    const res = await fetch('/api/client-ip', {
+      signal: AbortSignal.timeout(3000)
+    });
+    const data = await res.json();
+    const ip = data.ip || '127.0.0.1';
+
+    // 缓存到内存和 localStorage
+    cachedIp = ip;
+    if (process.client) {
+      localStorage.setItem(CACHE_KEY, ip);
+    }
+    return ip;
+  } catch (e) {
+    // 失败返回默认 IP
+    cachedIp = '127.0.0.1';
+    return cachedIp;
+  }
 }
 

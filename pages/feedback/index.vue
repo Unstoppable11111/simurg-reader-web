@@ -147,7 +147,7 @@ const handleFileUpload = (e) => {
 
   // 校验文件大小（2MB）
   if (file.size > 2 * 1024 * 1024) {
-    alert('文件大小不能超过2MB，请选择更小的图片！')
+    ElMessage.warning('文件大小不能超过2MB，请选择更小的图片！')
     return
   }
 
@@ -184,11 +184,11 @@ const submitFeedback = async () => {
     if (res.code === 200) {
       submitSuccess.value = true
     } else {
-      alert('提交失败，请稍后重试！')
+      ElMessage.error('提交失败，请稍后重试！')
     }
   } catch (error) {
     console.error('提交反馈失败：', error)
-    alert('提交失败，请检查网络后重试！')
+    ElMessage.error('提交失败，请检查网络后重试！')
   } finally {
     isSubmitting.value = false
   }

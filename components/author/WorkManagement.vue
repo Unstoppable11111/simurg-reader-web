@@ -67,8 +67,8 @@
             <li>请保证封面图、书名、作者名清晰，信息正确，否则影响流量推荐</li>
           </ul>
         </div>
-        <el-form-item class="create-book-label" label="书本名称" prop="bookName">
-          <el-input class="create-book-input" v-model="ruleForm.bookName" placeholder="请输入作品名称，2-30字内"/>
+        <el-form-item class="create-book-label" label="书本名称" prop="title">
+          <el-input class="create-book-input" v-model="ruleForm.title" placeholder="请输入作品名称，2-30字内"/>
         </el-form-item>
 
         <el-form-item class="create-book-label" label="作品分类" prop="bookCategoryList">
@@ -206,7 +206,7 @@
   });
 
   interface RuleForm {
-    bookName: string
+    title: string
     bookCategoryList: String[]
     bookTagList: string[]
     bookProtagonist: string
@@ -230,7 +230,7 @@
   const bookId = ref('')
 
   const ruleForm = reactive<RuleForm>({
-    bookName: '',
+    title: '',
     bookCategoryList: [],
     bookTagList: [],
     bookProtagonist: '',
@@ -240,7 +240,7 @@
   })
 
   const rules = reactive<FormRules<RuleForm>>({
-    bookName: [
+    title: [
       { required: true, message: 'Please input Book name', trigger: 'blur' },
       { min: 3, max: 20, message: 'Length should be 3 to 20', trigger: 'blur' },
     ],
@@ -324,7 +324,7 @@
   const openBookSetting = (bookItem: any) => {
     console.log("打开书籍设置", bookItem)
     console.log("表单数据:", ruleForm)
-    ruleForm.bookName = bookItem.title
+    ruleForm.title = bookItem.title
     ruleForm.bookDesc = bookItem.description
     ruleForm.coverImageUrl = bookItem.coverImageUrl
     ruleForm.bookTagList = bookItem.tag || [] // 防止 null
@@ -351,7 +351,7 @@
     if (bookData) {
       isEditing.value = true;
       Object.assign(ruleForm, {
-        bookName: bookData.title || '',
+        title: bookData.title || '',
         coverImageUrl: bookData.coverImageUrl || '',
         bookCategoryList: bookData.bookCategoryList || [],
         bookProtagonist: bookData.protagonist || '',
@@ -363,7 +363,7 @@
       // 新建模式：重置表单
       isEditing.value = false;
       Object.assign(ruleForm, {
-        bookName: '',
+        title: '',
         coverImageUrl: '',
         bookCategoryList: [],
         bookTagList: [],
@@ -378,7 +378,7 @@
   };
   // 重置表单的方法 (建议添加，防止上次编辑的数据残留)
   const resetForm = () => {
-    ruleForm.bookName = '';
+    ruleForm.title = '';
     ruleForm.bookCategoryList = [];
     ruleForm.bookTagList = [];
     ruleForm.bookProtagonist = '';
@@ -611,7 +611,7 @@
       console.log('ruleForm', ruleForm);
       const updateBookReq = {
         bookId: currentBookId.value,
-        title: ruleForm.bookName, // 关键：加.value
+        title: ruleForm.title, // 关键：加.value
         protagonistIntroduction: ruleForm.bookProtagonist,
         description: ruleForm.bookDesc,
         coverImageUrl: ruleForm.coverImageUrl,
@@ -1176,7 +1176,14 @@
     color: #f9a825;
   }
 }
-.book-setting-title-box, .manage-chapter-title-box, .create-chapter-title-box {
+.manage-chapter-box {
+  width: 1016px;
+  // height: 840px;
+}
+.manage-chapter-title-box {
+  padding: 24px 0 0 24px;
+}
+.book-setting-title-box , .create-chapter-title-box {
   margin: 28px 0 0 24px;
   position: relative;
 }

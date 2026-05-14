@@ -29,12 +29,12 @@
       </div>
       <!-- 作者作品管理 -->
       <div class="author-works-content-box">
-        <img src="" class="create-book-img"/>
+        <img src="/public/icon//create-book-icon.png" class="create-book-img"/>
         <p class="create-book-desc">快去创建你的新作品吧~</p>
         <button class="create-book-btn" @click="handleCreateBook">新建小说</button>
       </div>
     </div>
-    <el-calendar ref="calendar" class="calendar">
+    <!-- <el-calendar ref="calendar" class="calendar">
       <template #header="{ date }">
         <span class="calendar-title">作者更新日历</span>
         <span>{{ date }}</span>
@@ -54,7 +54,7 @@
           </el-button>
         </el-button-group>
       </template>
-    </el-calendar>
+    </el-calendar> -->
   </div>
 </template>
 
@@ -343,7 +343,6 @@
 .create-book-img {
   width: 100px;
   height: 100px;
-  background: #A2A0A0;
   border-radius: 4px;
 }
 .author-create-book-box { 

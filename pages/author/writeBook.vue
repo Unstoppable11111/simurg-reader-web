@@ -5,7 +5,7 @@
       <div class="write-book-info-box">
         <span class="book-title">{{ bookData?.title || '加载中...'}}</span>
         <div class="book-info-box">
-          <span>上一章 您还没有发布章节，开始创建第一章吧！</span>
+          <span class="pre-btn">上一章 您还没有发布章节，开始创建第一章吧！</span>
           <span class="work-count">当前字数：{{ bookWordCount }}</span>
         </div>
       </div>
@@ -136,6 +136,11 @@ import { Title } from '#components';
     try {
       if (!bookData.value) {
         console.log("当前书籍信息为空", bookData.value);
+        return;
+      }
+      // 新建书籍书籍id为空
+      if (!bookData.value.bookId) {
+        chapterNumber.value = 1
         return;
       }
       const getNextChapterNumUrl = `${API_ENDPOINTS.GET_NEXT_CHAPTER_NUM}${bookData.value.bookId}`;
@@ -350,6 +355,7 @@ import { Title } from '#components';
       console.log("没有来源信息");
       from = currentFrom.value;
     }
+    console.log("返回来源:", from);
     switch(from) {
       case 'create-book':
         // 调用 authorContainer 的 switchNav 方法
@@ -358,6 +364,10 @@ import { Title } from '#components';
       case 'chapter-management':
         // 从章节管理进入，返回章节管理页面
         authorContainer.value?.switchNav('chapter-management');
+        break;
+      case 'createBook':
+        // 调用 authorContainer 的 switchNav 方法
+        authorContainer.value?.switchNav('work-management');
         break;
       default:
         // 默认行为：返回上一页
@@ -512,7 +522,7 @@ import { Title } from '#components';
     flex-direction: column;
     /* align-items: center; */
     justify-content: center;
-    margin-left: 7px;
+    margin-left: 28px;
   }
   .book-title {
     font-family: PingFangSC, PingFang SC;
@@ -531,6 +541,7 @@ import { Title } from '#components';
     line-height: 14px;
     text-align: left;
     font-style: normal;
+    margin-top: 4px;
   }
   .save-draft-btn, .publish-btn { 
     position: absolute;

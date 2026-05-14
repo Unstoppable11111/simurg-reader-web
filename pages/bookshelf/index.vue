@@ -230,12 +230,12 @@ const fetchUserInfo = async () => {
 
 // 处理书币充值
 const handleRecharge = () => {
-  alert('跳转到充值页面');
+  ElMessage.info('跳转到充值页面');
 };
 
 // 显示充值记录
 const showRechargeRecord = () => {
-  alert('跳转到充值记录页面');
+  ElMessage.info('跳转到充值记录页面');
 };
 
 // 页面加载时默认加载书架数据

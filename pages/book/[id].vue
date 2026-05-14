@@ -315,12 +315,6 @@
    * @param authorId 作者id
    */
   const followAuthor = async (authorId) => { 
-    // 检查用户是否登录
-    if (!isLoggedIn.value) {
-      router.push('/login');
-      ElMessage.warning('请先登录');
-      return;
-    }
     const operationType = isFollowed.value ? 1 : 0;
     console.log(operationType == 0 ? '关注作者' : '取消关注', authorId);
     try {
@@ -330,7 +324,7 @@
         bookId: parseInt(bookId)    // 关联书籍ID
       };
 
-      const response = await apiRequest(API_ENDPOINTS.FOLLOW, {
+      const response = await apiAuthRequest(API_ENDPOINTS.FOLLOW, {
         method: 'POST',
         body: JSON.stringify(followReq)
       });

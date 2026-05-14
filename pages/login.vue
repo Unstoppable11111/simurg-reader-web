@@ -2,10 +2,19 @@
   <div class="login-page">
     <!-- 主容器 - 核心弹性布局 -->
     <div class="login-container">
-      <!-- 左侧手机预览区 - 优化比例 + 黑色系适配 -->
-      <div class="phone-preview">
-        <img src="/images/phone-frame.png" alt="Phone frame" class="phone-frame">
-        <img src="/images/login-preview.jpg" alt="App preview" class="preview-image">
+      <!-- 左侧网站功能说明 -->
+      <div class="simurg-preview">
+        <!-- <img src="/images/phone-frame.png" alt="Phone frame" class="phone-frame"> -->
+        <!-- <img src="/images/login-preview.jpg" alt="App preview" class="preview-image"> -->
+         <div class="simurg-login-title">
+          <span class="login-title-text">你的故事在这里重生</span>
+          <span class="login-subtitle-text">成千上万的故事，一键点击，开始阅读Simurg</span>
+          <ul>
+            <li>10,000+基塔普</li>
+            <li>游戏模式</li>
+            <li>快速体验</li>
+          </ul>
+         </div>
       </div>
 
       <!-- 右侧登录表单区 -->
@@ -156,7 +165,7 @@ const handleGoogleLogin = async () => {
 
   } catch (error) {
     console.error('Google登录初始化失败:', error)
-    alert('Google登录暂不可用，请稍后重试')
+    ElMessage.warning('Google登录暂不可用，请稍后重试')
   }
 }
 
@@ -170,14 +179,14 @@ const handleFacebookLogin = async () => {
     window.location.href = facebookAuthUrl
   } catch (error) {
     console.error('Facebook登录初始化失败:', error)
-    alert('Facebook登录暂不可用，请稍后重试')
+    ElMessage.error('Facebook登录暂不可用，请稍后重试')
   }
 }
 
 // 账号密码登录
 const handleLoginByAccount = async () => {
   if (!username.value || !password.value) {
-    alert('请输入账号和密码')
+    ElMessage.warning('请输入账号和密码')
     return
   }
 
@@ -216,6 +225,10 @@ const handleLoginByAccount = async () => {
   color: #fff; /* 全局文字默认白色 */
   min-height: 100vh;
   padding: 20px 16px; /* 移动端左右内边距 */
+  background-image: url('/public/images/login-bg.png');
+  background-repeat: no-repeat; /* 防止背景图片重复 */
+  background-size: contain; /* 可选：让背景图片覆盖整个容器 */
+  background-position: center; /* 可选：让背景图片居中显示 */
 }
 
 /* 主容器 - 响应式弹性布局 */
@@ -228,6 +241,13 @@ const handleLoginByAccount = async () => {
   margin: 0 auto;
   padding: 30px 0;
   gap: 40px; /* 增大左右模块间距，优化视觉 */
+}
+.simurg-login-title {
+  display: flex;
+  flex-direction: column;
+}
+.login-title-text {
+  font-size: 40px;
 }
 
 /* 左侧手机预览 - 优化比例 + 仅中等屏幕以上显示 */
