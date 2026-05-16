@@ -24,6 +24,7 @@
     "@tinymce/tinymce-vue": "^6.3.0",
     "@types/canvas-confetti": "^1.9.0",
     "@types/three": "^0.182.0",
+    "@vue/devtools-api": "^8.1.2",
     "axios": "^1.13.2",
     "canvas-confetti": "^1.9.4",
     "class-variance-authority": "^0.7.1",

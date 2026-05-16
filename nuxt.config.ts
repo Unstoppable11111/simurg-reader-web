@@ -9,7 +9,7 @@ import path from 'path'
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   ssr: true,
-  devtools: { enabled: true },
+  devtools: { enabled: false },// 关闭开发工具
   css: ['@/public/style/global.css', '@/assets/css/global.css'],
   // postcss: {
   //   plugins: {

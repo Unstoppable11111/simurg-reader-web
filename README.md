@@ -103,7 +103,7 @@ simurg-reader/
 
 ### 运行项目
 
-## pm2 start ecosystem.config.cjs --env production 首次启动用这个命令，需要进到home目录，后续替换output，重启pm2，命令是pm2 restart all
+## pm2 start ecosystem.config.cjs 首次启动用这个命令，需要进到home目录，后续替换output，重启pm2，命令是pm2 restart all
 
 ## 许可证
 
