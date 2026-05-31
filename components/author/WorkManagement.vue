@@ -7,40 +7,38 @@
         :manualstart="true"/>
     </div>
     <div class="author-content-section">
-      <!-- 默认作品列表视图 -->
-    <div v-if="currentView === 'list'">
-      <div class="work-management-title-box">
-        <div class="author-work-title">我的小说</div>
-        <div class="create-novel" @click="openCreateBook">创建新书</div>
-      </div>
-      <div class="work-item-list">
-        <div class="work-item" v-for="bookItem in authorBookList" :key="bookItem.bookId">
-          <img class="work-book-img" :src="bookItem.coverImageUrl" alt="">
-          <div class="work-book-info">
-            <span class="work-book-title">{{ bookItem.title }}</span>
-            <span class="work-update-info">最近更新：{{ bookItem.currentChapterTitle }}</span>
-            <div class="work-book-detail-info">
-              <span class="work-book-chapter">{{ bookItem.totalChapters }}章</span>
-              <div class="divider"></div>
-              <span class="work-book-count">{{ bookItem.totalCharCount }}字</span>
-              <div class="divider"></div>
-              <span class="work-status">{{ formatSerialStatus(bookItem.serialStatus) }}</span>
-            </div>
-          </div>
-          <button class="work-book-setting-btn" @click="openBookSetting(bookItem)">作品设置</button>
-          <button class="work-chapter-manage-btn" @click="chapterHandle(bookItem.bookId, bookItem.title)">章节管理</button>
-          <button class="work-create-chapter-btn" @click="createChapter(bookItem)">创建章节</button>
+      <div v-if="currentView === 'list'">
+        <div class="work-management-title-box">
+          <div class="author-work-title">我的小说</div>
+          <div class="create-novel" @click="openCreateBook">创建新书</div>
         </div>
+        <div class="work-item-list">
+          <div class="work-item" v-for="bookItem in authorBookList" :key="bookItem.bookId">
+            <img class="work-book-img" :src="bookItem.coverImageUrl" alt="">
+            <div class="work-book-info">
+              <span class="work-book-title">{{ bookItem.title }}</span>
+              <span class="work-update-info">最近更新：{{ bookItem.currentChapterTitle }}</span>
+              <div class="work-book-detail-info">
+                <span class="work-book-chapter">{{ bookItem.totalChapters }}章</span>
+                <div class="divider"></div>
+                <span class="work-book-count">{{ bookItem.totalCharCount }}字</span>
+                <div class="divider"></div>
+                <span class="work-status">{{ formatSerialStatus(bookItem.serialStatus) }}</span>
+              </div>
+            </div>
+            <button class="work-book-setting-btn" @click="openBookSetting(bookItem)">作品设置</button>
+            <button class="work-chapter-manage-btn" @click="chapterHandle(bookItem.bookId, bookItem.title)">章节管理</button>
+            <button class="work-create-chapter-btn" @click="createChapter(bookItem)">创建章节</button>
+          </div>
+        </div>
+        
       </div>
-      
-    </div>
 
-    <!-- 创建小说视图 -->
-    <div v-else-if="currentView === 'create-book'" class="create-book-form-box">
-      <div class="create-book-title-box">
-        <span class="create-book-title">{{ isEditing ? '作品设置' : '创建小说' }}</span>
-        <span class="back-to-list" @click="switchView('list')">返回</span>
-      </div>
+      <div v-else-if="currentView === 'create-book'" class="create-book-form-box">
+        <div class="create-book-title-box">
+          <span class="create-book-title">{{ isEditing ? '作品设置' : '创建小说' }}</span>
+          <span class="back-to-list" @click="switchView('list')">返回</span>
+        </div>
 
       <el-form
         class="create-book-form"
@@ -120,7 +118,6 @@
       </el-form>
     </div>
 
-    <!-- 作品设置视图 -->
     <div v-else-if="currentView === 'book-setting'" class="book-setting-box">
       <div class="book-setting-title-box">
         <span class="book-setting-title">作品设置</span>
@@ -132,7 +129,6 @@
       </div>
     </div>
 
-    <!-- 章节管理视图 -->
     <div v-else-if="currentView === 'chapter-management'" class="manage-chapter-box">
       <div class="manage-chapter-title-box">
         <span class="manage-chapter-back-to-list" @click="switchView('list')"><</span>
@@ -174,7 +170,6 @@
       </div>
     </div>
 
-    <!-- 创建章节视图 -->
     <div v-else-if="currentView === 'create-chapter'" class="create-chapter-box">
       <div class="create-chapter-title-box">
         <span class="create-chapter-title">创建章节</span>
@@ -749,7 +744,8 @@
   defineExpose({
     openBookSetting: openBookSettingWithBook,
     openCreateBook: openCreateBook,
-    setViewList: () => switchView('list')
+    setViewList: () => switchView('list'),
+    chapterHandle
   });
 </script>
 

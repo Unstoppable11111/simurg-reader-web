@@ -83,18 +83,37 @@ import { tr } from "element-plus/es/locale/index.mjs";
   const handleNavChange = async (nav: string) => {
     if (nav === 'work-management' && !pendingCreateFromHome.value) {
       await nextTick();
-      workManagementRef.value?.setViewList?.();
+      const view = route.query.view as string;
+      const bookId = route.query.bookId as string;
+      if (view === 'chapter-management' && bookId) {
+        workManagementRef.value?.chapterHandle?.(bookId, (route.query.bookTitle as string) || '');
+      } else if (!view || view === 'list') {
+        workManagementRef.value?.setViewList?.();
+      }
     }
   };
 
   watch(
-    () => route.query.tab,
-    (newTab) => {
-      if (typeof newTab === 'string' && authorContainer.value && ['work-data', 'income-management', 'personal-info', 'notifications', 'benefits', 'contracts'].includes(newTab)) {
+    () => route.query,
+    async (newQuery) => {
+      const newTab = newQuery.tab as string;
+      const newView = newQuery.view as string;
+      const bookId = newQuery.bookId as string;
+
+      if (typeof newTab === 'string' && authorContainer.value && ['work-management', 'work-data', 'income-management', 'personal-info', 'notifications', 'benefits', 'contracts'].includes(newTab)) {
         authorContainer.value.switchNav(newTab)
+        
+        if (newTab === 'work-management' && !pendingCreateFromHome.value) {
+          await nextTick();
+          if (newView === 'chapter-management' && bookId) {
+            workManagementRef.value?.chapterHandle?.(bookId, (newQuery.bookTitle as string) || '');
+          } else if (newView === 'list' || !newView) {
+            workManagementRef.value?.setViewList?.();
+          }
+        }
       }
     },
-    {immediate: true}
+    {immediate: true, deep: true}
   )
 
   onMounted(() => {

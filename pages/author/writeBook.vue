@@ -302,7 +302,7 @@ import { Title } from '#components';
         message: 'create book success',
         type: 'success',
       })
-      authorContainer.value?.switchNav('work-management');
+      goBack();
     } else {
       ElMessage({
         message: 'create book failed, please try again later.',
@@ -322,8 +322,7 @@ import { Title } from '#components';
       if (createChapterResult.code === 200) {
         ElMessage.success(chapterInfoPayload.isDrafts === 0 ? '发布成功' : '草稿已保存');
         // 操作成功后，通常跳转回章节管理页或留存
-        authorContainer.value?.switchNav('chapter-management');
-        goBack(currentFrom.value);
+        goBack();
       }
     } catch(error) {
       console.log("创建章节异常", error);
@@ -339,7 +338,8 @@ import { Title } from '#components';
       })
       console.log("更新书籍结果", updateChapterResult);
       if (updateChapterResult.code === 200) {
-
+        ElMessage.success(chapterInfoPayload.isDrafts === 0 ? '发布成功' : '草稿已保存');
+        goBack();
       }
     } catch (error) {
       console.log(error);
@@ -356,22 +356,26 @@ import { Title } from '#components';
       from = currentFrom.value;
     }
     console.log("返回来源:", from);
-    switch(from) {
-      case 'create-book':
-        // 调用 authorContainer 的 switchNav 方法
-        authorContainer.value?.switchNav('work-management');
-        break;
-      case 'chapter-management':
-        // 从章节管理进入，返回章节管理页面
-        authorContainer.value?.switchNav('chapter-management');
-        break;
-      case 'createBook':
-        // 调用 authorContainer 的 switchNav 方法
-        authorContainer.value?.switchNav('work-management');
-        break;
-      default:
-        // 默认行为：返回上一页
-        router.back();
+    if (from === 'chapter-management' || from === 'create-chapter') {
+      router.push({
+        path: '/author',
+        query: {
+          tab: 'work-management',
+          view: 'chapter-management',
+          bookId: route.query.bookId,
+          bookTitle: bookData.value?.title || ''
+        }
+      });
+    } else if (from === 'create-book' || from === 'createBook') {
+      router.push({
+        path: '/author',
+        query: {
+          tab: 'work-management',
+          view: 'list'
+        }
+      });
+    } else {
+      router.back();
     }
   }
 
