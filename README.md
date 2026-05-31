@@ -103,6 +103,8 @@ simurg-reader/
 
 ### 运行项目
 
+## 更新打包命令 npm run build:prod，将产物.output.tar.gz上传到服务器
+
 ## pm2 start ecosystem.config.cjs 首次启动用这个命令，需要进到home目录，后续替换output，重启pm2，命令是pm2 restart all
 
 ## 许可证
