@@ -1,9 +1,9 @@
 <template>
   <div class="header" :class="{ 'scrolled': isScrolled }" :key="isAuthor.toString()">
-    <img src="/public/images/simurg-reader-logo.svg" alt="simurg reader" class="logo" />
+    <img src="/images/simurg-reader-logo.svg" alt="simurg reader" class="logo" />
     
     <div class="header-right-nav">
-      <a href="/" class="header-nav to-simurg-reader-index" :class="{ 'header-nav-active': $route.path === '/' }">首页</a>
+      <NuxtLink to="/" class="header-nav to-simurg-reader-index" :class="{ 'header-nav-active': $route.path === '/' }">首页</NuxtLink>
       <a
         @click="handleBookShelfClick" 
         class="header-nav to-bookshelf"

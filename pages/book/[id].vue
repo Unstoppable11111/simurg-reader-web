@@ -241,8 +241,9 @@
     }
   }
 
-  // 默认获取第一章数据
-  const {data: initalChapter} = await fetchChapterDetail(chapterNumber.value);
+  // 默认获取第一章数据（增加安全防护，避免接口异常时 SSR 500 崩溃）
+  const chapterDetailResult = await fetchChapterDetail(chapterNumber.value);
+  const initalChapter = chapterDetailResult?.data ?? null;
   console.log("章节内容：", initalChapter);
   chapterContent.value = initalChapter;
 
@@ -252,7 +253,8 @@
       chapterNumber.value = chapterNum;
       const newChapterContent = await fetchChapterDetail(chapterNum);
       console.log("获取新的章节内容：", newChapterContent);
-      chapterContent.value = newChapterContent.data;
+      // 安全防护：接口异常时不会崩溃
+      chapterContent.value = newChapterContent?.data ?? null;
     }
   }
 

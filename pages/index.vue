@@ -116,18 +116,15 @@
 
 <script setup>
   import Header from '@/components/layout/Header.vue';
-  import Carousel from '@/components/home/Carousel.vue';
   import BookBanner from '@/components/home/BookBanner.vue';
   import FeatureCard from '@/components/home/FeatureCard.vue';
   import Recommend from '@/components/home/Recommend.vue';
   import Ranking from '@/components/home/Ranking.vue';
   import SvgIcon from '@/components/SvgIcon.vue';
-  import NewlySigned from '@/components/home/NewlySigned.vue';
   import BookCate from '@/components/home/BookCate.vue';
   import LastUpdateBook from '@/components/home/LastUpdateBook.vue';
   import Footer from '@/components/layout/Footer.vue';
   import { API_ENDPOINTS, apiRequest } from '@/utils/api';
-  import { tr } from 'element-plus/es/locale/index.mjs';
   import { ArrowRight } from '@element-plus/icons-vue'
 
   definePageMeta({
@@ -184,72 +181,39 @@
     router.push(`/book/${bookId}`);
   };
 
-  try {
-    const featureBookUrl = new URL(`${API_ENDPOINTS.TAG_BOOKS}/FEATURED`);
-    const bookResult = await apiRequest(featureBookUrl);
-    if (bookResult.code === 200 && Array.isArray(bookResult.data)) {
-      books.value = bookResult.data;
-    }
-  } catch (error) {
-  }
-  
-  // 获取推荐书籍
-  try {
-    const recommendBookUrl = new URL(`${API_ENDPOINTS.TAG_BOOKS}/RECOMMEND`);
-    const recommendBookResult = await apiRequest(recommendBookUrl);
-    if (recommendBookResult.code === 200 && Array.isArray(recommendBookResult.data)) {
-      recommendBooks.value = recommendBookResult.data.slice(0, 4);
-    }
-  } catch (error) {
-  }
-
-  // 获取书籍分类
-  try {
-    const bookCateResult = await apiRequest(API_ENDPOINTS.CATEGORIES, {
-      method: 'GET'
-    });
-    if (!bookCateResult.code === 200) {
-      throw new Error(`HTTP error! status: ${bookCateResult.status}`)
-    }
-    
-    const result = await bookCateResult
-    
-    if (result.code === 200 && Array.isArray(result.data)) {
-      bookCateList.value = result.data;
-    }
-  } catch (error) {
-  }
-
-  // 获取最近更新书籍
-  try {
-    const recentUpdateBookUrl = {
-      size: 10, // 获取书籍数量
-    };
-    const recentUpdateBookResult = await apiRequest(API_ENDPOINTS.RECENT_UPDATE_BOOKS, {
+  // 性能优化：首页 5 个接口由串行改为并行，大幅缩短 SSR 首屏白屏时间
+  const [featureResult, recommendResult, cateResult, recentResult, bannerResult] = await Promise.allSettled([
+    // 精选书籍
+    apiRequest(new URL(`${API_ENDPOINTS.TAG_BOOKS}/FEATURED`)),
+    // 推荐书籍
+    apiRequest(new URL(`${API_ENDPOINTS.TAG_BOOKS}/RECOMMEND`)),
+    // 书籍分类
+    apiRequest(API_ENDPOINTS.CATEGORIES, { method: 'GET' }),
+    // 最近更新
+    apiRequest(API_ENDPOINTS.RECENT_UPDATE_BOOKS, {
       method: 'POST',
-      body: JSON.stringify(recentUpdateBookUrl)
-    });
-    if (recentUpdateBookResult.code === 200 && Array.isArray(recentUpdateBookResult.data)) {
-      recentUpdateBooks.value = recentUpdateBookResult.data;
-    }
-  } catch (error) {
-  }
+      body: JSON.stringify({ size: 10 })
+    }),
+    // 轮播图
+    apiRequest(API_ENDPOINTS.BANNERS)
+  ]);
 
-  // 获取轮播图数据（完全保留原有逻辑）
-  try {
-    const bannerResult = await apiRequest(API_ENDPOINTS.BANNERS)
-    if (!bannerResult.code === 200) {
-      throw new Error(`HTTP error! status: ${bannerResult.status}`)
-    }
-    
-    const result = await bannerResult
-    
-    if (result.code === 200 && Array.isArray(result.data)) {
-      banners.value = result.data
-    } 
-  } catch (error) {
+  // 安全赋值：fulfilled 状态才取值，rejected 状态使用默认空数组
+  if (featureResult.status === 'fulfilled' && featureResult.value?.code === 200 && Array.isArray(featureResult.value.data)) {
+    books.value = featureResult.value.data;
   }
-  
+  if (recommendResult.status === 'fulfilled' && recommendResult.value?.code === 200 && Array.isArray(recommendResult.value.data)) {
+    recommendBooks.value = recommendResult.value.data.slice(0, 4);
+  }
+  if (cateResult.status === 'fulfilled' && cateResult.value?.code === 200 && Array.isArray(cateResult.value.data)) {
+    bookCateList.value = cateResult.value.data;
+  }
+  if (recentResult.status === 'fulfilled' && recentResult.value?.code === 200 && Array.isArray(recentResult.value.data)) {
+    recentUpdateBooks.value = recentResult.value.data;
+  }
+  if (bannerResult.status === 'fulfilled' && bannerResult.value?.code === 200 && Array.isArray(bannerResult.value.data)) {
+    banners.value = bannerResult.value.data;
+  }
 
   // 回到顶部功能
   const scrollToTop = () => {
@@ -257,12 +221,16 @@
       top: 0, 
       behavior: 'smooth' 
     });
-  };  
-  // 监听滚动事件
+  };
+  // 修复：使用具名函数，避免匿名函数导致 removeEventListener 无法正确移除（内存泄漏）
+  const handleScroll = () => {
+    showBackToTop.value = window.scrollY > 300;
+  };
   onMounted(() => {
-    window.addEventListener('scroll', () => {
-      showBackToTop.value = window.scrollY > 300;
-    });
+    window.addEventListener('scroll', handleScroll);
+  });
+  onBeforeUnmount(() => {
+    window.removeEventListener('scroll', handleScroll);
   });
 
 </script>
@@ -274,7 +242,7 @@
   align-items: center;
   min-height: 100vh;
   overflow: hidden;
-  background-image: url('../public/icon/backgroud.svg');
+  background-image: url('/icon/backgroud.svg');
   background-size: cover;
   background-position: unset;
   background-repeat: no-repeat;
@@ -294,7 +262,8 @@
 .featured-section {
   display: flex;
   flex-direction: column;
-  width: 1200px;
+  max-width: 1200px;
+  width: calc(100% - 32px);
   height: 493px;
   align-items: center;
   margin-top: 38px;
@@ -308,7 +277,8 @@
 .recommend-section {
   display: flex;
   flex-direction: column;
-  width: 1200px;
+  max-width: 1200px;
+  width: calc(100% - 32px);
   height: 349px;
   margin-top: 50px;
 }
@@ -328,7 +298,8 @@
 .ranking-section {
   display: flex;
   flex-direction: column;
-  width: 1200px;
+  max-width: 1200px;
+  width: calc(100% - 32px);
   height: 704px;
   align-items: center;
   margin-bottom: 40px; /* 底部留白，避免内容贴边 */
@@ -412,7 +383,8 @@
   position: relative; /* 为了定位“更多”按钮 */
 }
 .book-cate-section {
-  width: 1200px;
+  max-width: 1200px;
+  width: calc(100% - 32px);
   height: 260px;
   margin-top: 50px;
   overflow: hidden;
@@ -421,7 +393,8 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 1200px;
+  max-width: 1200px;
+  width: calc(100% - 32px);
   // max-height: 830px;
   margin-top: 50px;
 }

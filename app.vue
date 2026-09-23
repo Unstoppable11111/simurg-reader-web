@@ -7,11 +7,11 @@
 <script setup lang="ts">
   useSeoMeta({
     // 网站标题
-    title: "simurg reader",
+    title: "Simurg Reader - 一千零一夜的故事正在被重写",
     // 网站描述
-    description: "",
+    description: "Simurg Reader 是一个在线小说阅读与创作平台，汇集海量精品小说，提供沉浸式阅读体验。",
     // 搜索关键字
-    keywords: ""
+    keywords: "小说阅读,在线小说,Simurg Reader,创作平台,免费小说"
   })
 </script>
 

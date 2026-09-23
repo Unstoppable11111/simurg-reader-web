@@ -1,4 +1,4 @@
-import axios from 'axios'
+// axios 未在本文件使用，已移除 import
 /**
  * 开发、测试、生产
  */
@@ -155,13 +155,15 @@ export async function apiAuthRequest(endpoint, options = {}) {
     if (response.code === 2008 || response.status === 401) {
       window.location.href = '/login'
     }
-    if (!response.code === 200) {
+    // 修复：原代码 !response.code === 200 因运算符优先级导致永远为 false
+    if (response.code !== 200) {
       throw new Error(`HTTP error! status: ${response.status}`)
     }
     // TODO: 如果返回的参数请求头有accessToken，需要替换
     if (response.headers.get('X-New-Access-Token')) {
       console.log("返回的请求头参数有新的accessToken，", response.headers.get('X-New-Access-Token'));
-      localStorage.setItem('auth_token', response.headers.get('accessToken'))
+      // 修复：header 名称应与检查一致
+      localStorage.setItem('auth_token', response.headers.get('X-New-Access-Token'))
     }
     return await response.json()
   } catch (error) {
@@ -206,13 +208,15 @@ export async function apiRequest(endpoint, options = {}) {
     // if (response.code === 2008 || response.status === 401) {
     //   window.location.href = '/login'
     // }
-    if (!response.code === 200) {
+    // 修复：原代码 !response.code === 200 因运算符优先级导致永远为 false
+    if (response.code !== 200) {
       throw new Error(`HTTP error! status: ${response.status}`)
     }
     // TODO: 如果返回的参数请求头有accessToken，需要替换
     if (response.headers.get('X-New-Access-Token')) {
       console.log("返回的请求头参数有新的accessToken，", response.headers.get('X-New-Access-Token'));
-      localStorage.setItem('auth_token', response.headers.get('accessToken'))
+      // 修复：header 名称应与检查一致
+      localStorage.setItem('auth_token', response.headers.get('X-New-Access-Token'))
     }
     return await response.json()
   } catch (error) {

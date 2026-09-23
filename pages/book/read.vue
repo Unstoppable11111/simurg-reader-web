@@ -1,7 +1,7 @@
 <template>
   <div class="reading-page" ref="pageRef" :class="{'blur-effect' : showToc}" @click="handlePageClick">
     <div class="reading-container" ref="mainContentRef" :style="{ marginRight: containerMarginRight} ">
-      <div class="back-book-detail"><a :href="`/book/${bookId}`">< {{ book.title }}</a></div>
+      <div class="back-book-detail"><NuxtLink :to="`/book/${bookId}`">< {{ book.title }}</NuxtLink></div>
       <div class="book-table-content">
         <div class="book-table-title">第{{ book.chapterNumber }}章 {{ book.chapterTitle }}</div>
         <div class="book-info-box">

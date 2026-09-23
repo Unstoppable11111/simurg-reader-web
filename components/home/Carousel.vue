@@ -19,7 +19,7 @@
           :data-index="index"
           
         >
-          <a class="banner-image-container" href="`/book/${item.id}`">
+          <a class="banner-image-container" :href="`/book/${item.id}`">
             <img 
               :src="item.imageUrl" 
               :alt="item.bannerTitle || '轮播图'" 
@@ -130,13 +130,8 @@
     hasError.value = false
     
     try {
-      const response = await apiRequest(props.apiUrl)
-      
-      if (!response.code === 200) {
-        throw new Error(`HTTP error! status: ${response.status}`)
-      }
-      
-      const result = await response
+      // apiRequest 内部已完成 response.json()，返回的直接是业务数据对象
+      const result = await apiRequest(props.apiUrl)
       
       if (result.code === 200 && Array.isArray(result.data)) {
         banners.value = result.data

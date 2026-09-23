@@ -17,7 +17,7 @@
     <div class="main-container">
       <!-- 左侧倒计时卡片 -->
       <div class="countdown-card">
-        <img src="/public/images/simurg-reader-logo.svg" alt="simurg reader logo" class="header-logo" />
+        <img src="/images/simurg-reader-logo.svg" alt="simurg reader logo" class="header-logo" />
         <p class="slogon">一千零一夜的故事正在被重写</p>
         <p class="card-subtitle">距离 simurg reader 上线还有</p>
         <div class="countdown-display">

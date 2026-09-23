@@ -50,7 +50,7 @@ export default defineNuxtConfig({
     head: {
       title: 'Simurg Reader',
       meta: [
-        { name: 'simurg reader', content: '小说网页阅读器' }
+        { name: 'description', content: 'Simurg Reader - 在线小说阅读与创作平台' }
       ]
     }
   },
