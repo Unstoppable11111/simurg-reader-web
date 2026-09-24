@@ -1,16 +1,16 @@
 <template>
   <div class="author-page">
-    <Header :margin-left="'360px'"/>
+    <Header />
     <div class="author-container">
       <div class="author-box">
-        <img class="author-img" :src="authorInfo.pictureUrl || '/default-avatar.png'" alt="">
+        <img class="author-img" :src="authorInfo?.pictureUrl || '/default-avatar.png'" alt="作者头像">
         <!-- 作者信息简介开始 -->
         <div class="author-info">
           <div class="author-pen-name-box">
-            <span class="author-name"> {{authorInfo.penName}} </span>
+            <span class="author-name"> {{authorInfo?.penName || '作家'}} </span>
             <div class="author-tag">作家</div>
           </div>
-          <span class="author-sign"> {{authorInfo.briefIntroduction}}</span>
+          <span class="author-sign"> {{authorInfo?.briefIntroduction || '暂无个性签名'}}</span>
         </div>
         <!-- 作者信息简介结束 -->
 
@@ -19,7 +19,7 @@
           <div class="author-detail-item">
             <label class="author-detail-item-label">创作天数</label>
             <div class="author-detail-item-value-box">
-              <span class="author-detail-item-value">421</span>
+              <span class="author-detail-item-value">{{ creationDays }}</span>
               <span class="author-detail-item-unit">天</span>
             </div>
           </div>
@@ -27,7 +27,7 @@
           <div class="author-detail-item">
             <label class="author-detail-item-label">作品总数</label>
             <div class="author-detail-item-value-box">
-              <span class="author-detail-item-value"> {{ authorInfo.bookCount }} </span>
+              <span class="author-detail-item-value"> {{ authorInfo?.bookCount || authorBookList.length || 0 }} </span>
               <span class="author-detail-item-unit">本</span>
             </div>
           </div>
@@ -35,15 +35,14 @@
           <div class="author-detail-item">
             <label class="author-detail-item-label">累计字数</label>
             <div class="author-detail-item-value-box">
-              <span class="author-detail-item-value"> {{ authorInfo.totalCompletedWords }} </span>
-              <span class="author-detail-item-unit">字</span>
+              <span class="author-detail-item-value"> {{ formattedTotalWords }} </span>
             </div>
           </div>
           
           <div class="author-detail-item">
             <label class="author-detail-item-label">粉丝数</label>
             <div class="author-detail-item-value-box">
-              <span class="author-detail-item-value">20020</span>
+              <span class="author-detail-item-value">{{ fansCount }}</span>
               <span class="author-detail-item-unit">人</span>
             </div>
           </div>
@@ -55,10 +54,8 @@
       <!-- 作品列表开始 -->
     </div>
 
-    
-
     <div class="author-all-book-title">
-      全部作品（ {{authorInfo.bookCount}} ）
+      全部作品（ {{ authorInfo?.bookCount || authorBookList.length || 0 }} ）
     </div>
 
     <div class="author-book-list">
@@ -67,20 +64,20 @@
           v-for="book in authorBookList"
           :key="book.bookId">
         
-        <img class="book-img" :src="book.coverImageUrl" alt="">
+        <img class="book-img" :src="book.coverImageUrl" alt="封面" @click="router.push(`/book/${book.bookId}`)">
         <div class="book-info-box">
-          <span class="book-title">{{ book.title }}</span>
-          <span class="book-author">{{ authorInfo.penName }}</span>
-          <span class="book-desc">{{ book.description }}</span>
+          <span class="book-title" @click="router.push(`/book/${book.bookId}`)">{{ book.title }}</span>
+          <span class="book-author">{{ authorInfo?.penName }}</span>
+          <span class="book-desc">{{ book.description || '暂无简介' }}</span>
           <div class="book-tag">
             <span class="book-status">{{ formatSerialStatus(book.serialStatus) }}</span>
-            <div class="devier"></div>
-            <span class="book-recent-update-label">最近更新：</span>
-            <span class="book-chapter-title">{{ book.currentChapterTitle }}</span>
+            <div class="devier" v-if="book.currentChapterTitle"></div>
+            <span class="book-recent-update-label" v-if="book.currentChapterTitle">最近更新：</span>
+            <span class="book-chapter-title" v-if="book.currentChapterTitle">{{ book.currentChapterTitle }}</span>
           </div>
         </div>
         <button class="startReadBtn" @click="startRead(book.bookId)">开始阅读</button>
-        <button class="addBookShelfBtn" @click="addBookShelf">加入书架</button>
+        <button class="addBookShelfBtn" @click="addBookShelf(book.bookId)">加入书架</button>
       </div>
     </div>
 
@@ -91,20 +88,50 @@
 <script setup>
   import Header from "@/components/layout/Header.vue";
   import Footer from "@/components/layout/Footer.vue";
+  import { API_ENDPOINTS, apiRequest } from "@/utils/api";
   import { formatSerialStatus, formatTimestamp } from "@/utils/dataFormatter";
-  const router = useRouter()
-  
+  import { useAuth } from '@/composables/useAuth';
+
+  const router = useRouter();
   const route = useRoute();
+  const { isLoggedIn } = useAuth();
   const authorId = route.params.authorId;
   const authorInfo = ref(null);
   const authorBookList = ref([]);
 
-  const getAuthorInfoUrl = `${API_ENDPOINTS.AUTHO_INFO_BY_ID}/${authorId}`;
-  const authorInfoResult = await apiRequest(getAuthorInfoUrl, {
-    method: 'GET'
+  const creationDays = computed(() => {
+    if (authorInfo.value?.creationDays) return authorInfo.value.creationDays;
+    if (authorInfo.value?.createTime) {
+      const diff = Date.now() - new Date(authorInfo.value.createTime).getTime();
+      return Math.max(1, Math.floor(diff / (1000 * 60 * 60 * 24)));
+    }
+    return 1;
   });
-  console.log("作者信息：", authorInfoResult);
-  authorInfo.value = authorInfoResult.data;
+
+  const fansCount = computed(() => {
+    return authorInfo.value?.fansCount ?? authorInfo.value?.followerCount ?? 0;
+  });
+
+  const formattedTotalWords = computed(() => {
+    const words = authorInfo.value?.totalCompletedWords || 0;
+    if (words >= 10000) {
+      return (words / 10000).toFixed(1) + '万字';
+    }
+    return words + '字';
+  });
+
+  try {
+    const getAuthorInfoUrl = `${API_ENDPOINTS.AUTHO_INFO_BY_ID}/${authorId}`;
+    const authorInfoResult = await apiRequest(getAuthorInfoUrl, {
+      method: 'GET'
+    });
+    console.log("作者信息：", authorInfoResult);
+    if (authorInfoResult?.code === 200) {
+      authorInfo.value = authorInfoResult.data;
+    }
+  } catch (err) {
+    console.error('Error fetching author info:', err);
+  }
 
   // 获取指定作者书籍信息
   try { 
@@ -113,21 +140,39 @@
       method: 'GET'
     });
     console.log("作者书籍信息：", authorBooksResult);
-    if (authorBooksResult.code === 200) {          
-      authorBookList.value = authorBooksResult.data;
+    if (authorBooksResult?.code === 200) {          
+      authorBookList.value = authorBooksResult.data || [];
     }
   } catch (error) {
-    console.error('Error fetching author info:', error);
+    console.error('Error fetching author books:', error);
   }
 
   const startRead = (bookId) => {
     router.push(`/book/read?book=${bookId}&chapter=1`);
-  }
+  };
 
-  const addBookShelf = (bookId) => {
-    console.log('加入书架', bookId)
-  }
-
+  const addBookShelf = async (bookId) => {
+    if (!bookId) return;
+    if (!isLoggedIn.value) {
+      router.push(`/login?redirectPath=${encodeURIComponent(route.fullPath)}`);
+      return;
+    }
+    try {
+      const response = await apiRequest(API_ENDPOINTS.ADD_BOOKS_TO_FAVORITE, {
+        method: 'POST',
+        body: JSON.stringify({ bookIdList: [bookId] })
+      });
+      if (response.code === 200) {
+        ElMessage.success('已成功加入书架！');
+      } else if (response.code === 2008) {
+        router.push(`/login?redirectPath=${encodeURIComponent(route.fullPath)}`);
+      } else {
+        ElMessage.info(response.message || '已在书架中');
+      }
+    } catch (error) {
+      ElMessage.error('加入书架失败，请重试');
+    }
+  };
 </script>
 
 <style lang="scss" scoped>

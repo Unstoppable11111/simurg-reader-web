@@ -60,18 +60,18 @@
         
         <div class="author-creation-info">
           <div class="creation-info-item">
-            <label class="creation-info-label">创作天数</label>
-            <span class="creation-info-value">421天</span>
-          </div>
-          
-          <div class="creation-info-item">
             <label class="creation-info-label">作品总数</label>
-            <span class="creation-info-value">2本</span>
+            <span class="creation-info-value">{{ book?.authorBookCount || '1本' }}</span>
           </div>
           
           <div class="creation-info-item">
-            <label class="creation-info-label">累计字数</label>
-            <span class="creation-info-value">88.5万</span>
+            <label class="creation-info-label">作品字数</label>
+            <span class="creation-info-value">{{ book?.wordCount ? (book.wordCount >= 10000 ? (book.wordCount / 10000).toFixed(1) + '万字' : book.wordCount + '字') : '连载中' }}</span>
+          </div>
+          
+          <div class="creation-info-item">
+            <label class="creation-info-label">作品热度</label>
+            <span class="creation-info-value">{{ book?.bookViews || 0 }}</span>
           </div>
         </div>
       </div>

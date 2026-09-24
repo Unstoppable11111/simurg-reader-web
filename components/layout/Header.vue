@@ -1,312 +1,610 @@
 <template>
-  <div class="header" :class="{ 'scrolled': isScrolled }" :key="isAuthor.toString()">
-    <img src="/images/simurg-reader-logo.svg" alt="simurg reader" class="logo" />
-    
-    <div class="header-right-nav">
-      <NuxtLink to="/" class="header-nav to-simurg-reader-index" :class="{ 'header-nav-active': $route.path === '/' }">首页</NuxtLink>
-      <a
-        @click="handleBookShelfClick" 
-        class="header-nav to-bookshelf"
-        :class="{ 'header-nav-active': $route.path === '/bookshelf' }"
-      >书架</a>
-      <NuxtLink to="/ranking" class="header-nav to-ranking" :class="{ 'header-nav-active': $route.path === '/ranking' }">排行榜</NuxtLink>
-      <client-only>
-      <NuxtLink 
-        v-if="!isAuthor"
-        @click="handleBecomeAuthorClick" 
-        class="header-nav to-become-author"
-        :class="{ 'header-nav-active': $route.path === '/becomeAuthor' }">
-        成为作家
-      </NuxtLink >
-      <NuxtLink 
-        v-else 
-        to="/author" 
-        class="header-nav to-become-author" 
-        :class="{ 'header-nav-active': $route.path === '/author' }">
-        作家专区
+  <header class="header" :class="{ 'scrolled': isScrolled }">
+    <div class="header-container">
+      <!-- 网站 Logo -->
+      <NuxtLink to="/" class="logo-link" title="返回首页">
+        <img src="/images/simurg-reader-logo.svg" alt="Simurg Reader" class="logo" />
       </NuxtLink>
-      </client-only>
       
-      
-      <Search class="search" 
-        placeholder="请输入书名或作者名"
-        @search="handleSearch"
-        @input-change="handleSearchInput"
-        @clear="handleSearchClear"  
-      />
-      
-      <NuxtLink v-if="!isLoggedIn" class="login-btn" to="/login">登录</NuxtLink>
-      
-      <div v-else class="user-menu-container" @click.stop>
-        <div class="user-info" @click="toggleUserDropdown">
-          <img class="user-avatar" :src="userAvatar" alt="用户头像" />
-          <span class="user-name">{{ userName }}</span>
-          <svg class="dropdown-arrow" width="12" height="8" viewBox="0 0 12 8" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M1 1L6 7L11 1" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </div>
+      <!-- 桌面端导航 -->
+      <nav class="header-right-nav">
+        <NuxtLink to="/" class="header-nav" :class="{ 'header-nav-active': $route.path === '/' }">
+          首页
+        </NuxtLink>
+        <a 
+          @click="handleBookShelfClick" 
+          class="header-nav" 
+          :class="{ 'header-nav-active': $route.path === '/bookshelf' }"
+        >
+          书架
+        </a>
+        <NuxtLink to="/bookcate" class="header-nav" :class="{ 'header-nav-active': $route.path.startsWith('/bookcate') }">
+          分类
+        </NuxtLink>
+        <NuxtLink to="/ranking" class="header-nav" :class="{ 'header-nav-active': $route.path.startsWith('/ranking') }">
+          排行榜
+        </NuxtLink>
         
-        <div class="user-dropdown" v-show="isDropdownOpen">
-          <div class="dropdown-item" @click="goToUserCenter">个人中心</div>
-          <div class="dropdown-divider"></div>
-          <div class="dropdown-item logout-btn" @click="handleLogout">退出登录</div>
+        <client-only>
+          <NuxtLink 
+            v-if="!isAuthorEffective"
+            @click="handleBecomeAuthorClick" 
+            class="header-nav"
+            :class="{ 'header-nav-active': $route.path === '/becomeAuthor' }"
+          >
+            成为作家
+          </NuxtLink>
+          <NuxtLink 
+            v-else 
+            to="/author" 
+            class="header-nav" 
+            :class="{ 'header-nav-active': $route.path.startsWith('/author') }"
+          >
+            作家专区
+          </NuxtLink>
+        </client-only>
+        
+        <!-- 搜索框 -->
+        <Search 
+          class="search" 
+          placeholder="请输入书名或作者名"
+          @search="handleSearch"
+          @input-change="handleSearchInput"
+          @clear="handleSearchClear"  
+        />
+        
+        <!-- 用户登录状态 -->
+        <NuxtLink v-if="!isLoggedIn" class="login-btn" to="/login">登录</NuxtLink>
+        
+        <div v-else class="user-menu-container" @click.stop>
+          <div class="user-info" @click="toggleUserDropdown">
+            <img class="user-avatar" :src="userAvatar || '/icon/author-default-avatar.svg'" alt="用户头像" />
+            <span class="user-name">{{ userName || '用户' }}</span>
+            <svg class="dropdown-arrow" :class="{ 'arrow-open': isDropdownOpen }" width="12" height="8" viewBox="0 0 12 8" fill="none">
+              <path d="M1 1L6 7L11 1" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          
+          <div class="user-dropdown" v-show="isDropdownOpen">
+            <div class="dropdown-item" @click="goToUserCenter">个人中心</div>
+            <div class="dropdown-divider"></div>
+            <div class="dropdown-item logout-btn" @click="handleLogout">退出登录</div>
+          </div>
+        </div>
+
+        <!-- 移动端汉堡菜单触发按钮 -->
+        <button 
+          class="mobile-menu-btn" 
+          @click.stop="toggleMobileMenu" 
+          :aria-expanded="isMobileMenuOpen"
+          aria-label="切换导航菜单"
+        >
+          <svg v-if="!isMobileMenuOpen" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+          </svg>
+          <svg v-else width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </nav>
+    </div>
+
+    <!-- 移动端抽屉导航 -->
+    <transition name="mobile-drawer">
+      <div class="mobile-drawer" v-show="isMobileMenuOpen" @click.stop>
+        <div class="mobile-nav-list">
+          <NuxtLink to="/" class="mobile-nav-item" @click="closeMobileMenu">
+            首页
+          </NuxtLink>
+          <a @click="handleBookShelfClickMobile" class="mobile-nav-item">
+            我的书架
+          </a>
+          <NuxtLink to="/bookcate" class="mobile-nav-item" @click="closeMobileMenu">
+            全部分类
+          </NuxtLink>
+          <NuxtLink to="/ranking" class="mobile-nav-item" @click="closeMobileMenu">
+            畅销榜单
+          </NuxtLink>
+          <NuxtLink 
+            v-if="!isAuthorEffective"
+            to="/becomeAuthor" 
+            class="mobile-nav-item" 
+            @click="closeMobileMenu"
+          >
+            成为作家
+          </NuxtLink>
+          <NuxtLink 
+            v-else 
+            to="/author" 
+            class="mobile-nav-item" 
+            @click="closeMobileMenu"
+          >
+            作家专区
+          </NuxtLink>
+
+          <div class="mobile-drawer-divider"></div>
+
+          <div v-if="!isLoggedIn" class="mobile-auth-section">
+            <NuxtLink to="/login" class="mobile-login-btn" @click="closeMobileMenu">
+              立即登录
+            </NuxtLink>
+          </div>
+          <div v-else class="mobile-user-section">
+            <div class="mobile-user-profile" @click="goToUserCenter">
+              <img :src="userAvatar || '/icon/author-default-avatar.svg'" class="mobile-avatar" alt="Avatar">
+              <span class="mobile-username">{{ userName || '用户' }}</span>
+            </div>
+            <button class="mobile-logout-btn" @click="handleLogout">
+              退出登录
+            </button>
+          </div>
         </div>
       </div>
-    </div>
-  </div>
+    </transition>
+  </header>
 </template>
 
 <script setup lang="ts">
-  import { useAuth } from '@/composables/useAuth';
-  import { useAuthStore } from '@/stores/auth';
-  const authStore = useAuthStore();
-  const emit = defineEmits(['trigger-search', 'clear-search']);
-  const isDropdownOpen = ref(false);
-  const router = useRouter();
-  const props = defineProps({
-    marginLeft: { type: String, default: "0px" },
-    isAuthor: { type: Boolean, default: false }
-  });
-  const {isLoggedIn, isAuthor, userAvatar, userName} = useAuth();
+import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
+import { useAuth } from '@/composables/useAuth';
+import { useAuthStore } from '@/stores/auth';
+import Search from '@/components/search/Search.vue';
 
-  watch(isLoggedIn, (newVal) => {
-    if (!newVal) isDropdownOpen.value = false;
-  }, { immediate: true });
+const router = useRouter();
+const route = useRoute();
+const authStore = useAuthStore();
+const emit = defineEmits(['trigger-search', 'clear-search']);
 
-  const toggleUserDropdown = () => { isDropdownOpen.value = !isDropdownOpen.value; };
-  const closeDropdown = (e: MouseEvent) => {
-    const target = e.target as HTMLElement;
-    if (!target.closest('.user-menu-container')) isDropdownOpen.value = false;
-  };
+const props = defineProps({
+  marginLeft: { type: String, default: "0px" },
+  isAuthor: { type: Boolean, default: false }
+});
 
-  const handleLogout = async () => {
-    try {
-      isDropdownOpen.value = false;
-      await authStore.logout();
-      ElMessage.success('成功退出登录'); 
-      router.push('/');
-    } catch (error) {
-      ElMessage.error('退出登录失败，请重试');
-    }
-  };
+const { isLoggedIn, isAuthor: authIsAuthor, userAvatar, userName } = useAuth();
+const isAuthorEffective = computed(() => props.isAuthor || authIsAuthor.value);
 
-  const goToUserCenter = () => {
-    isDropdownOpen.value = false; 
-    // isAuthor.value ? router.push('/author?tab=author-home') : router.push('/user');
-    isAuthor.value ? toAuthorHome() : router.push('/bookshelf');
-  };
+const isDropdownOpen = ref(false);
+const isMobileMenuOpen = ref(false);
+const isScrolled = ref(false);
 
-  const toAuthorHome = () => {
-    useRouter().push({
-      path: '/author',
-      query: { tab: 'author-home' }
-    })
+watch(isLoggedIn, (newVal) => {
+  if (!newVal) isDropdownOpen.value = false;
+}, { immediate: true });
+
+watch(() => route.fullPath, () => {
+  isMobileMenuOpen.value = false;
+  isDropdownOpen.value = false;
+});
+
+const toggleUserDropdown = () => {
+  isDropdownOpen.value = !isDropdownOpen.value;
+};
+
+const toggleMobileMenu = () => {
+  isMobileMenuOpen.value = !isMobileMenuOpen.value;
+};
+
+const closeMobileMenu = () => {
+  isMobileMenuOpen.value = false;
+};
+
+const closeDropdown = (e: MouseEvent) => {
+  const target = e.target as HTMLElement;
+  if (!target.closest('.user-menu-container')) {
+    isDropdownOpen.value = false;
   }
-
-  const handleBookShelfClick = () => {
-    !isLoggedIn.value ? router.push('/login?redirectPath=/bookshelf') : router.push('/bookshelf');
+  if (!target.closest('.mobile-drawer') && !target.closest('.mobile-menu-btn')) {
+    isMobileMenuOpen.value = false;
   }
-  const handleBecomeAuthorClick = () => {
-    !isLoggedIn.value ? router.push('/login?redirectPath=/becomeAuthor') : router.push('/becomeAuthor');
+};
+
+const handleLogout = async () => {
+  try {
+    isDropdownOpen.value = false;
+    isMobileMenuOpen.value = false;
+    await authStore.logout();
+    ElMessage.success('成功退出登录');
+    router.push('/');
+  } catch (error) {
+    ElMessage.error('退出登录失败，请重试');
   }
+};
 
-  const isScrolled = ref(false);
-  const handleSearch = async (query) => {
-    if (!query.trim()) { emit('clear-search'); return; }
-    emit('trigger-search', query.trim());
+const goToUserCenter = () => {
+  isDropdownOpen.value = false;
+  isMobileMenuOpen.value = false;
+  if (isAuthorEffective.value) {
+    router.push({ path: '/author', query: { tab: 'author-home' } });
+  } else {
+    router.push('/bookshelf');
   }
+};
 
-  const handleSearchInput = (value) => {
-    value.trim() ? emit('trigger-search', value.trim()) : emit('clear-search');
-  };
-  const handleSearchClear = () => { emit('clear-search'); };
-  const handleScroll = () => { isScrolled.value = window.scrollY > 84; }
+const handleBookShelfClick = () => {
+  if (!isLoggedIn.value) {
+    router.push('/login?redirectPath=/bookshelf');
+  } else {
+    router.push('/bookshelf');
+  }
+};
 
-  onMounted(() => {
-    window.addEventListener('scroll', handleScroll);
-    document.addEventListener('click', closeDropdown);
-  })
-  onBeforeUnmount(() => {
-    window.removeEventListener('scroll', handleScroll);
-    document.removeEventListener('click', closeDropdown);
-  });
+const handleBookShelfClickMobile = () => {
+  closeMobileMenu();
+  handleBookShelfClick();
+};
+
+const handleBecomeAuthorClick = () => {
+  if (!isLoggedIn.value) {
+    router.push('/login?redirectPath=/becomeAuthor');
+  } else {
+    router.push('/becomeAuthor');
+  }
+};
+
+const handleSearch = (query: string) => {
+  if (!query?.trim()) {
+    emit('clear-search');
+    return;
+  }
+  emit('trigger-search', query.trim());
+};
+
+const handleSearchInput = (value: string) => {
+  value?.trim() ? emit('trigger-search', value.trim()) : emit('clear-search');
+};
+
+const handleSearchClear = () => {
+  emit('clear-search');
+};
+
+const handleScroll = () => {
+  isScrolled.value = window.scrollY > 40;
+};
+
+onMounted(() => {
+  window.addEventListener('scroll', handleScroll, { passive: true });
+  document.addEventListener('click', closeDropdown);
+});
+
+onBeforeUnmount(() => {
+  window.removeEventListener('scroll', handleScroll);
+  document.removeEventListener('click', closeDropdown);
+});
 </script>
 
 <style lang="scss" scoped>
 .header {
   position: fixed;
-  display: flex;
-  width: 100%;
-  height: 84px;
-  align-items: center;
-  z-index: 1000;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 72px;
+  z-index: var(--z-index-sticky, 1020);
   background-color: transparent;
-  /* 平滑自适应：与 1200px 内容主轴对齐，大屏居中，小屏保留 24px 安全边距 */
-  padding: 0 max(24px, calc((100vw - 1200px) / 2));
-  box-sizing: border-box;
+  transition: background-color var(--transition-normal, 250ms ease),
+              box-shadow var(--transition-normal, 250ms ease),
+              backdrop-filter var(--transition-normal, 250ms ease);
 
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.85);
-    backdrop-filter: blur(10px);
-    z-index: -1;
-    transform: scaleY(0);
-    transform-origin: top;
-    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  &:hover::before,
-  &.scrolled::before {
-    transform: scaleY(1);
+  &.scrolled {
+    background-color: rgba(19, 20, 21, 0.88);
+    backdrop-filter: blur(16px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    border-bottom: 1px solid var(--color-border-subtle, rgba(255, 255, 255, 0.06));
   }
 }
 
+.header-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 1200px;
+  height: 100%;
+  margin: 0 auto;
+  padding: 0 24px;
+  box-sizing: border-box;
+}
+
+.logo-link {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+}
+
 .logo {
-  width: 192px;
-  height: 30px;
-  flex-shrink: 0;
+  width: 160px;
+  height: 28px;
+  object-fit: contain;
 }
 
 .header-right-nav {
   display: flex;
   align-items: center;
-  margin-left: auto; // 自动推至右侧
+  gap: 28px;
 }
 
 .header-nav {
-  margin-right: 44px;
-  color: #FFFFFF;
-  font-size: 14px;
+  color: var(--color-text-secondary, #b0b1b3);
+  font-size: var(--font-size-body, 14px);
   text-decoration: none;
+  cursor: pointer;
+  transition: color var(--transition-fast, 150ms ease);
+  white-space: nowrap;
 
-  @media screen and (max-width: 1024px) {
-    margin-right: 20px;
+  &:hover {
+    color: var(--color-brand-primary, #e59344);
+  }
+
+  &.header-nav-active {
+    color: var(--color-text-primary, #ffffff);
+    font-weight: 600;
   }
 }
 
-.header-nav-active {
-  font-weight: 600;
-}
-.to-bookshelf {
-  cursor: pointer;
-}
-
 .search {
-  margin-right: 44px;
+  margin: 0;
 }
 
 .login-btn {
-  width: 78px;
-  height: 32px;
-  line-height: 32px;
-  background: #FFFFFF;
-  border-radius: 16px;
-  text-align: center;
-  font-size: 14px;
-  color: #000;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 18px;
+  background: var(--color-brand-primary, #e59344);
+  border-radius: var(--radius-full, 9999px);
+  font-size: var(--font-size-body, 14px);
+  font-weight: 600;
+  color: #ffffff;
   text-decoration: none;
+  transition: all var(--transition-fast, 150ms ease);
+
+  &:hover {
+    background: var(--color-brand-hover, #cc7b30);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(229, 147, 68, 0.3);
+  }
 }
 
 .user-menu-container {
   position: relative;
   display: flex;
   align-items: center;
-  
+
   .user-info {
     display: flex;
     align-items: center;
+    gap: 8px;
     cursor: pointer;
-    
-    .user-avatar {
-      width: 28px;
-      height: 28px;
-      border-radius: 50%;
-      margin-left: 46px;
+    padding: 4px 8px;
+    border-radius: var(--radius-full, 9999px);
+    transition: background-color var(--transition-fast, 150ms ease);
+
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.06);
     }
-    
+
+    .user-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
     .user-name {
-      font-size: 18px;
-      color: #FFFFFF;
-      margin-left: 9px;
-      margin-right: 6px;
+      font-size: var(--font-size-body, 14px);
+      color: var(--color-text-primary, #ffffff);
+      max-width: 100px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
     .dropdown-arrow {
-      transition: transform 0.2s ease;
-    }
-  }
-  
-  .user-dropdown {
-    position: absolute;
-    top: calc(100% + 10px);
-    right: 0;
-    width: 160px;
-    background-color: rgba(0, 0, 0, 0.9);
-    backdrop-filter: blur(10px);
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-    z-index: 1001;
-    padding: 8px 0;
-    
-    .dropdown-item {
-      padding: 10px 16px;
-      color: #FFFFFF;
-      font-size: 14px;
-      cursor: pointer;
-      
-      &:hover {
-        background-color: rgba(255, 255, 255, 0.1);
+      color: var(--color-text-muted, #7c7e82);
+      transition: transform var(--transition-fast, 150ms ease);
+
+      &.arrow-open {
+        transform: rotate(180deg);
       }
     }
-    
+  }
+
+  .user-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    width: 150px;
+    background: var(--color-surface-elevated, #212327);
+    border: 1px solid var(--color-border-subtle, rgba(255, 255, 255, 0.08));
+    border-radius: var(--radius-md, 8px);
+    box-shadow: var(--shadow-lg, 0 12px 32px rgba(0, 0, 0, 0.5));
+    z-index: 1050;
+    padding: 6px 0;
+
+    .dropdown-item {
+      padding: 10px 16px;
+      color: var(--color-text-primary, #ffffff);
+      font-size: var(--font-size-small, 13px);
+      cursor: pointer;
+      transition: background-color var(--transition-fast, 150ms ease);
+
+      &:hover {
+        background-color: var(--color-surface-hover, rgba(255, 255, 255, 0.05));
+      }
+    }
+
     .dropdown-divider {
       height: 1px;
-      background-color: rgba(255, 255, 255, 0.2);
+      background-color: var(--color-border-subtle, rgba(255, 255, 255, 0.08));
       margin: 4px 0;
     }
-    
+
     .logout-btn {
-      color: #FF4D4F;
+      color: var(--color-status-error, #f87171);
       &:hover {
-        background-color: rgba(255, 77, 79, 0.2);
+        background-color: rgba(248, 113, 113, 0.1);
       }
     }
   }
 }
 
-/* --- 移动端兼容性调整 --- */
-@media screen and (max-width: 768px) {
+.mobile-menu-btn {
+  display: none;
+  background: none;
+  border: none;
+  color: var(--color-text-primary, #ffffff);
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 6px;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.08);
+  }
+}
+
+/* 移动端抽屉菜单 */
+.mobile-drawer {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: rgba(19, 20, 21, 0.96);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--color-border-subtle, rgba(255, 255, 255, 0.08));
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.5);
+  padding: 16px 24px 24px;
+}
+
+.mobile-nav-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.mobile-nav-item {
+  display: block;
+  padding: 10px 12px;
+  font-size: 15px;
+  color: var(--color-text-secondary, #b0b1b3);
+  text-decoration: none;
+  border-radius: 6px;
+  transition: all var(--transition-fast, 150ms ease);
+
+  &:hover, &.router-link-active {
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--color-brand-primary, #e59344);
+  }
+}
+
+.mobile-drawer-divider {
+  height: 1px;
+  background: var(--color-border-subtle, rgba(255, 255, 255, 0.08));
+  margin: 8px 0;
+}
+
+.mobile-auth-section {
+  display: flex;
+  padding-top: 6px;
+}
+
+.mobile-login-btn {
+  display: block;
+  width: 100%;
+  text-align: center;
+  padding: 10px;
+  background: var(--color-brand-primary, #e59344);
+  color: #ffffff;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.mobile-user-section {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 12px;
+}
+
+.mobile-user-profile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.mobile-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+}
+
+.mobile-username {
+  color: var(--color-text-primary, #ffffff);
+  font-size: 14px;
+}
+
+.mobile-logout-btn {
+  background: none;
+  border: 1px solid rgba(248, 113, 113, 0.4);
+  color: var(--color-status-error, #f87171);
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+/* 抽屉过渡动画 */
+.mobile-drawer-enter-active,
+.mobile-drawer-leave-active {
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.mobile-drawer-enter-from,
+.mobile-drawer-leave-to {
+  opacity: 0;
+  transform: translateY(-8px);
+}
+
+@media (max-width: 900px) {
   .header {
     height: 60px;
+  }
+
+  .header-container {
     padding: 0 16px;
-    justify-content: flex-end;
-    .logo {
-      width: 120px;
-    }
+  }
 
-    .header-nav:not(.search) {
-      display: none; // 移动端隐藏文字导航
-    }
+  .logo {
+    width: 130px;
+    height: 24px;
+  }
 
-    .search {
-      margin-right: 15px;
-    }
+  .header-nav {
+    display: none;
+  }
 
-    .user-menu-container {
-      .user-info {
-        .user-avatar {
-          margin-left: 10px;
-        }
-        .user-name, .dropdown-arrow {
-          display: none; // 仅保留头像
-        }
-      }
-    }
+  .header-right-nav {
+    gap: 12px;
+  }
+
+  .mobile-menu-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .user-name {
+    display: none !important;
+  }
+
+  .dropdown-arrow {
+    display: none !important;
   }
 }
 </style>

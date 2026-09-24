@@ -59,7 +59,7 @@
   </div>
 
   <!-- 目录侧边栏 -->
-  <div v-if="showToc" class="toc-sidebar" :style="{ left: sidebarLeft + 'px' }" @click.stop>
+  <div v-if="showToc" class="toc-sidebar" @click.stop>
     <div class="toc-header">
       <img class="book-img" :src="book.coverImageUrl" alt="">
       <div class="table-info-box">
@@ -96,7 +96,7 @@
   <div v-if="showToc" class="overlay" @click="closeToc"></div>
 
   <!-- 设置侧边栏 -->
-  <div v-if="showSettings" class="settings-sidebar" :style="{ left: settingsSidebarLeft + 'px' }" @click.stop>
+  <div v-if="showSettings" class="settings-sidebar" @click.stop>
     <div class="close-settings" @click="closeSettings">
       x
     </div>
@@ -127,7 +127,7 @@
   </div>
 
   <!-- 评论框展示 -->
-  <div v-if="showComment" class="comment-container" :style="{ left: commentLeft + 'px' }">
+  <div v-if="showComment" class="comment-container">
     <div class="comment-box">
       <!-- 评论列表展示框 -->
       <div class="comment-list-box" v-if="haveComment" @scroll="handleCommentScroll">
@@ -212,9 +212,6 @@ const paragraphCommentList = ref([])
 const mainContentRef = ref(null)
 const pageRef = ref(null)
 const bookContentRef = ref(null)
-const sidebarLeft = ref(0)
-const settingsSidebarLeft = ref(0)
-const commentLeft = ref(0)
 const chapterCount = ref(0)
 const chapterList = ref([])
 const sortOrder = ref('asc')
@@ -856,19 +853,6 @@ const isCurrentChapter = (chapterNum) => {
   return parseInt(chapterNum) === parseInt(chapterNumber.value)
 }
 
-// 计算并设置目录位置的函数
-const setSidebarPosition = async() => {
-  if (mainContentRef.value) {
-    const mainRect = mainContentRef.value.getBoundingClientRect();
-    sidebarLeft.value = mainRect.right - 407; // 目录左侧 = 主视图右侧
-    settingsSidebarLeft.value = mainRect.right - 343;
-    commentLeft.value = mainRect.right;
-    console.log("目录位置：", sidebarLeft.value);
-    console.log("设置位置：", settingsSidebarLeft.value);
-    console.log("评论位置：", commentLeft.value);
-  }
-};
-
 /**
  * 自定义防抖函数
  * @param func 
@@ -1055,13 +1039,11 @@ onMounted(async () => {
   }
   await fetchChapterContent(chapterNumber);
   await fetchAllPublishedChapters(false);
-  nextTick(setSidebarPosition); // 确保 DOM 渲染完成后执行
   // 初始化停留时间
   currentChapterStatus.value.stayStartTime = Date.now();
   // 监听滚动时间
   if (bookContentRef.value) {
     bookContentRef.value.addEventListener('scroll', handleContentScroll);
-
   }
   watch(
     () => chapterNumber,
@@ -1072,18 +1054,10 @@ onMounted(async () => {
     },
     { immediate: true }
   )
-   watch(
-    () => mainContentRef.value?.getBoundingClientRect().right,
-    () => {
-      setSidebarPosition();
-    }
-  )
 });
 
 // 组件卸载时移除事件监听（避免内存泄漏）
 onUnmounted( () => {
-  window.removeEventListener('scroll', setSidebarPosition);
-  window.removeEventListener('resize', setSidebarPosition);
   // 移除滚动事件监听
   if (bookContentRef.value) {
     bookContentRef.value.removeEventListener('scroll', handleContentScroll);
@@ -1417,23 +1391,35 @@ watch(
 }
 
 @media (max-width: 768px) {
-  .toc-sidebar {
-    width: 100%;
+  .toc-sidebar,
+  .comment-container {
+    width: 100% !important;
     left: 0 !important;
-    right: 0;
+    right: 0 !important;
+  }
+  .settings-sidebar {
+    width: 100% !important;
+    max-width: 100vw !important;
+    top: auto !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    transform: none !important;
+    border-radius: 16px 16px 0 0 !important;
   }
 }
-
 
 /* 目录侧边栏 */
 .toc-sidebar {
   position: fixed;
   top: 0;
+  right: 0;
   width: 400px;
+  max-width: 100vw;
   height: 100vh;
   background: #343434;
   color: #e0e0e0;
-  box-shadow: -2px 0 10px rgba(0, 0, 0, 0.5);
+  box-shadow: -4px 0 20px rgba(0, 0, 0, 0.5);
   z-index: 1001;
   overflow-y: auto;
   transition: transform 0.3s ease;
@@ -1680,10 +1666,19 @@ watch(
 // 设置样式
 .settings-sidebar { 
   width: 336px;
-  height: 260px;
-  background: #343434;
+  max-width: calc(100vw - 32px);
+  height: auto;
+  max-height: 90vh;
+  background: #28292c;
   position: fixed;
-  top: 416px;
+  top: 50%;
+  right: 24px;
+  transform: translateY(-50%);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6);
+  z-index: 1002;
+  padding-bottom: 24px;
 }
 .close-settings {
   position: absolute;
@@ -1874,10 +1869,15 @@ watch(
 .comment-container {
   position: fixed;
   top: 0;
+  right: 0;
   width: 400px;
+  max-width: 100vw;
   height: 100vh;
-  background: #262626;
-  border-left: 1px solid #636363;
+  background: #202124;
+  border-left: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: -4px 0 24px rgba(0, 0, 0, 0.5);
+  z-index: 1001;
+  transition: transform 0.3s ease;
 }
 .comment-box {
   display: flex;
