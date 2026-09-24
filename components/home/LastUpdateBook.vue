@@ -40,8 +40,6 @@
 
   // 点击书籍跳转到详情页
   const gotoBookDetail = (bookId) => {
-    console.log('点击了书籍，ID:', bookId)
-    // 使用路由跳转到书籍详情页
     router.push(`/book/${bookId}`)
   }
 
@@ -52,14 +50,14 @@
 
   // 点击作者跳转到作者详情页
   const gotoAuthorDetail = (authorId) => {
-    console.log('点击作者', authorId)
     router.push(`/author/${authorId}`)
   }
 </script>
 
 <style lang="scss" scoped>
 .last-update-book-box {
-  width: 1200px;
+  width: 100%;
+  max-width: 1200px;
 }
 .table-header {
   display: flex;

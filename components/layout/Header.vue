@@ -141,7 +141,8 @@
   align-items: center;
   z-index: 1000;
   background-color: transparent;
-  padding: 0 40px;
+  /* 平滑自适应：与 1200px 内容主轴对齐，大屏居中，小屏保留 24px 安全边距 */
+  padding: 0 max(24px, calc((100vw - 1200px) / 2));
   box-sizing: border-box;
 
   &::before {
@@ -182,6 +183,10 @@
   color: #FFFFFF;
   font-size: 14px;
   text-decoration: none;
+
+  @media screen and (max-width: 1024px) {
+    margin-right: 20px;
+  }
 }
 
 .header-nav-active {
@@ -271,13 +276,6 @@
         background-color: rgba(255, 77, 79, 0.2);
       }
     }
-  }
-}
-
-/* PC 端特定边距补偿 */
-@media screen and (min-width: 1440px) {
-  .header {
-    padding: 0 360px; // 保持你设计稿的超大边距
   }
 }
 

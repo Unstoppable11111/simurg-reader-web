@@ -1,16 +1,16 @@
 <template>
   <div class="book-page"> 
-    <Header :margin-left="'360px'" />
-    <div class="book-detail-page">
+    <Header />
+    <div class="book-detail-page" v-if="book">
       <!-- Breadcrumb navigation -->
       <div class="breadcrumb">
         <NuxtLink to="/" class="to-simurg-reader-index">首页</NuxtLink> > 
-        <span>{{ book.title }}</span>
+        <span>{{ book?.title || '书籍详情' }}</span>
       </div>
       <!-- Left side - Book information -->
       <div class="book-info">
         <div class="book-cover">
-          <img :src="book.coverImageUrl" :alt="book.title" />
+          <img :src="book.coverImageUrl" :alt="book.title || '封面'" />
         </div>
         
         <div class="book-content">
@@ -26,11 +26,11 @@
           </div>
           
           <div class="book-stats">
-            <span>300万字</span>
+            <span>{{ book.wordCount ? `${book.wordCount}字` : '连载中' }}</span>
             <span> | </span>
-            <span>{{ book.bookViews }}次浏览</span>
+            <span>{{ book.bookViews || 0 }}次浏览</span>
             <span> | </span>
-            <span>{{ book.totalFavorites }}万累计人气值</span>
+            <span>{{ book.totalFavorites || 0 }}万累计人气值</span>
           </div>
           
           <div class="book-actions">
@@ -109,15 +109,20 @@
     </div>
 
     <!-- 书籍内容 -->
-     <div class="book-content-container"> 
+     <div class="book-content-container" v-if="chapterContent"> 
       <div class="book-content-box">
         <div class="book-content-title"></div>
         <span class="book-content-title-text">阅读</span>
         <div class="book-content-info">
-          <p class="book-text"> {{ decryptData(chapterContent.chapterContent) }} </p>
+          <p class="book-text"> {{ chapterContent?.chapterContent ? decryptData(chapterContent.chapterContent) : '暂无内容' }} </p>
         </div>
       </div>
      </div>
+
+    <div v-else-if="!book" class="book-loading-placeholder">
+      <el-skeleton :rows="8" animated />
+    </div>
+
     <Footer class="footer"/>
   </div>
 </template>
@@ -870,5 +875,13 @@
   .book-table-item {
     margin: 12px 0;
   }
+}
+.book-loading-placeholder {
+  max-width: 1200px;
+  width: calc(100% - 32px);
+  margin: 120px auto 60px;
+  padding: 40px;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 14px;
 }
 </style>

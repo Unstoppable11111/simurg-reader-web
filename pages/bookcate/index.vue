@@ -1,6 +1,6 @@
 <template>
   <div class="book-cate-container">
-    <Header :margin-left="'360px'"/>
+    <Header />
     <div class="book-cate-box">
       <!-- Breadcrumb navigation -->
       <div class="breadcrumb">
@@ -165,17 +165,11 @@
     const bookCateResult = await apiRequest(API_ENDPOINTS.CATEGORIES, {
       method: 'GET'
     });
-    console.log("分类类型", bookCateResult)
-    if (!bookCateResult.code === 200) {
-      throw new Error(`HTTP error! status: ${bookCateResult.status}`)
-    }
-    
-    const result = await bookCateResult
-    
-    if (result.code === 200 && Array.isArray(result.data)) {
-      bookCateList.value = result.data;
+    if (bookCateResult?.code === 200 && Array.isArray(bookCateResult.data)) {
+      bookCateList.value = bookCateResult.data;
     }
   } catch (error) {
+    console.error('获取分类列表失败:', error);
   }
 
   // 根据选择类型，获取分类书籍列表
@@ -193,14 +187,18 @@
         method: 'POST',
         body: JSON.stringify(libraryBookListReq)
       });
-      console.log("根据分类获取书籍列表内容", libraryBookListResult);
-      libraryBookList.value = libraryBookListResult.data.records;
+      libraryBookList.value = libraryBookListResult?.data?.records || [];
     } catch (error) { 
+      libraryBookList.value = [];
     }
   }
 
+  const route = useRoute();
   onMounted(() => { 
-    getLibraryBookList()
+    if (route.query.categoryId) {
+      selectedCategoryId.value = route.query.categoryId;
+    }
+    getLibraryBookList();
   })
 
 </script>

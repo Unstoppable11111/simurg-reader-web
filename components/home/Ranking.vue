@@ -15,7 +15,7 @@
           :key="index"
           @click="gotoBookDetail(book.bookId)"
         >
-          <img :src="book.coverImageUrl" :alt="book.title" class="book-cover">
+          <img :src="book.coverImageUrl" :alt="book.title || '封面'" class="book-cover" loading="lazy">
           <img 
             :src="getRankIcon(index)" 
             :class="getRankClass(index)"
@@ -44,7 +44,7 @@
           :key="index"
           @click="gotoBookDetail(book.bookId)"
         >
-          <img :src="book.coverImageUrl" :alt="book.title" class="book-cover">
+          <img :src="book.coverImageUrl" :alt="book.title || '封面'" class="book-cover" loading="lazy">
           <img 
             :src="getRankIcon(index)" 
             :class="getRankClass(index)"
@@ -73,7 +73,7 @@
           :key="index"
           @click="gotoBookDetail(book.bookId)"
         >
-          <img :src="book.coverImageUrl" :alt="book.title" class="book-cover">
+          <img :src="book.coverImageUrl" :alt="book.title || '封面'" class="book-cover" loading="lazy">
           <img 
             :src="getRankIcon(index)" 
             :class="getRankClass(index)"
@@ -267,7 +267,7 @@ onMounted(() => {
     max-width: 300px;
   }
   .book-title:hover {
-    color: #F9A825; /* 悬停时的颜色，与热度数值同色保持协调 */
+    color: var(--brand-1); /* 悬停时的颜色 */
     cursor: pointer; /* 鼠标变为手型，提示可点击 */
     }
   .book-cate {
@@ -285,7 +285,7 @@ onMounted(() => {
     font-family: PingFangSC, PingFang SC;
     font-weight: 400;
     font-size: 12px;
-    color: #DB975A;
+    color: var(--hot-color);
     line-height: 17px;
     text-align: left;
     font-style: normal;

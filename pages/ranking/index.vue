@@ -1,6 +1,6 @@
 <template>
   <div class="ranking-page">
-    <Header :margin-left="'360px'" />
+    <Header />
     <div class="ranking-container">
       <div class="ranking-box">
         <div class="ranking-nav-box">
@@ -31,7 +31,7 @@
               :key="book.bookId"
               @click="gotoBookDetail(book.bookId)"
               class="ranking-book-item">
-              <img class="book-img" :src="book.coverImageUrl" :alt="book.title">
+              <img class="book-img" :src="book.coverImageUrl" :alt="book.title || '封面'" loading="lazy">
               <div class="book-info">
                 <div class="book-title">{{ book.title }}</div>
                 <div class="book-author">{{ book.penName }}</div>
@@ -118,8 +118,6 @@
 
   // 点击书籍跳转到详情页
   const gotoBookDetail = (bookId) => {
-    console.log('点击了书籍，ID:', bookId)
-    // 使用路由跳转到书籍详情页
     router.push(`/book/${bookId}`)
   }
 </script>
@@ -130,14 +128,16 @@
     flex-direction: column;
   }
   .ranking-container {
-    width: 1200px;
+    max-width: 1200px;
+    width: calc(100% - 32px);
+    margin: 0 auto;
     display: flex;
     padding-top: 122px;
   }
   .ranking-box {
     width: 200px;
     margin-right: 38px;
-    margin-left: 360px;
+    margin-left: 0;
   }
   .ranking-nav-list {
     display: flex;

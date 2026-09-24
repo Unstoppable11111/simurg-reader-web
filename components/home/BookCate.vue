@@ -1,16 +1,18 @@
 <template>
   <div class="book-cate-box">
     <div class="book-cate-list">
-      <!-- 使用v-for循环循环渲染分类项 -->
+      <!-- 使用v-for循环渲染分类项 -->
       <div 
         class="book-cate-item" 
         v-for="(category, index) in bookCateList" 
-        :key="index"
+        :key="category.categoryId || index"
+        @click="gotoCategory(category.categoryId)"
       >
         <img 
           :src="category.iconImageUrl" 
-          :alt="category.categoryName" 
+          :alt="category.categoryName || '分类'" 
           class="cate-img"
+          loading="lazy"
         />
       </div>
     </div>
@@ -18,20 +20,26 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import { API_ENDPOINTS, apiRequest } from '@/utils/api'
 const router = useRouter();
 const props = defineProps({
-    bookCateList: {
-      type: Array,
-      default: () => [],
-      required: true
-    },
-    apiUrl: {
+  bookCateList: {
+    type: Array,
+    default: () => [],
+    required: true
+  },
+  apiUrl: {
     type: String,
     default: API_ENDPOINTS.RANKING_BOOKS
-    },
-})
+  },
+});
+
+const gotoCategory = (categoryId) => {
+  if (categoryId) {
+    router.push(`/bookcate?categoryId=${categoryId}`);
+  } else {
+    router.push('/bookcate');
+  }
+};
 </script>
 
 <style lang="scss" scoped>

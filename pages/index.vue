@@ -2,7 +2,6 @@
     <div class="home-page">
         <!-- 透明导航栏（通过绝对定位悬浮） -->
       <Header 
-        :margin-left="'360px'"
         @trigger-search="handleTriggerSearch"  
         @clear-search="clearSearchResult"    
         @search-result="handleSearchResult"
@@ -23,7 +22,7 @@
             class="search-result-item"
             @click="gotoBookDetail(book.id)"
           >
-            <img :src="book.coverImageUrl" alt="book cover" class="book-cover">
+            <img :src="book.coverImageUrl" :alt="book.title || '书籍封面'" class="book-cover" loading="lazy">
             <div class="book-info">
               <div class="book-name">{{ book.title }}</div>
               <div class="book-author">作者：{{ book.authorPenName }}</div>

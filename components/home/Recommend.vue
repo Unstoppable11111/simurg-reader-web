@@ -9,7 +9,7 @@
       :key="index"
       @click="gotoBookDetail(book.bookId)"
     >
-      <img :src="book.coverImageUrl" alt="书籍封面" class="book-img">
+      <img :src="book.coverImageUrl" :alt="book.title || '书籍封面'" class="book-img" loading="lazy">
       <div class="book-text">
         <span class="book-title">{{ book.title }}</span>
         <span class="book-hot" v-if="activeIndex !== index">热度：{{ book.bookViews }}</span>
@@ -131,7 +131,7 @@
   text-overflow: ellipsis;
 }
 .book-title:hover {
-  color: #F9A825; /* 悬停时的颜色，与热度数值同色保持协调 */
+  color: var(--brand-1);
   cursor: pointer; /* 鼠标变为手型，提示可点击 */
 }
 

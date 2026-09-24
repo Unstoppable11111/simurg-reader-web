@@ -1,26 +1,68 @@
  :root {
+  /* === 背景色 === */
   --bg-0: #141414;
   --bg-1: #1b1b1b;
   --bg-2: #242424;
   --card-1: rgba(255, 255, 255, 0.04);
   --card-2: rgba(255, 255, 255, 0.06);
   --border-1: rgba(255, 255, 255, 0.08);
+
+  /* === 文字色 === */
   --text-1: #ffffff;
   --text-2: #d5d5d5;
   --text-3: #a2a0a0;
-  --brand-1: #f9a825;
-  --brand-2: #ed5b00;
+  --text-4: #777777;       /* 次要信息文字 */
+  --text-muted: #555555;   /* 备案号等极弱文字 */
+
+  /* === 品牌色 === */
+  --brand-1: #f9a825;      /* 主品牌色（金色） */
+  --brand-2: #ed5b00;      /* 强调/CTA色 */
+  --brand-hover: #ffc107;  /* 品牌色悬停态 */
+
+  /* === 功能色 === */
+  --hot-color: #DB975A;    /* 热度/统计数字 */
+  --success: #4caf50;
+  --error: #f44336;
+  --warning: #ff9800;
+
+  /* === 阴影 === */
   --shadow-1: 0 8px 22px rgba(0, 0, 0, 0.35);
   --shadow-2: 0 4px 12px rgba(0, 0, 0, 0.25);
+
+  /* === 圆角 === */
   --radius-1: 10px;
   --radius-2: 14px;
   --radius-3: 18px;
+
+  /* === 间距 === */
   --space-1: 8px;
   --space-2: 12px;
   --space-3: 16px;
   --space-4: 20px;
   --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 40px;
+  --space-8: 48px;
+
+  /* === 动画 === */
   --ease-1: cubic-bezier(0.4, 0, 0.2, 1);
+  --duration-1: 0.2s;
+  --duration-2: 0.3s;
+  --duration-3: 0.5s;
+
+  /* === 字体栈 === */
+  --font-sans: -apple-system, BlinkMacSystemFont, "PingFang SC", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-serif: Georgia, "Times New Roman", serif;
+
+  /* === 布局 === */
+  --content-max-width: 1200px;
+
+  /* === z-index 层级 === */
+  --z-dropdown: 100;
+  --z-sticky: 200;
+  --z-overlay: 300;
+  --z-modal: 400;
+  --z-toast: 500;
 }
 
 body {

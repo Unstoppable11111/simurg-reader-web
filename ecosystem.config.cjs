@@ -6,12 +6,13 @@ module.exports = {
       script: '.output/server/index.mjs',
       node_args: '--max-old-space-size=2048',
 
-      exec_mode: 'fork',
-      instances: 1,
+      // 性能优化：cluster 模式利用多核 CPU，提高并发处理能力
+      exec_mode: 'cluster',
+      instances: 2,
 
       autorestart: true,
       watch: false,
-      max_memory_restart: '600M',
+      max_memory_restart: '1G',
       cron_restart: '0 */12 * * *',
 
       env: {

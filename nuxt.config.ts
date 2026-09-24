@@ -37,12 +37,14 @@ export default defineNuxtConfig({
     importStyle: 'theme-chalk',
   },
   nitro: {
-    // prerender: {
-    //   routes: ['/'] // 预渲染根路径
-    // }
+    // 开启响应压缩，减少传输体积约 60-70%
+    compressPublicAssets: true,
   },
-  cache: {
-    enabled: false  // 关闭 Nuxt 缓存
+  routeRules: {
+    // 首页 ISR 缓存 10 分钟，避免每次请求都重新 SSR
+    '/': { isr: 600 },
+    // 静态资源永久缓存（Vite 会自动加 hash）
+    '/_nuxt/**': { headers: { 'cache-control': 'public, max-age=31536000, immutable' } },
   },
   app: {
     pageTransition: { name: 'page', mode: 'out-in' },
@@ -50,7 +52,8 @@ export default defineNuxtConfig({
     head: {
       title: 'Simurg Reader',
       meta: [
-        { name: 'description', content: 'Simurg Reader - 在线小说阅读与创作平台' }
+        { name: 'description', content: 'Simurg Reader - 在线小说阅读与创作平台' },
+        { name: 'viewport', content: 'width=device-width, initial-scale=1' }
       ]
     }
   },
@@ -71,7 +74,26 @@ export default defineNuxtConfig({
       }),
     ],
     build: {
-      transpile: ['@tinymce/tinymce-vue', 'tinymce']
+      transpile: ['@tinymce/tinymce-vue', 'tinymce'],
+      // 生产环境移除 console.log，减少包体积和信息泄漏
+      minify: 'terser',
+      terserOptions: {
+        compress: {
+          drop_console: true,
+          drop_debugger: true,
+        }
+      },
+      // 代码分割：将大型依赖拆为独立 chunk，利用浏览器并行下载和缓存
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            'vendor-three': ['three'],
+            'vendor-tinymce': ['tinymce', '@tinymce/tinymce-vue'],
+            'vendor-swiper': ['swiper'],
+            'vendor-element': ['element-plus'],
+          }
+        }
+      }
     }
   },
   hooks: {
