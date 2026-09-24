@@ -2,11 +2,20 @@
 /**
  * 开发、测试、生产
  */
-// const API_BASE_URL = "http://localhost:8082/api"
-const API_BASE_URL = "http://www.sr-web-test.tata.org.cn:8082/api";
+// 统一获取 API 基础地址（优先取 Nuxt runtimeConfig，兼容纯客户端环境与外部脚本）
+export const getApiBaseUrl = () => {
+  try {
+    const config = useRuntimeConfig();
+    if (config?.public?.apiBase) {
+      return config.public.apiBase;
+    }
+  } catch (e) {
+    // 非 Nuxt 上下文
+  }
+  return "http://www.sr-web-test.tata.org.cn:8082/api";
+};
 
-// const API_BASE_URL = config.public.API_BASE_URL
-// const API_BASE_URL = process.env.NUXT_API_BASE_URL || 'http://8.129.12.50:8082/simurg_reader_web/api'
+const API_BASE_URL = getApiBaseUrl();
 export const API_ENDPOINTS = {
   /** 首页相关接口开始 */
   BANNERS: `${API_BASE_URL}/banner/role`,

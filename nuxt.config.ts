@@ -10,6 +10,11 @@ export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   ssr: true,
   devtools: { enabled: false },// 关闭开发工具
+  runtimeConfig: {
+    public: {
+      apiBase: process.env.NUXT_PUBLIC_API_BASE || 'http://www.sr-web-test.tata.org.cn:8082/api',
+    }
+  },
   css: ['@/public/style/global.css', '@/assets/css/global.css'],
   // postcss: {
   //   plugins: {

@@ -134,46 +134,40 @@ const gotoBookDetail = (bookId) => {
   router.push(`/book/${bookId}`)
 }
 
-const fetchRankingData = async () => {
-  // 性能优化：3 个排行榜接口由串行改为并行，减少等待时间
+// 大热榜、新书榜、完结榜响应式状态
+const hotBooks = ref([]);
+const newBooks = ref([]);
+const bestSellersBooks = ref([]);
+
+// 核心优化：使用 useAsyncData 让排行榜数据在服务端渲染完成并随 Payload 水合，消除客户端 Network 接口
+const { data: rankingData } = await useAsyncData('home-ranking-data', async () => {
   const [hotResult, newResult, bestResult] = await Promise.allSettled([
-    apiRequest(props.apiUrl, {
+    useRequest(props.apiUrl, {
       method: 'POST',
-      body: JSON.stringify({ rankingType: 1, rankingSize: 5 })
+      body: { rankingType: 1, rankingSize: 5 }
     }),
-    apiRequest(props.apiUrl, {
+    useRequest(props.apiUrl, {
       method: 'POST',
-      body: JSON.stringify({ rankingType: 5, rankingSize: 5 })
+      body: { rankingType: 5, rankingSize: 5 }
     }),
-    apiRequest(props.apiUrl, {
+    useRequest(props.apiUrl, {
       method: 'POST',
-      body: JSON.stringify({ rankingType: 4, rankingSize: 5 })
+      body: { rankingType: 4, rankingSize: 5 }
     })
   ]);
 
-  if (hotResult.status === 'fulfilled' && hotResult.value?.code === 200) {
-    hotBooks.value = hotResult.value.data || [];
-  }
-  if (newResult.status === 'fulfilled' && newResult.value?.code === 200) {
-    newBooks.value = newResult.value.data || [];
-  }
-  if (bestResult.status === 'fulfilled' && bestResult.value?.code === 200) {
-    bestSellersBooks.value = bestResult.value.data || [];
-  }
-};
-
-// 大热榜数据
-const hotBooks = ref([]);
-// 新书榜数据
-const newBooks = ref([]);
-// 畅销榜数据
-const bestSellersBooks = ref([]);
-
-
-// 组件挂载时获取数据
-onMounted(() => {
-  fetchRankingData();
+  return {
+    hot: hotResult.status === 'fulfilled' && hotResult.value?.code === 200 ? (hotResult.value.data || []) : [],
+    newB: newResult.status === 'fulfilled' && newResult.value?.code === 200 ? (newResult.value.data || []) : [],
+    best: bestResult.status === 'fulfilled' && bestResult.value?.code === 200 ? (bestResult.value.data || []) : []
+  };
 });
+
+if (rankingData.value) {
+  hotBooks.value = rankingData.value.hot || [];
+  newBooks.value = rankingData.value.newB || [];
+  bestSellersBooks.value = rankingData.value.best || [];
+}
 </script>
 
 <style lang="scss" scoped>

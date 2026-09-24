@@ -178,38 +178,34 @@
     router.push(`/book/${bookId}`);
   };
 
-  // 性能优化：首页 5 个接口由串行改为并行，大幅缩短 SSR 首屏白屏时间
-  const [featureResult, recommendResult, cateResult, recentResult, bannerResult] = await Promise.allSettled([
-    // 精选书籍
-    apiRequest(`${API_ENDPOINTS.TAG_BOOKS}/FEATURED`),
-    // 推荐书籍
-    apiRequest(`${API_ENDPOINTS.TAG_BOOKS}/RECOMMEND`),
-    // 书籍分类
-    apiRequest(API_ENDPOINTS.CATEGORIES, { method: 'GET' }),
-    // 最近更新
-    apiRequest(API_ENDPOINTS.RECENT_UPDATE_BOOKS, {
-      method: 'POST',
-      body: JSON.stringify({ size: 10 })
-    }),
-    // 轮播图
-    apiRequest(API_ENDPOINTS.BANNERS)
-  ]);
+  // 核心架构升级：使用 Nuxt 官方 useAsyncData 机制
+  // 服务端完成请求后将数据打包至 Payload，客户端加载直接水合，彻底消除浏览器控制台的二次重复请求！
+  const { data: homeInitData } = await useAsyncData('home-init-data', async () => {
+    const [featureRes, recommendRes, cateRes, recentRes, bannerRes] = await Promise.allSettled([
+      useRequest(`${API_ENDPOINTS.TAG_BOOKS}/FEATURED`),
+      useRequest(`${API_ENDPOINTS.TAG_BOOKS}/RECOMMEND`),
+      useRequest(API_ENDPOINTS.CATEGORIES, { method: 'GET' }),
+      useRequest(API_ENDPOINTS.RECENT_UPDATE_BOOKS, {
+        method: 'POST',
+        body: { size: 10 }
+      }),
+      useRequest(API_ENDPOINTS.BANNERS)
+    ]);
+    return {
+      books: featureRes.status === 'fulfilled' && featureRes.value?.code === 200 && Array.isArray(featureRes.value.data) ? featureRes.value.data : [],
+      recommendBooks: recommendRes.status === 'fulfilled' && recommendRes.value?.code === 200 && Array.isArray(recommendRes.value.data) ? recommendRes.value.data.slice(0, 4) : [],
+      bookCateList: cateRes.status === 'fulfilled' && cateRes.value?.code === 200 && Array.isArray(cateRes.value.data) ? cateRes.value.data : [],
+      recentUpdateBooks: recentRes.status === 'fulfilled' && recentRes.value?.code === 200 && Array.isArray(recentRes.value.data) ? recentRes.value.data : [],
+      banners: bannerRes.status === 'fulfilled' && bannerRes.value?.code === 200 && Array.isArray(bannerRes.value.data) ? bannerRes.value.data : []
+    };
+  });
 
-  // 安全赋值：fulfilled 状态才取值，rejected 状态使用默认空数组
-  if (featureResult.status === 'fulfilled' && featureResult.value?.code === 200 && Array.isArray(featureResult.value.data)) {
-    books.value = featureResult.value.data;
-  }
-  if (recommendResult.status === 'fulfilled' && recommendResult.value?.code === 200 && Array.isArray(recommendResult.value.data)) {
-    recommendBooks.value = recommendResult.value.data.slice(0, 4);
-  }
-  if (cateResult.status === 'fulfilled' && cateResult.value?.code === 200 && Array.isArray(cateResult.value.data)) {
-    bookCateList.value = cateResult.value.data;
-  }
-  if (recentResult.status === 'fulfilled' && recentResult.value?.code === 200 && Array.isArray(recentResult.value.data)) {
-    recentUpdateBooks.value = recentResult.value.data;
-  }
-  if (bannerResult.status === 'fulfilled' && bannerResult.value?.code === 200 && Array.isArray(bannerResult.value.data)) {
-    banners.value = bannerResult.value.data;
+  if (homeInitData.value) {
+    books.value = homeInitData.value.books || [];
+    recommendBooks.value = homeInitData.value.recommendBooks || [];
+    bookCateList.value = homeInitData.value.bookCateList || [];
+    recentUpdateBooks.value = homeInitData.value.recentUpdateBooks || [];
+    banners.value = homeInitData.value.banners || [];
   }
 
   // 回到顶部功能
