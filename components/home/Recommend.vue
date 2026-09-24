@@ -4,7 +4,7 @@
       class="recommend-book-item"
       :class="{ 'book-recommend-active': activeIndex === index }"
       @mouseenter="activeIndex = index"
-      @mousemouseleave="activeIndex = -1"
+      @mouseleave="activeIndex = -1"
       v-for="(book, index) in recommendBooks" 
       :key="index"
       @click="gotoBookDetail(book.bookId)"
@@ -45,14 +45,11 @@
 
   // 点击书籍跳转到详情页
   const gotoBookDetail = (bookId) => {
-    console.log('点击了书籍，ID:', bookId)
-    // 使用路由跳转到书籍详情页
     router.push(`/book/${bookId}`)
   }
 
   // 点击作者跳转到作者详情页
   const gotoAuthorDetail = (authorId) => {
-    console.log('点击作者', authorId)
     router.push(`/author/${authorId}`)
   }
 
@@ -64,7 +61,8 @@
 <style lang="scss" scoped>
 .recommend-box {
     display: flex;
-    width: 1200px;
+    width: 100%;
+    max-width: 1200px;
     padding: 38px 0;
     gap: 28px; /* 替代margin-right，更适合flex布局 */
 }

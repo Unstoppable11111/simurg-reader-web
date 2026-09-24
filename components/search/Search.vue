@@ -17,7 +17,7 @@
       :class="{ 'has-content': searchQuery.trim() }"
     >
       <i class="fa fa-search">
-        <img style="color: black;" src="/public/images/search.png" alt="">
+        <img style="color: black;" src="/images/search.png" alt="">
       </i>
     </button>
     
@@ -34,8 +34,17 @@
 
 <script setup>
   import { ref, onUnmounted } from 'vue'
-  import _ from 'lodash'
-  const { debounce } = _
+
+  // 轻量 debounce 实现（替代 lodash 全量引入）
+  function debounce(fn, delay) {
+    let timer = null
+    const debounced = (...args) => {
+      if (timer) clearTimeout(timer)
+      timer = setTimeout(() => fn(...args), delay)
+    }
+    debounced.cancel = () => { if (timer) clearTimeout(timer) }
+    return debounced
+  }
 
   // 定义Props
   const props = defineProps({

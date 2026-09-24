@@ -21,7 +21,7 @@
       </div>
 
       <div class="footer-column">
-        <h3 class="column-title">合法的</h3>
+        <h3 class="column-title">法律条款</h3>
         <div class="column-links">
           <NuxtLink to="/footer-common?section=terms">使用条款</NuxtLink>
           <NuxtLink to="/footer-common?section=privacy">隐私政策</NuxtLink>

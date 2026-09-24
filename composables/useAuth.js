@@ -5,7 +5,7 @@ export const useAuth = () => {
   const authStore = useAuthStore()
 
   const userName = computed(() => authStore.user?.username || '')
-  const userAvatar = computed(() => authStore.user?.avatar || '/public/images/default-avatar.png')
+  const userAvatar = computed(() => authStore.user?.avatar || '/images/default-avatar.png')
 
   return {
     isLoggedIn: computed(() => authStore.isLoggedIn),

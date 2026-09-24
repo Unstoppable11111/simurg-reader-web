@@ -42,8 +42,11 @@
 
 <script setup>
   import { ref, onMounted, computed, onUnmounted } from 'vue'
-  import Swiper from 'swiper/bundle'
-  import 'swiper/css/bundle'
+  // 性能优化：按需导入 Swiper 核心 + 所需模块（替代全量 bundle 约减少 100KB）
+  import Swiper from 'swiper'
+  import { Pagination, Autoplay } from 'swiper/modules'
+  import 'swiper/css'
+  import 'swiper/css/pagination'
   import { API_ENDPOINTS, apiRequest } from '@/utils/api'
   // 关键：导入Nuxt路由跳转函数
   import { navigateTo } from 'nuxt/app'
@@ -155,6 +158,7 @@
     setTimeout(() => {
       if (document.querySelector('.swiper')) {
         swiperInstance.value = new Swiper('.swiper', {
+          modules: [Pagination, Autoplay],
           ...props.carouselOptions,
           pagination: {
             el: '.swiper-pagination.custom-pagination',

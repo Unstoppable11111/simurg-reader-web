@@ -131,64 +131,34 @@ const getRankClass = (index) => {
 
 // 点击书籍跳转到详情页
 const gotoBookDetail = (bookId) => {
-  console.log('点击了书籍，ID:', bookId)
-  // 使用路由跳转到书籍详情页
   router.push(`/book/${bookId}`)
 }
 
 const fetchRankingData = async () => {
-  // 热门榜
-  try {
-    const hotRankingData = {
-      rankingType: 1,
-      rankingSize: 5
-    };
-
-    const response = await apiRequest(props.apiUrl, {
+  // 性能优化：3 个排行榜接口由串行改为并行，减少等待时间
+  const [hotResult, newResult, bestResult] = await Promise.allSettled([
+    apiRequest(props.apiUrl, {
       method: 'POST',
-      body: JSON.stringify(hotRankingData)
-    });
-    const result = response;
-    if (result.code === 200 && result.data) {
-      hotBooks.value = result.data || [];
-    }
-  } catch (error) {
+      body: JSON.stringify({ rankingType: 1, rankingSize: 5 })
+    }),
+    apiRequest(props.apiUrl, {
+      method: 'POST',
+      body: JSON.stringify({ rankingType: 5, rankingSize: 5 })
+    }),
+    apiRequest(props.apiUrl, {
+      method: 'POST',
+      body: JSON.stringify({ rankingType: 4, rankingSize: 5 })
+    })
+  ]);
+
+  if (hotResult.status === 'fulfilled' && hotResult.value?.code === 200) {
+    hotBooks.value = hotResult.value.data || [];
   }
-
-  // 新书榜
-  try {
-    const newBookRankingData = {
-      rankingType: 5,
-      rankingSize: 5
-    };
-
-    const response = await apiRequest(props.apiUrl, {
-      method: 'POST',
-      body: JSON.stringify(newBookRankingData)
-    });
-    const result = response;
-    if (result.code === 200 && result.data) {
-      newBooks.value = result.data || [];
-    }
-  } catch (error) {
+  if (newResult.status === 'fulfilled' && newResult.value?.code === 200) {
+    newBooks.value = newResult.value.data || [];
   }
-
-  // 完结榜
-  try {
-    const bestsellerRankingData = {
-      rankingType: 4,
-      rankingSize: 5
-    };
-
-    const response = await apiRequest(props.apiUrl, {
-      method: 'POST',
-      body: JSON.stringify(bestsellerRankingData)
-    });
-    const result = response;
-    if (result.code === 200 && result.data) {
-      bestSellersBooks.value = result.data || [];
-    }
-  } catch (error) {
+  if (bestResult.status === 'fulfilled' && bestResult.value?.code === 200) {
+    bestSellersBooks.value = bestResult.value.data || [];
   }
 };
 
@@ -213,7 +183,8 @@ onMounted(() => {
   .ranking-hot-section, 
   .ranking-new-section, 
   .ranking-best-sellers-section { 
-    width: 400px;
+    flex: 1;
+    min-width: 0;
     height: 633px;
   }
   .ranking-hot-title, 
@@ -241,7 +212,7 @@ onMounted(() => {
   .ranking-new-itme, 
   .ranking-best-sellers-itme {
     display: flex;
-    width: 400px;
+    width: 100%;
     height: 96px;
     margin-top: 14px;
     margin-bottom: 18px;

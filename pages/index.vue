@@ -150,6 +150,7 @@
       return;
     }
     searchQuery.value = query.trim(); 
+    isSearching.value = true;
     try {
       const bookSearchUrl = { keyword: query.trim() };
       const bookSearchResult = await apiRequest(API_ENDPOINTS.BOOK_SEARCH_BY_KEYWORDS, {
@@ -158,12 +159,9 @@
       });
       if (bookSearchResult.code === 200 && bookSearchResult.data?.records) {
         searchResult.value = bookSearchResult.data.records || []; 
-        isSearching.value = true;
       }
     } catch (error) {
       searchResult.value = [];
-    } finally {
-      isSearching.value = false;
     }
   };
   // 新增：清空搜索结果，恢复原首页内容

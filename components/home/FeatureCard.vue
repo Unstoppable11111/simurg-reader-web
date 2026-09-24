@@ -108,7 +108,8 @@ $active-h: 288px;
 $info-h: 60px;
 
 .feature-card-carousel {
-  width: 1200px;
+  width: 100%;
+  max-width: 1200px;
   position: relative;
   margin: 0 auto;
   padding: 50px 0; /* 上下留出空间给放大后的图片 */
