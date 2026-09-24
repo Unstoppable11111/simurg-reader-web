@@ -1,18 +1,17 @@
 import { defineNuxtPlugin } from '#app';
 
 export default defineNuxtPlugin((nuxtApp) => {
-  // 检查用户是否开启了系统级减弱动效偏好
-  const prefersReducedMotion = 
-    typeof window !== 'undefined' && 
-    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
   /**
    * v-reveal 指令
    * 用法: <div v-reveal> 或 <div v-reveal="{ delay: 100 }">
-   * 功能: 当元素进入视口约 8% 时添加 .is-revealed 类，触发平滑入场并解除监听
+   * 支持客户端 IntersectionObserver 视口平滑入场
+   * 支持 SSR 服务端渲染（提供 getSSRProps 钩子防止 hydration 报错）
    */
   nuxtApp.vueApp.directive('reveal', {
     mounted(el: HTMLElement, binding) {
+      if (typeof window === 'undefined') return;
+
+      const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       if (prefersReducedMotion || typeof IntersectionObserver === 'undefined') {
         el.classList.add('is-revealed');
         return;
@@ -40,7 +39,6 @@ export default defineNuxtPlugin((nuxtApp) => {
       );
 
       observer.observe(el);
-      // 挂载 observer 实例以便卸载时清理
       (el as any)._revealObserver = observer;
     },
     unmounted(el: HTMLElement) {
@@ -48,6 +46,10 @@ export default defineNuxtPlugin((nuxtApp) => {
         (el as any)._revealObserver.disconnect();
         delete (el as any)._revealObserver;
       }
+    },
+    // 关键：在服务端渲染执行时返回空属性，避免 @vue/server-renderer 抛出 getSSRProps 未定义异常
+    getSSRProps() {
+      return {};
     }
   });
 });
