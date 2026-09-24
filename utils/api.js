@@ -152,22 +152,23 @@ export async function apiAuthRequest(endpoint, options = {}) {
       ...options
     }
     const response = await fetch(endpoint, mergedOptions);
-    if (response.code === 2008 || response.status === 401) {
-      window.location.href = '/login'
-    }
-    // 修复：原代码 !response.code === 200 因运算符优先级导致永远为 false
-    if (response.code !== 200) {
+    if (!response.ok) {
+      if (response.status === 401 && typeof window !== 'undefined') {
+        window.location.href = '/login'
+      }
       throw new Error(`HTTP error! status: ${response.status}`)
     }
-    // TODO: 如果返回的参数请求头有accessToken，需要替换
-    if (response.headers.get('X-New-Access-Token')) {
-      console.log("返回的请求头参数有新的accessToken，", response.headers.get('X-New-Access-Token'));
-      // 修复：header 名称应与检查一致
+    // 如果返回的参数请求头有新 accessToken，进行替换
+    if (response.headers?.get('X-New-Access-Token') && typeof localStorage !== 'undefined') {
       localStorage.setItem('auth_token', response.headers.get('X-New-Access-Token'))
     }
-    return await response.json()
+    const result = await response.json()
+    if (result.code === 2008 && typeof window !== 'undefined') {
+      window.location.href = '/login'
+    }
+    return result
   } catch (error) {
-    console.error('API request failed:', error)
+    console.error('API auth request failed:', error)
     throw error
   }
 }
@@ -191,7 +192,6 @@ export async function apiRequest(endpoint, options = {}) {
     }
     
     // 如果存在accessToken，则添加到Authorization头部
-    
     if (accessToken) {
        defaultOptions.headers.Authorization = `${accessToken}`
     }
@@ -205,17 +205,11 @@ export async function apiRequest(endpoint, options = {}) {
       ...options
     }
     const response = await fetch(endpoint, mergedOptions);
-    // if (response.code === 2008 || response.status === 401) {
-    //   window.location.href = '/login'
-    // }
-    // 修复：原代码 !response.code === 200 因运算符优先级导致永远为 false
-    if (response.code !== 200) {
+    if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`)
     }
-    // TODO: 如果返回的参数请求头有accessToken，需要替换
-    if (response.headers.get('X-New-Access-Token')) {
-      console.log("返回的请求头参数有新的accessToken，", response.headers.get('X-New-Access-Token'));
-      // 修复：header 名称应与检查一致
+    // 如果返回的参数请求头有新 accessToken，进行替换
+    if (response.headers?.get('X-New-Access-Token') && typeof localStorage !== 'undefined') {
       localStorage.setItem('auth_token', response.headers.get('X-New-Access-Token'))
     }
     return await response.json()

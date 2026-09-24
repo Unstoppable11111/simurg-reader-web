@@ -181,9 +181,9 @@
   // 性能优化：首页 5 个接口由串行改为并行，大幅缩短 SSR 首屏白屏时间
   const [featureResult, recommendResult, cateResult, recentResult, bannerResult] = await Promise.allSettled([
     // 精选书籍
-    apiRequest(new URL(`${API_ENDPOINTS.TAG_BOOKS}/FEATURED`)),
+    apiRequest(`${API_ENDPOINTS.TAG_BOOKS}/FEATURED`),
     // 推荐书籍
-    apiRequest(new URL(`${API_ENDPOINTS.TAG_BOOKS}/RECOMMEND`)),
+    apiRequest(`${API_ENDPOINTS.TAG_BOOKS}/RECOMMEND`),
     // 书籍分类
     apiRequest(API_ENDPOINTS.CATEGORIES, { method: 'GET' }),
     // 最近更新

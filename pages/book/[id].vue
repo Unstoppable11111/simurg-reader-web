@@ -162,9 +162,7 @@
 
   // 获取书籍详情
   try {
-    console.log("请求的id", bookId)
-    const url = new URL(`${API_ENDPOINTS.BOOK_DETAIL}/${bookId}`);
-    console.log("请求的url地址", url);
+    const url = `${API_ENDPOINTS.BOOK_DETAIL}/${bookId}`;
     const bookResult = await apiRequest(url);
     console.log("书籍内容",bookResult);
     if (bookResult.code === 200) {          
