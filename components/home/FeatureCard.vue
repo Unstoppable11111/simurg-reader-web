@@ -73,18 +73,18 @@ const router = useRouter();
 
 const breakpoints = {
   0: {
-    slidesPerView: 2.2,
+    slidesPerView: 2.3,
     spaceBetween: 12,
     centeredSlides: false
   },
-  540: {
+  480: {
     slidesPerView: 3.2,
-    spaceBetween: 12,
+    spaceBetween: 14,
     centeredSlides: false
   },
   768: {
-    slidesPerView: 4,
-    spaceBetween: 16,
+    slidesPerView: 4.2,
+    spaceBetween: 18,
     centeredSlides: true
   },
   1024: {
@@ -203,46 +203,65 @@ $info-h: 60px;
 
 .carousel-arrow {
   position: absolute;
-  z-index: 100;
+  z-index: 10;
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background-color: rgb(255, 255, 255, 0.5);
-  // border: 1px solid rgb(255, 255, 255, 0.3);
+  background-color: rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  top: -3%;
-  transform: translateY(-50%); /* 按钮居中 */
-  transition: all 0.3s;
+  top: 50%;
+  transform: translateY(-50%);
+  transition: all 0.25s ease;
 
   &:hover {
-    background-color: rgba(255, 255, 255, 0.3);
-    transform: translateY(-50%) scale(1.1);
+    background-color: rgba(255, 255, 255, 0.8);
+    transform: translateY(-50%) scale(1.08);
+    svg path {
+      stroke: #18191b;
+    }
   }
   
   &:disabled, &.swiper-button-disabled {
-    opacity: 0.3;
+    opacity: 0.2;
+    cursor: not-allowed;
+    pointer-events: none;
   }
 }
 
-.left-arrow { left: 0px; }
-.right-arrow { right: 0px; }
+.left-arrow { left: 8px; }
+.right-arrow { right: 8px; }
 
 @media (max-width: 768px) {
   .feature-card-carousel {
     width: 100%;
-    padding: 24px 0;
+    padding: 16px 0;
+    overflow: hidden;
   }
   :deep(.swiper-slide) {
-    height: 300px;
+    height: auto;
+    padding: 8px 0;
   }
   .feature-card {
+    width: 100%;
+    max-width: 140px;
     transform: none;
+
+    .book-img-box {
+      width: 100%;
+      height: auto;
+      aspect-ratio: 3 / 4;
+    }
   }
   .feature-card.active-part {
     transform: none;
+    .book-info {
+      transform: none;
+    }
   }
   .carousel-arrow {
     display: none;

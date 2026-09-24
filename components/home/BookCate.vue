@@ -43,57 +43,64 @@ const gotoCategory = (categoryId) => {
 </script>
 
 <style lang="scss" scoped>
-  .book-cate-box {
-    margin-top: 38px;
-  }
-  .book-cate-list {
-    display: flex;
-    gap: 20px;
-  }
-  
-  .cate-img {
-    width: 154px;
-    height: 185px;
-    box-shadow: 0px 4px 10px 0px rgba(197,195,195,0.5);
-    border-radius: 10px;
-    transition: transform 0.3s ease; /* 添加过渡效果 */
-    &:not(:valid) {
-      // background-color: #828282;
-    }
-  }
-  
-  // 为分类项添加悬停效果
-  .book-cate-item {
-    cursor: pointer;
-    
-    &:hover .cate-img {
-      transform: translateY(-5px); /* 悬停时上浮 */
-      box-shadow: 0px 8px 15px 0px rgba(197,195,195,0.7); /* 增强阴影 */
-    }
-  }
-  @media (max-width: 768px) {
-    .book-cate-box {
-      width: 100%;
-    }
-    .book-cate-list {
-      flex-wrap: wrap;
-      gap: 12px;
-    }
-    .book-cate-item {
-      width: calc(33.333% - 8px);
-    }
-    .cate-img {
-      width: 100%;
-      height: 120px;
-    }
-  }
+.book-cate-box {
+  width: 100%;
+  box-sizing: border-box;
+}
 
-  @media (max-width: 480px) {
-    .book-cate-item {
-      width: calc(50% - 6px);
-    }
+.book-cate-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 16px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.book-cate-item {
+  width: 100%;
+  cursor: pointer;
+  border-radius: var(--radius-md, 10px);
+  overflow: hidden;
+  transition: transform 0.3s ease;
+  aspect-ratio: 154 / 185;
+
+  &:hover {
+    transform: translateY(-4px);
     .cate-img {
-      height: 140px;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+      filter: brightness(1.06);
     }
   }
+}
+
+.cate-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  border-radius: var(--radius-md, 10px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  transition: box-shadow 0.3s ease, filter 0.3s ease;
+}
+
+@media (max-width: 768px) {
+  .book-cate-list {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+  }
+}
+
+@media (max-width: 520px) {
+  .book-cate-list {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+}
+
+@media (max-width: 360px) {
+  .book-cate-list {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+}
 </style>

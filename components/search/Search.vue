@@ -108,51 +108,43 @@
 .search-container {
   position: relative;
   display: flex;
-  width: 260px;
-  /* 响应式适配：小屏缩窄 */
-  @media (max-width: 768px) {
-    width: 200px;
-  }
+  align-items: center;
+  width: 240px;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .search-input {
   width: 100%;
-  height: 28px;
-  background: rgba(255, 255, 255, 0.5);
-  border-radius: 14px;
-  border: none;
-  padding: 0 40px 0 16px; /* 右侧预留更多空间给清除按钮 */
-  font-size: 14px;
-  color: #2d3748;
+  height: 32px;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 16px;
+  padding: 0 32px 0 14px;
+  font-size: 13px;
+  color: #ffffff;
   box-sizing: border-box;
-  transition: all 0.3s ease;
+  transition: all 0.25s ease;
 }
 
 .search-input::placeholder {
-  color: #4a5568;
-  opacity: 1;
+  color: rgba(255, 255, 255, 0.55);
 }
 
 .search-input:focus {
   outline: none;
-  background: rgba(255, 255, 255, 0.8);
-  box-shadow: 0 0 0 2px rgba(255, 155, 81, 0.2); /* 匹配项目主色 */
+  background: rgba(255, 255, 255, 0.25);
+  border-color: #e59344;
+  box-shadow: 0 0 0 2px rgba(229, 147, 68, 0.25);
 }
 
-.search-input:disabled {
-  background: rgba(255, 255, 255, 0.3);
-  cursor: not-allowed;
-}
-
-/* 搜索按钮：优化定位和交互 */
 .search-button {
   position: absolute;
-  right: 16px;
+  right: 6px;
   top: 50%;
   transform: translateY(-50%);
   background: transparent;
   border: none;
-  color: #4a5568;
   cursor: pointer;
   width: 24px;
   height: 24px;
@@ -160,66 +152,88 @@
   align-items: center;
   justify-content: center;
   border-radius: 50%;
+  padding: 0;
   transition: all 0.2s ease;
 }
 
-.search-button.has-content {
-  color: #F9A825; /* 匹配项目主色 */
+.search-button img {
+  width: 14px;
+  height: 14px;
+  object-fit: contain;
+  opacity: 0.8;
 }
 
-.search-button:hover:not(:disabled) {
-  background-color: #F9A825;
-  color: #fff;
+.search-button:hover img {
+  opacity: 1;
 }
 
-.search-button:disabled {
-  cursor: not-allowed;
-  opacity: 0.6;
-}
-
-.search-icon {
-  width: 16px;
-  height: 16px;
-  color: inherit; /* 继承按钮颜色 */
-}
-
-/* 加载动画：复用全局统一运动标尺 */
-.loading-spinner {
-  width: 16px;
-  height: 16px;
-  border: 2px solid rgba(255, 255, 255, 0.2);
-  border-top-color: #ffffff;
-  border-radius: 50%;
-  animation: motion-spin 0.8s linear infinite;
-}
-
-/* 清除按钮：修复定位+优化样式 */
 .clear-button {
   position: absolute;
-  right: 38px; /* 调整位置，避免和搜索按钮重叠 */
-  top: 40%;
+  right: 28px;
+  top: 50%;
   transform: translateY(-50%);
-  background: transparent;
+  background: rgba(255, 255, 255, 0.2);
   border: none;
-  color: #fff;
+  color: #ffffff;
   cursor: pointer;
-  width: 25px;
-  height: 25px;
+  width: 16px;
+  height: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  transition: all 0.2s ease;
-  font-size: 14px;
+  font-size: 10px;
+  line-height: 1;
+  padding: 0;
 }
 
 .clear-button:hover {
-  background-color: #F9A825;
-  color: #fff;
+  background: #e59344;
 }
 
-.clear-icon {
-  line-height: 1;
-  font-weight: bold;
+@media (max-width: 900px) {
+  .search-container {
+    width: 160px;
+  }
+}
+
+@media (max-width: 640px) {
+  .search-container {
+    width: 120px;
+  }
+  .search-input {
+    height: 28px;
+    font-size: 12px;
+    padding: 0 26px 0 10px;
+  }
+}
+
+@media (max-width: 420px) {
+  .search-container {
+    width: 96px;
+  }
+  .search-input {
+    height: 26px;
+    font-size: 11px;
+    padding: 0 22px 0 8px;
+  }
+  .search-input::placeholder {
+    font-size: 11px;
+  }
+  .search-button {
+    right: 2px;
+    width: 20px;
+    height: 20px;
+  }
+  .search-button img {
+    width: 12px;
+    height: 12px;
+  }
+  .clear-button {
+    right: 22px;
+    width: 14px;
+    height: 14px;
+    font-size: 9px;
+  }
 }
 </style>

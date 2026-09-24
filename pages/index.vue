@@ -218,7 +218,7 @@ if (homeInitData.value) {
 
 .carousel-section {
   width: 100%;
-  max-width: 100vw;
+  max-width: 100%;
   overflow: hidden;
   margin-bottom: var(--space-8);
 }

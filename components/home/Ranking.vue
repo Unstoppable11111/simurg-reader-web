@@ -133,8 +133,8 @@ const rankingBoards = computed(() => [
 <style lang="scss" scoped>
 .ranking-box {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
@@ -144,6 +144,7 @@ const rankingBoards = computed(() => [
 .ranking-column {
   display: flex;
   flex-direction: column;
+  min-width: 0;
   background: var(--color-surface-base, #18191b);
   border: 1px solid var(--color-border-subtle, rgba(255, 255, 255, 0.06));
   border-radius: var(--radius-lg, 12px);
@@ -192,6 +193,7 @@ const rankingBoards = computed(() => [
   border-radius: var(--radius-md, 8px);
   cursor: pointer;
   background: transparent;
+  min-width: 0;
   transition: all var(--transition-fast, 150ms ease);
   box-sizing: border-box;
 
@@ -277,17 +279,17 @@ const rankingBoards = computed(() => [
   font-weight: 500;
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 1100px) {
   .ranking-box {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
   }
 }
 
-@media (max-width: 720px) {
+@media (max-width: 768px) {
   .ranking-box {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     gap: 16px;
-    padding: 0 16px;
   }
 }
 </style>

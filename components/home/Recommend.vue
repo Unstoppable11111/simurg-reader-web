@@ -132,7 +132,7 @@ const gotoAuthorDetail = (authorId) => {
   position: relative;
   display: flex;
   flex: 1;
-  min-width: 140px;
+  min-width: 0;
   height: 290px;
   cursor: pointer;
   border-radius: var(--radius-lg, 12px);
@@ -150,8 +150,8 @@ const gotoAuthorDetail = (authorId) => {
   }
 
   &.book-recommend-active {
-    flex: 3.2;
-    min-width: 480px;
+    flex: 3;
+    min-width: 0;
     background: var(--color-surface-elevated, #212327);
     border-color: var(--color-brand-primary, #e59344);
     box-shadow: var(--shadow-md, 0 8px 24px rgba(0, 0, 0, 0.35));
@@ -366,10 +366,10 @@ const gotoAuthorDetail = (authorId) => {
 }
 
 /* 响应式适配 */
-@media (max-width: 900px) {
+@media (max-width: 980px) {
   .recommend-box {
     flex-direction: column;
-    padding: 8px 16px;
+    padding: 8px 0;
     gap: 12px;
   }
 

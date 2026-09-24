@@ -626,7 +626,7 @@ onBeforeUnmount(() => {
   }
 
   .logo {
-    width: 130px;
+    width: 120px;
     height: 24px;
   }
 
@@ -635,13 +635,19 @@ onBeforeUnmount(() => {
   }
 
   .header-right-nav {
-    gap: 12px;
+    gap: 8px;
+  }
+
+  .login-btn {
+    padding: 4px 12px;
+    font-size: 13px;
   }
 
   .mobile-menu-btn {
     display: flex;
     align-items: center;
     justify-content: center;
+    padding: 4px;
   }
 
   .user-name {
@@ -650,6 +656,26 @@ onBeforeUnmount(() => {
 
   .dropdown-arrow {
     display: none !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .header-container {
+    padding: 0 10px;
+  }
+
+  .logo {
+    width: 100px;
+    height: 20px;
+  }
+
+  .header-right-nav {
+    gap: 6px;
+  }
+
+  .login-btn {
+    padding: 4px 8px;
+    font-size: 12px;
   }
 }
 </style>

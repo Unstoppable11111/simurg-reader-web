@@ -5,6 +5,22 @@
   font-family: "Microsoft Yahei", "PingFang SC", sans-serif;
 }
 
+html,
+body {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+  position: relative;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#__nuxt {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
 .simurg-reader-page {
   min-height: 100vh;
   background: #fff !important;
