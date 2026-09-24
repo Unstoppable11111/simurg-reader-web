@@ -30,7 +30,7 @@
           <SectionHeader 
             id="section-featured"
             title="精选" 
-            icon-name="feature-noval" 
+            icon-name="featured" 
           />
           <FeatureCard :books="books" />
         </section>
@@ -61,7 +61,7 @@
           <SectionHeader 
             id="section-category"
             title="分类" 
-            icon-name="i-category" 
+            icon-name="category" 
             more-link="/bookcate" 
           />
           <BookCate :bookCateList="bookCateList" />
@@ -72,6 +72,7 @@
           <SectionHeader 
             id="section-recent-updates"
             title="最近更新" 
+            icon-name="recent"
           />
           <LastUpdateBook :recentUpdateBooks="recentUpdateBooks" />
         </section>

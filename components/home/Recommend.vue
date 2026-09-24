@@ -3,13 +3,13 @@
     <div 
       class="recommend-book-item"
       :class="{ 'book-recommend-active': activeIndex === index }"
-      @mouseenter="activeIndex = index"
+      @mouseenter="handleMouseEnter(index)"
       v-for="(book, index) in displayBooks" 
       :key="book.bookId || index"
       @click="gotoBookDetail(book.bookId)"
     >
       <!-- 未激活卡片：紧凑展示封面与标题 -->
-      <div v-show="activeIndex !== index" class="collapsed-card">
+      <div class="collapsed-card" :class="{ 'card-fade-out': activeIndex === index }">
         <div class="collapsed-cover-wrap">
           <img 
             :src="book.coverImageUrl" 
@@ -32,7 +32,7 @@
       </div>
 
       <!-- 激活聚焦卡片：展开高亮展示详细信息 -->
-      <div v-show="activeIndex === index" class="active-card">
+      <div class="active-card" :class="{ 'card-fade-in': activeIndex === index }">
         <div class="active-cover-wrap">
           <img 
             :src="book.coverImageUrl" 
@@ -83,7 +83,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onBeforeUnmount } from 'vue';
 import { useRouter } from 'vue-router';
 import { formatTimestamp, formatSerialStatus } from '@/utils/dataFormatter';
 
@@ -103,6 +103,18 @@ const displayBooks = computed(() => {
 });
 
 const activeIndex = ref(0);
+let hoverTimer = null;
+
+const handleMouseEnter = (index) => {
+  if (hoverTimer) clearTimeout(hoverTimer);
+  hoverTimer = setTimeout(() => {
+    activeIndex.value = index;
+  }, 40);
+};
+
+onBeforeUnmount(() => {
+  if (hoverTimer) clearTimeout(hoverTimer);
+});
 
 const gotoBookDetail = (bookId) => {
   if (bookId) {
@@ -140,10 +152,10 @@ const gotoAuthorDetail = (authorId) => {
   border: 1px solid var(--color-border-subtle, rgba(255, 255, 255, 0.08));
   overflow: hidden;
   box-sizing: border-box;
-  transition: flex 0.4s cubic-bezier(0.16, 1, 0.3, 1),
-              background-color 0.25s ease,
-              border-color 0.25s ease,
-              box-shadow 0.25s ease;
+  transition: flex 0.45s cubic-bezier(0.2, 0, 0, 1),
+              background-color 0.3s ease,
+              border-color 0.3s ease,
+              box-shadow 0.3s ease;
 
   &:hover {
     border-color: rgba(255, 255, 255, 0.16);
@@ -152,20 +164,33 @@ const gotoAuthorDetail = (authorId) => {
   &.book-recommend-active {
     flex: 3;
     min-width: 0;
-    background: var(--color-surface-elevated, #212327);
-    border-color: var(--color-brand-primary, #e59344);
-    box-shadow: var(--shadow-md, 0 8px 24px rgba(0, 0, 0, 0.35));
+    background: #1e2024;
+    border-color: rgba(255, 255, 255, 0.12); /* 彻底去除了黄色边框 */
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
   }
 }
 
 /* 折叠卡片 */
 .collapsed-card {
+  position: absolute;
+  inset: 0;
   display: flex;
   flex-direction: column;
   width: 100%;
   height: 100%;
   padding: 12px;
   box-sizing: border-box;
+  opacity: 1;
+  transform: scale(1);
+  transition: opacity 0.3s cubic-bezier(0.2, 0, 0, 1),
+              transform 0.3s cubic-bezier(0.2, 0, 0, 1);
+  pointer-events: auto;
+
+  &.card-fade-out {
+    opacity: 0;
+    transform: scale(0.96);
+    pointer-events: none;
+  }
 }
 
 .collapsed-cover-wrap {
@@ -187,7 +212,7 @@ const gotoAuthorDetail = (authorId) => {
 .cover-gradient {
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, transparent 60%, rgba(0, 0, 0, 0.4) 100%);
+  background: linear-gradient(180deg, transparent 60%, rgba(0, 0, 0, 0.45) 100%);
   pointer-events: none;
 }
 
@@ -220,8 +245,10 @@ const gotoAuthorDetail = (authorId) => {
   flex-shrink: 0;
 }
 
-/* 激活卡片 */
+/* 激活展开卡片 */
 .active-card {
+  position: absolute;
+  inset: 0;
   display: flex;
   flex-direction: row;
   width: 100%;
@@ -229,7 +256,17 @@ const gotoAuthorDetail = (authorId) => {
   padding: 20px 24px;
   gap: 24px;
   box-sizing: border-box;
-  animation: fadeIn 0.3s ease-out;
+  opacity: 0;
+  transform: translateX(10px);
+  transition: opacity 0.35s cubic-bezier(0.2, 0, 0, 1) 0.06s,
+              transform 0.35s cubic-bezier(0.2, 0, 0, 1) 0.06s;
+  pointer-events: none;
+
+  &.card-fade-in {
+    opacity: 1;
+    transform: translateX(0);
+    pointer-events: auto;
+  }
 }
 
 .active-cover-wrap {
@@ -238,7 +275,7 @@ const gotoAuthorDetail = (authorId) => {
   flex-shrink: 0;
   border-radius: var(--radius-md, 8px);
   overflow: hidden;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.45);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
 }
 
 .active-img {
@@ -275,14 +312,24 @@ const gotoAuthorDetail = (authorId) => {
   margin-top: 6px;
   font-size: var(--font-size-small, 14px);
   color: var(--color-text-secondary, #b0b1b3);
-  display: inline-flex;
+  display: flex;
   align-items: center;
+  gap: 4px;
   cursor: pointer;
-  width: fit-content;
+  max-width: 100%;
+  min-width: 0;
+
+  .author-label {
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
 
   .author-name {
     color: var(--color-brand-light, #f0ad6a);
     font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
     &:hover {
       text-decoration: underline;
     }
@@ -354,17 +401,6 @@ const gotoAuthorDetail = (authorId) => {
   }
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(4px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
 /* 响应式适配 */
 @media (max-width: 980px) {
   .recommend-box {
@@ -390,6 +426,10 @@ const gotoAuthorDetail = (authorId) => {
   }
 
   .active-card {
+    position: relative !important;
+    opacity: 1 !important;
+    transform: none !important;
+    pointer-events: auto !important;
     display: flex !important;
     padding: 14px;
     gap: 14px;
