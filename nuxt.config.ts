@@ -64,6 +64,11 @@ export default defineNuxtConfig({
       meta: [
         { name: 'description', content: 'Simurg Reader - 在线小说阅读与创作平台' },
         { name: 'viewport', content: 'width=device-width, initial-scale=1' }
+      ],
+      link: [
+        { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
+        { rel: 'alternate icon', type: 'image/x-icon', href: '/favicon.ico' },
+        { rel: 'apple-touch-icon', href: '/apple-touch-icon.png' }
       ]
     }
   },
