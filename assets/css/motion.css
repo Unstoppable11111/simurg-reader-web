@@ -1,0 +1,245 @@
+/**
+ * ==========================================================================
+ * SIMURG READER - UNIFIED MOTION SYSTEM
+ * 统一动效语言规范：
+ * - Level 1 微交互 (100-180ms, 按钮轻量缩放与状态反馈)
+ * - Level 2 组件反馈 (200-320ms, 卡片悬浮升降、手风琴伸缩、下拉抽屉)
+ * - Level 3 空间与路由转场 (280-450ms, 页面入场、弹窗模态、视口滚动揭示)
+ * - 性能原则：严格仅通过 GPU 复合层 (transform / opacity) 驱动
+ * - 兼容保障：严格对齐 prefers-reduced-motion 无障碍规范
+ * ==========================================================================
+ */
+
+/* --------------------------------------------------------------------------
+   1. ROUTE TRANSITIONS (Nuxt 路由平滑翻页)
+   -------------------------------------------------------------------------- */
+.page-enter-active,
+.layout-enter-active {
+  transition: opacity 280ms cubic-bezier(0.2, 0, 0, 1),
+              transform 280ms cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+.page-leave-active,
+.layout-leave-active {
+  transition: opacity 200ms cubic-bezier(0.2, 0, 0, 1),
+              transform 200ms cubic-bezier(0.2, 0, 0, 1);
+  will-change: opacity, transform;
+}
+
+.page-enter-from,
+.layout-enter-from {
+  opacity: 0;
+  transform: translateY(8px) scale(0.996);
+}
+
+.page-leave-to,
+.layout-leave-to {
+  opacity: 0;
+  transform: translateY(-6px);
+}
+
+/* --------------------------------------------------------------------------
+   2. SCROLL REVEAL & STAGGER (视口进入柔和揭示)
+   -------------------------------------------------------------------------- */
+.reveal-on-scroll {
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity 400ms cubic-bezier(0.16, 1, 0.3, 1),
+              transform 400ms cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+.reveal-on-scroll.is-revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* 级联交错延迟 (Stagger Delay，最高限制 320ms，避免首屏后段等待过久) */
+.stagger-item-1 { transition-delay: 30ms; }
+.stagger-item-2 { transition-delay: 60ms; }
+.stagger-item-3 { transition-delay: 90ms; }
+.stagger-item-4 { transition-delay: 120ms; }
+.stagger-item-5 { transition-delay: 150ms; }
+.stagger-item-6 { transition-delay: 180ms; }
+
+/* --------------------------------------------------------------------------
+   3. CARD & BUTTON MICRO-INTERACTIONS (卡片升降与按钮微交互)
+   -------------------------------------------------------------------------- */
+.motion-card {
+  transition: transform var(--duration-small, 200ms) var(--ease-out-smooth, cubic-bezier(0.16, 1, 0.3, 1)),
+              box-shadow var(--duration-small, 200ms) var(--ease-standard, cubic-bezier(0.2, 0, 0, 1)),
+              border-color var(--duration-small, 200ms) var(--ease-standard, cubic-bezier(0.2, 0, 0, 1)),
+              background-color var(--duration-small, 200ms) ease;
+  will-change: transform;
+}
+
+.motion-card:hover {
+  transform: translateY(-4px);
+}
+
+.motion-btn {
+  transition: transform var(--duration-micro, 120ms) var(--ease-out-smooth, cubic-bezier(0.16, 1, 0.3, 1)),
+              background-color var(--duration-micro, 120ms) ease,
+              border-color var(--duration-micro, 120ms) ease,
+              box-shadow var(--duration-micro, 120ms) ease;
+}
+
+.motion-btn:hover {
+  transform: translateY(-1px);
+}
+
+.motion-btn:active {
+  transform: scale(0.97);
+}
+
+/* 封面图像悬浮平滑微缩放 */
+.cover-zoom-wrap {
+  overflow: hidden;
+  border-radius: inherit;
+}
+
+.cover-zoom-img {
+  transition: transform var(--duration-medium, 300ms) var(--ease-out-smooth, cubic-bezier(0.16, 1, 0.3, 1));
+  will-change: transform;
+}
+
+.cover-zoom-wrap:hover .cover-zoom-img {
+  transform: scale(1.04);
+}
+
+/* --------------------------------------------------------------------------
+   4. MODAL & DRAWER TRANSITIONS (对话框与抽屉对称过渡)
+   -------------------------------------------------------------------------- */
+.modal-fade-zoom-enter-active {
+  transition: opacity 240ms var(--ease-standard, cubic-bezier(0.2, 0, 0, 1)),
+              transform 240ms var(--ease-out-smooth, cubic-bezier(0.16, 1, 0.3, 1));
+}
+
+.modal-fade-zoom-leave-active {
+  transition: opacity 180ms ease-in,
+              transform 180ms ease-in;
+}
+
+.modal-fade-zoom-enter-from,
+.modal-fade-zoom-leave-to {
+  opacity: 0;
+  transform: scale(0.96) translateY(8px);
+}
+
+.drawer-slide-right-enter-active {
+  transition: transform 300ms var(--ease-out-smooth, cubic-bezier(0.16, 1, 0.3, 1));
+}
+
+.drawer-slide-right-leave-active {
+  transition: transform 240ms var(--ease-standard, cubic-bezier(0.2, 0, 0, 1));
+}
+
+.drawer-slide-right-enter-from,
+.drawer-slide-right-leave-to {
+  transform: translateX(100%);
+}
+
+.drawer-slide-bottom-enter-active {
+  transition: transform 300ms var(--ease-out-smooth, cubic-bezier(0.16, 1, 0.3, 1));
+}
+
+.drawer-slide-bottom-leave-active {
+  transition: transform 240ms var(--ease-standard, cubic-bezier(0.2, 0, 0, 1));
+}
+
+.drawer-slide-bottom-enter-from,
+.drawer-slide-bottom-leave-to {
+  transform: translateY(100%);
+}
+
+/* 遮罩层渐入 */
+.backdrop-fade-enter-active,
+.backdrop-fade-leave-active {
+  transition: opacity 240ms ease;
+}
+
+.backdrop-fade-enter-from,
+.backdrop-fade-leave-to {
+  opacity: 0;
+}
+
+/* --------------------------------------------------------------------------
+   5. SKELETON SHIMMER & CROSS-FADE (骨架屏呼吸微光与渐变淡入)
+   -------------------------------------------------------------------------- */
+@keyframes motion-shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.03) 25%,
+    rgba(255, 255, 255, 0.08) 50%,
+    rgba(255, 255, 255, 0.03) 75%
+  );
+  background-size: 200% 100%;
+  animation: motion-shimmer 2s infinite ease-in-out;
+}
+
+.image-reveal-enter-active {
+  transition: opacity 300ms ease, filter 300ms ease;
+}
+
+.image-reveal-enter-from {
+  opacity: 0;
+  filter: blur(4px);
+}
+
+.image-reveal-enter-to {
+  opacity: 1;
+  filter: blur(0);
+}
+
+/* 旋转指示器标准化（替代各处手写不同颜色的 spinner） */
+@keyframes motion-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.motion-spinner {
+  width: 24px;
+  height: 24px;
+  border: 2px solid rgba(255, 255, 255, 0.12);
+  border-top-color: var(--color-brand-primary, #e59344);
+  border-radius: 50%;
+  animation: motion-spin 0.8s linear infinite;
+}
+
+/* --------------------------------------------------------------------------
+   6. ACCESSIBILITY OVERRIDE (尊重用户减少动效偏好)
+   -------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .reveal-on-scroll {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+
+  .motion-card:hover {
+    transform: none !important;
+  }
+
+  .cover-zoom-wrap:hover .cover-zoom-img {
+    transform: none !important;
+  }
+}

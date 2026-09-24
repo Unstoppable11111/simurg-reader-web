@@ -26,7 +26,7 @@
         </section>
 
         <!-- 2. 精选专区 -->
-        <section class="home-section app-container" aria-labelledby="section-featured">
+        <section class="home-section app-container" v-reveal="{ delay: 40 }" aria-labelledby="section-featured">
           <SectionHeader 
             id="section-featured"
             title="精选" 
@@ -36,7 +36,7 @@
         </section>
 
         <!-- 3. 推荐专区 -->
-        <section class="home-section app-container" aria-labelledby="section-recommend">
+        <section class="home-section app-container" v-reveal="{ delay: 80 }" aria-labelledby="section-recommend">
           <SectionHeader 
             id="section-recommend"
             title="推荐" 
@@ -46,7 +46,7 @@
         </section>
 
         <!-- 4. 排行榜专区 -->
-        <section class="home-section app-container" aria-labelledby="section-ranking">
+        <section class="home-section app-container" v-reveal aria-labelledby="section-ranking">
           <SectionHeader 
             id="section-ranking"
             title="排行榜" 
@@ -57,7 +57,7 @@
         </section>
 
         <!-- 5. 分类专区 -->
-        <section class="home-section app-container" aria-labelledby="section-category">
+        <section class="home-section app-container" v-reveal aria-labelledby="section-category">
           <SectionHeader 
             id="section-category"
             title="分类" 
@@ -68,7 +68,7 @@
         </section>
 
         <!-- 6. 最近更新日志 -->
-        <section class="home-section app-container" aria-labelledby="section-recent-updates">
+        <section class="home-section app-container" v-reveal aria-labelledby="section-recent-updates">
           <SectionHeader 
             id="section-recent-updates"
             title="最近更新" 
@@ -229,22 +229,6 @@ if (homeInitData.value) {
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
-}
-
-/* 优雅的轻量 Section Reveal 动画 */
-@keyframes section-reveal {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.home-section {
-  animation: section-reveal var(--duration-medium) var(--ease-out-smooth) both;
 }
 
 @media (max-width: 768px) {

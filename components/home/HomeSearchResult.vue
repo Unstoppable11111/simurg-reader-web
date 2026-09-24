@@ -243,32 +243,25 @@ defineEmits<{
 .skeleton-cover {
   width: 100%;
   aspect-ratio: 3 / 4;
-  background: var(--bg-surface-2);
   border-radius: var(--radius-sm);
   margin-bottom: var(--space-3);
-  animation: pulse 1.5s infinite ease-in-out;
 }
 
 .skeleton-line {
-  background: var(--bg-surface-2);
   border-radius: var(--radius-xs);
   margin-bottom: var(--space-2);
-  animation: pulse 1.5s infinite ease-in-out;
 }
 
-.skeleton-line.title {
-  height: 16px;
-  width: 70%;
-}
-
-.skeleton-line.author {
-  height: 12px;
-  width: 40%;
-}
-
-@keyframes pulse {
-  0%, 100% { opacity: 0.6; }
-  50% { opacity: 0.3; }
+.skeleton-cover,
+.skeleton-line {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.03) 25%,
+    rgba(255, 255, 255, 0.08) 50%,
+    rgba(255, 255, 255, 0.03) 75%
+  );
+  background-size: 200% 100%;
+  animation: motion-shimmer 2s infinite ease-in-out;
 }
 
 /* 空状态 */

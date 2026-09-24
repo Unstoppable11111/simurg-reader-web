@@ -15,7 +15,12 @@ export default defineNuxtConfig({
       apiBase: process.env.NUXT_PUBLIC_API_BASE || 'http://www.sr-web-test.tata.org.cn:8082/api',
     }
   },
-  css: ['~/assets/css/tokens.css', '@/public/style/global.css', '@/assets/css/global.css'],
+  css: [
+    '~/assets/css/tokens.css',
+    '~/assets/css/motion.css',
+    '@/public/style/global.css',
+    '@/assets/css/global.css'
+  ],
   // postcss: {
   //   plugins: {
   //     'postcss-px-to-viewport': {

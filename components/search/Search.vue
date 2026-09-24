@@ -183,19 +183,14 @@
   color: inherit; /* 继承按钮颜色 */
 }
 
-/* 加载动画 */
+/* 加载动画：复用全局统一运动标尺 */
 .loading-spinner {
   width: 16px;
   height: 16px;
-  border: 2px solid #fff;
-  border-top: 2px solid transparent;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-top-color: #ffffff;
   border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  animation: motion-spin 0.8s linear infinite;
 }
 
 /* 清除按钮：修复定位+优化样式 */

@@ -65,11 +65,13 @@
             </svg>
           </div>
           
-          <div class="user-dropdown" v-show="isDropdownOpen">
-            <div class="dropdown-item" @click="goToUserCenter">个人中心</div>
-            <div class="dropdown-divider"></div>
-            <div class="dropdown-item logout-btn" @click="handleLogout">退出登录</div>
-          </div>
+          <transition name="dropdown-fade">
+            <div class="user-dropdown" v-show="isDropdownOpen">
+              <div class="dropdown-item" @click="goToUserCenter">个人中心</div>
+              <div class="dropdown-divider"></div>
+              <div class="dropdown-item logout-btn" @click="handleLogout">退出登录</div>
+            </div>
+          </transition>
         </div>
 
         <!-- 移动端汉堡菜单触发按钮 -->
@@ -328,20 +330,44 @@ onBeforeUnmount(() => {
 }
 
 .header-nav {
+  position: relative;
   color: var(--color-text-secondary, #b0b1b3);
   font-size: var(--font-size-body, 14px);
   text-decoration: none;
   cursor: pointer;
-  transition: color var(--transition-fast, 150ms ease);
+  padding: 4px 0;
+  transition: color var(--duration-small, 180ms) var(--ease-standard);
   white-space: nowrap;
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: var(--color-brand-primary, #e59344);
+    border-radius: 2px;
+    transform: scaleX(0);
+    transform-origin: center;
+    transition: transform var(--duration-small, 200ms) var(--ease-out-smooth, cubic-bezier(0.16, 1, 0.3, 1));
+  }
 
   &:hover {
     color: var(--color-brand-primary, #e59344);
+
+    &::after {
+      transform: scaleX(0.6);
+    }
   }
 
   &.header-nav-active {
     color: var(--color-text-primary, #ffffff);
     font-weight: 600;
+
+    &::after {
+      transform: scaleX(1);
+    }
   }
 }
 
@@ -559,10 +585,29 @@ onBeforeUnmount(() => {
   cursor: pointer;
 }
 
+/* 用户下拉菜单动画 */
+.dropdown-fade-enter-active {
+  transition: opacity var(--duration-micro, 120ms) ease,
+              transform var(--duration-small, 180ms) var(--ease-out-smooth, cubic-bezier(0.16, 1, 0.3, 1));
+}
+.dropdown-fade-leave-active {
+  transition: opacity var(--duration-micro, 120ms) ease,
+              transform var(--duration-micro, 120ms) ease;
+}
+.dropdown-fade-enter-from,
+.dropdown-fade-leave-to {
+  opacity: 0;
+  transform: translateY(-6px) scale(0.98);
+}
+
 /* 抽屉过渡动画 */
-.mobile-drawer-enter-active,
+.mobile-drawer-enter-active {
+  transition: opacity var(--duration-small, 200ms) ease, 
+              transform var(--duration-small, 200ms) var(--ease-out-smooth, cubic-bezier(0.16, 1, 0.3, 1));
+}
 .mobile-drawer-leave-active {
-  transition: opacity 0.2s ease, transform 0.2s ease;
+  transition: opacity 160ms ease, 
+              transform 160ms var(--ease-standard, cubic-bezier(0.2, 0, 0, 1));
 }
 
 .mobile-drawer-enter-from,

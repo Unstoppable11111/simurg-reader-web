@@ -25,13 +25,15 @@
           </div>
         </div>
         <div class="ranking-book-box">
-          <div class="ranking-book-list">
+          <div class="ranking-book-list" v-reveal>
             <div 
               v-for="book in rankingBooks" 
               :key="book.bookId"
               @click="gotoBookDetail(book.bookId)"
-              class="ranking-book-item">
-              <img class="book-img" :src="book.coverImageUrl" :alt="book.title || '封面'" loading="lazy">
+              class="ranking-book-item motion-card">
+              <div class="cover-wrapper">
+                <img class="book-img" :src="book.coverImageUrl" :alt="book.title || '封面'" loading="lazy">
+              </div>
               <div class="book-info">
                 <div class="book-title">{{ book.title }}</div>
                 <div class="book-author">{{ book.penName }}</div>
@@ -267,13 +269,34 @@
     margin-bottom: 20px;
     width: 310px;
     height: 480px;
-    background: rgba(255,255,255,0.2);
-    box-shadow: inset 0px 0px 8px 0px #FFFFFF;
-    border-radius: 30px;
+    background: var(--bg-surface-1, rgba(255, 255, 255, 0.05));
+    border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.08));
+    border-radius: 20px;
+    cursor: pointer;
+    overflow: hidden;
+
+    &:hover {
+      border-color: var(--brand-primary, #e59344);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
+
+      .book-img {
+        transform: scale(1.03);
+      }
+    }
   }
-  .ranking-book-item:hover {
-    background: linear-gradient(270deg, #783535 0%, #734C1F 100%);
-    // opacity: 0.4;
+  .cover-wrapper {
+    overflow: hidden;
+    margin: 24px 35px 0 35px;
+    border-radius: 10px;
+    display: flex;
+    justify-content: center;
+  }
+  .book-img {
+    width: 240px;
+    height: 320px;
+    border-radius: 10px;
+    object-fit: cover;
+    transition: transform var(--duration-medium, 300ms) var(--ease-out-smooth, cubic-bezier(0.16, 1, 0.3, 1));
   }
   .book-info {
     display: flex;
@@ -284,24 +307,10 @@
     border-radius: 16px;
     margin-top: -50px;
     z-index: 2;
-    // background: linear-gradient(to top, rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.15));
     background: linear-gradient(to top, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.1));
     backdrop-filter: blur(13px);
     -webkit-backdrop-filter: blur(13px);
     color: #fff;
-  }
-  .book-img {
-    width: 240px;
-    height: 320px;
-    border-radius: 10px;
-    z-index: 2;
-    margin: 28px 35px 0 35px;
-  }
-  .ranking-book-item:hover {
-    .book-info {
-      opacity: 1 !important;
-      filter: none;
-    }
   }
   .book-title {
     font-family: PingFangSC, PingFang SC;
