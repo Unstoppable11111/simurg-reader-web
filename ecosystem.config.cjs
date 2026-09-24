@@ -2,7 +2,7 @@ module.exports = {
   apps: [
     {
       name: 'simurg-reader-web',
-      cwd: '/home/simurg-reader-web',
+      cwd: '/www/wwwroot/simurg-reader-web',
       script: '.output/server/index.mjs',
       node_args: '--max-old-space-size=2048',
 
