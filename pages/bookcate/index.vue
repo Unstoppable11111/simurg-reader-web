@@ -68,23 +68,26 @@
 
       <!-- 按照分类查找书籍 -->
       <div class="book-cate-book-list">
-        <div class="book-cate-book-item"
-          v-for="book in libraryBookList">
-          <img class="book-img" :src="book.coverImageUrl" :alt="book.title">
+        <div 
+          class="book-cate-book-item"
+          v-for="book in libraryBookList"
+          :key="book.bookId || book.id"
+          @click="gotoBookDetail(book.bookId || book.id)"
+        >
+          <img class="book-img" :src="book.coverImageUrl" :alt="book.title || '封面'" loading="lazy">
           <div class="item-book-info">
             <span class="book-title">{{ book.title }}</span>
-            <span class="book-desc">【穿越+爽文】穿越成年文中的炮灰女配，带全家逆袭！穿越成年文中的炮灰女配，带全家逆袭！穿越成年文中的炮灰女配，带全家逆袭！</span>
-            <span class="book-author"> 田拽拽 </span>
+            <span class="book-desc">{{ book.description || book.protagonistIntroduction || '暂无简介' }}</span>
+            <span class="book-author">{{ book.authorPenName || book.penName || '未知作者' }}</span>
             <div class="book-tag">
-              <span class="book-status"> {{ formatSerialStatus(book.serialStatus) }} </span>
-              <div class="devier"></div>
-              <span class="tag"> {{book.tag}} </span>
-              <div class="devier"></div>
-              <span class="book-hot">1.1万热度</span>
+              <span class="book-status" v-if="book.serialStatus !== undefined">{{ formatSerialStatus(book.serialStatus) }}</span>
+              <div class="devier" v-if="book.tag"></div>
+              <span class="tag" v-if="book.tag">{{ book.tag }}</span>
+              <div class="devier" v-if="book.bookViews"></div>
+              <span class="book-hot" v-if="book.bookViews">{{ book.bookViews }} 热度</span>
             </div>
           </div>
         </div> 
-        
       </div>
 
       <div class="no-more">暂无更多内容</div>
@@ -95,6 +98,12 @@
 <script setup>
   import Header from "@/components/layout/Header.vue";
   import { formatTimestamp, formatSerialStatus } from '@/utils/dataFormatter';
+  const router = useRouter();
+  const gotoBookDetail = (bookId) => {
+    if (bookId) {
+      router.push(`/book/${bookId}`);
+    }
+  };
   const bookCateList = ref([])
   const selectedCategoryId = ref(null)
   const selectedStatus = ref(null)
@@ -208,17 +217,19 @@
   .book-cate-container {
     display: flex;
     flex-direction: column;
+    min-height: 100vh;
+    background-color: var(--color-bg-base, #131415);
   }
   .book-cate-box {
-    width: 1200px;
-    height: 292px;
-    // margin: 0 auto;
-    padding-top: 80px;
-    margin-left: 360px;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 88px 24px 60px;
+    box-sizing: border-box;
   }
   .breadcrumb {
     color: #fff;
-    margin-top: 28px;
+    margin-top: 16px;
   }
   .to-simurg-reader-index {
     font-family: PingFangSC, PingFang SC;
@@ -354,11 +365,23 @@
     display: flex;
     width: 384px;
     height: 168px;
+    cursor: pointer;
+    border-radius: var(--radius-md, 8px);
+    transition: transform var(--transition-fast, 150ms ease), background-color var(--transition-fast, 150ms ease);
+    padding: 6px;
+    box-sizing: border-box;
+
+    &:hover {
+      transform: translateY(-2px);
+      background: var(--color-surface-hover, rgba(255, 255, 255, 0.04));
+    }
   }
   .book-img {
-    width: 126px;
-    height: 168px;
+    width: 120px;
+    height: 156px;
+    border-radius: var(--radius-sm, 6px);
     object-fit: cover;
+    box-shadow: var(--shadow-sm, 0 2px 4px rgba(0, 0, 0, 0.2));
   }
   .item-book-info {
     position: relative;

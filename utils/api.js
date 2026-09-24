@@ -187,16 +187,10 @@ export async function apiRequest(endpoint, options = {}) {
     // 获取accessToken
     const accessToken = getAccessToken()
     const refreshToken = getRefreshToken()
-    // 设置默认选项
-
-    const clientIP = await getUserIp();
-
     const defaultOptions = {
       headers: {
-      'Content-Type': 'application/json',
-      'X-Real-IP': clientIP,
-      'X-Forwarded-For': clientIP,
-      ...options.headers
+        'Content-Type': 'application/json',
+        ...options.headers
       }
     }
     
