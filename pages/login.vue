@@ -10,9 +10,9 @@
           <span class="login-title-text">你的故事在这里重生</span>
           <span class="login-subtitle-text">成千上万的故事，一键点击，开始阅读Simurg</span>
           <ul>
-            <li>10,000+基塔普</li>
-            <li>游戏模式</li>
-            <li>快速体验</li>
+            <li>10,000+ 精选书籍</li>
+            <li>沉浸式阅读模式</li>
+            <li>多端进度同步</li>
           </ul>
          </div>
       </div>
@@ -26,8 +26,8 @@
             <img src="/images/simurg-reader-logo.svg" alt="Simurg Reader Logo" class="logo">
           </div>
 
-          <!-- 登录表单 -->
-          <div class="login-form">
+          <!-- 登录表单 - 使用 form 包裹支持回车提交 -->
+          <form class="login-form" @submit.prevent="handleLoginByAccount">
             <!-- 账号输入框 -->
             <div class="form-group">
               <input 
@@ -59,8 +59,8 @@
               <label for="remember-me" class="checkbox-label">记住我</label>
             </div>
             
-            <!-- 登录按钮 -->
-            <button class="submit-btn" @click="handleLoginByAccount">登录</button>
+            <!-- 登录按钮 - 改为 type=submit 支持回车提交 -->
+            <button type="submit" class="submit-btn">登录</button>
             
             <!-- 分隔线 -->
             <div class="divider">
@@ -72,6 +72,7 @@
             <!-- 社交媒体登录 -->
             <div class="social-buttons">
               <button 
+                type="button"
                 @click="handleGoogleLogin" 
                 class="social-btn google-btn"
               >
@@ -84,9 +85,12 @@
                 <span class="btn-text">Google 登录</span>
               </button>
               
+              <!-- Facebook 登录暂未配置，禁用按钮并给予提示 -->
               <button 
-                @click="handleFacebookLogin" 
+                type="button"
                 class="social-btn facebook-btn"
+                disabled
+                title="Facebook 登录即将上线"
               >
                 <svg class="social-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.991 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.064 24 12.073z" fill="#1877F2"/>
@@ -95,20 +99,20 @@
               </button>
             </div>
             
-            <!-- 忘记密码 -->
+            <!-- 忘记密码 - 暂未实现，给予友好提示 -->
             <div class="forgot-password">
-              <a href="#" class="link-text">忘记密码？</a>
+              <a href="javascript:void(0)" class="link-text" @click="handleForgotPassword">忘记密码？</a>
             </div>
-          </div>
+          </form>
         </div>
         
-        <!-- 注册提示 -->
+        <!-- 注册提示 - 暂无独立注册页，提示通过第三方注册 -->
         <div class="auth-card signup-card">
-          <p>没有账号？ <a href="#" class="signup-link">立即注册</a></p>
+          <p>没有账号？ <a href="javascript:void(0)" class="signup-link" @click="handleSignup">立即注册</a></p>
         </div>
         
-        <!-- 应用下载提示 -->
-        <div class="app-download">
+        <!-- 应用下载提示 - App 尚未上线，暂时隐藏 -->
+        <!-- <div class="app-download">
           <p>获取应用</p>
           <div class="download-buttons">
             <a href="#" class="download-btn">
@@ -118,7 +122,7 @@
               <img src="/images/google-play.svg" alt="Google Play" class="download-img">
             </a>
           </div>
-        </div>
+        </div> -->
       </div>
     </div>
     
@@ -169,18 +173,14 @@ const handleGoogleLogin = async () => {
   }
 }
 
-// Facebook登录逻辑
-const handleFacebookLogin = async () => {
-  try {
-    // 替换为你的Facebook App ID和回调地址
-    const FB_APP_ID = '你的Facebook App ID'
-    const FB_REDIRECT_URI = `${window.location.origin}/auth/facebook/callback`
-    const facebookAuthUrl = `https://www.facebook.com/v19.0/dialog/oauth?client_id=${FB_APP_ID}&redirect_uri=${FB_REDIRECT_URI}&scope=email,public_profile&response_type=code`
-    window.location.href = facebookAuthUrl
-  } catch (error) {
-    console.error('Facebook登录初始化失败:', error)
-    ElMessage.error('Facebook登录暂不可用，请稍后重试')
-  }
+// 忘记密码 - 暂未实现，给予友好提示
+const handleForgotPassword = () => {
+  ElMessage.info('密码找回功能即将上线，如需帮助请联系客服')
+}
+
+// 注册引导 - 暂无独立注册页，引导使用 Google 登录
+const handleSignup = () => {
+  ElMessage.info('请使用 Google 账号登录，首次登录将自动注册')
 }
 
 // 账号密码登录
@@ -225,7 +225,7 @@ const handleLoginByAccount = async () => {
   color: #fff; /* 全局文字默认白色 */
   min-height: 100vh;
   padding: 20px 16px; /* 移动端左右内边距 */
-  background-image: url('/public/images/login-bg.png');
+  background-image: url('/images/login-bg.png');
   background-repeat: no-repeat; /* 防止背景图片重复 */
   background-size: contain; /* 可选：让背景图片覆盖整个容器 */
   background-position: center; /* 可选：让背景图片居中显示 */
@@ -426,6 +426,12 @@ const handleLoginByAccount = async () => {
 
 .social-btn:hover {
   background-color: #333; /* hover加深背景 */
+}
+
+.social-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  background-color: #1e1e1e;
 }
 
 .social-icon {

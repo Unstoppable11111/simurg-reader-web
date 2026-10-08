@@ -67,7 +67,7 @@
       </div>
 
       <!-- 按照分类查找书籍 -->
-      <div class="book-cate-book-list">
+      <div class="book-cate-book-list" :class="{ 'is-loading-list': isListLoading }">
         <div 
           class="book-cate-book-item"
           v-for="book in libraryBookList"
@@ -90,13 +90,25 @@
         </div> 
       </div>
 
-      <div class="no-more">暂无更多内容</div>
+      <!-- 空状态 -->
+      <div class="cate-empty-box" v-if="!isListLoading && libraryBookList.length === 0">
+        <div class="cate-empty-icon">🔍</div>
+        <div class="cate-empty-title">未找到符合条件的小说</div>
+        <p class="cate-empty-desc">您可以尝试放宽筛选维度，或重置筛选条件</p>
+        <button class="btn-reset-filters" @click="resetFilters">重置全部筛选</button>
+      </div>
+
+      <!-- 加载提示与底部文案 -->
+      <div v-else-if="!isListLoading && libraryBookList.length > 0" class="no-more">已展示全部匹配书籍</div>
+      <div v-else-if="isListLoading" class="no-more">正在加载书籍...</div>
     </div>
+    <Footer />
   </div>
 </template>
 
 <script setup>
   import Header from "@/components/layout/Header.vue";
+  import Footer from "@/components/layout/Footer.vue";
   import { formatTimestamp, formatSerialStatus } from '@/utils/dataFormatter';
   const router = useRouter();
   const gotoBookDetail = (bookId) => {
@@ -181,8 +193,25 @@
     console.error('获取分类列表失败:', error);
   }
 
+  const isListLoading = ref(false);
+
+  useSeoMeta({
+    title: '全部分类 - Simurg Reader',
+    description: 'Simurg Reader 精选小说分类书库，支持类型、连载状态与字数多维检索。'
+  });
+
+  const resetFilters = () => {
+    selectedCategoryId.value = null;
+    selectedStatus.value = null;
+    selectedWord.value = null;
+    minCharacterCount.value = null;
+    maxCharacterCount.value = null;
+    getLibraryBookList();
+  };
+
   // 根据选择类型，获取分类书籍列表
   const getLibraryBookList = async () => { 
+    isListLoading.value = true;
     try {
       const libraryBookListReq = {
         categoryId: selectedCategoryId.value,
@@ -199,6 +228,8 @@
       libraryBookList.value = libraryBookListResult?.data?.records || [];
     } catch (error) { 
       libraryBookList.value = [];
+    } finally {
+      isListLoading.value = false;
     }
   }
 
@@ -226,6 +257,7 @@
     margin: 0 auto;
     padding: 88px 24px 60px;
     box-sizing: border-box;
+    flex: 1;
   }
   .breadcrumb {
     color: #fff;
@@ -511,6 +543,64 @@
       position: static;
       margin-top: 8px;
       flex-wrap: wrap;
+    }
+  }
+
+  .is-loading-list {
+    opacity: 0.6;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+  }
+
+  .cate-empty-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    margin: 40px auto;
+    text-align: center;
+    background: var(--bg-surface-1, rgba(255, 255, 255, 0.04));
+    border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.08));
+    border-radius: 16px;
+    max-width: 440px;
+    width: 100%;
+  }
+
+  .cate-empty-icon {
+    font-size: 42px;
+    margin-bottom: 14px;
+  }
+
+  .cate-empty-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-primary, #ffffff);
+    margin-bottom: 8px;
+  }
+
+  .cate-empty-desc {
+    font-size: 13px;
+    color: var(--text-secondary, #90949d);
+    margin-bottom: 24px;
+    line-height: 1.5;
+  }
+
+  .btn-reset-filters {
+    height: 36px;
+    padding: 0 20px;
+    border-radius: 18px;
+    background: linear-gradient(135deg, #e59e2b 0%, #e06828 100%);
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 500;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover {
+      opacity: 0.92;
+      transform: translateY(-1px);
     }
   }
 </style>

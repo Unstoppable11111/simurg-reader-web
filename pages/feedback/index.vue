@@ -1,6 +1,7 @@
 <!-- pages/feedback.vue -->
 <template>
-  <Header :margin-left="'360px'"/>
+  <div class="feedback-page-wrapper">
+    <Header />
   <div class="feedback-page">
     <!-- 顶部大标题 -->
     <div class="page-title-container">
@@ -116,10 +117,13 @@
       </div>
     </div>
   </div>
+  <Footer />
+</div>
 </template>
 
 <script setup>
 import Header from '@/components/layout/Header.vue'
+import Footer from '@/components/layout/Footer.vue'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 
@@ -210,13 +214,19 @@ const resetForm = () => {
 </script>
 
 <style lang="scss" scoped>
+.feedback-page-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: #1a1a1a;
+}
+
 .feedback-page {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 40px 20px;
-  min-height: calc(100vh - 120px);
-  background-color: #1a1a1a;
+  padding: 96px 20px 60px;
+  flex: 1;
   color: #ffffff;
 }
 
