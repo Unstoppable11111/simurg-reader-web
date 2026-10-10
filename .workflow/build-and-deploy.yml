@@ -1,0 +1,36 @@
+version: "1.0"
+name: build-and-deploy
+displayName: Nuxt 前端构建与自动化部署
+stages:
+- name: 构建并部署到宝塔
+  displayName: 构建并部署到宝塔
+  strategy: naturally
+  trigger: auto
+  steps:
+  - step: build@nodejs
+    name: build_and_deploy
+    displayName: Node.js 打包与部署
+    nodeVersion: 24.13.0
+    commands:
+    - set -e
+    - npm install -g pnpm@9 --prefix ~/.local
+    - export PATH=~/.local/bin:$PATH
+    - pnpm install --no-frozen-lockfile
+    - echo "NUXT_PUBLIC_API_BASE=http://www.sr-web-test.tata.org.cn:8082/api" > .env.production
+    - pnpm run build:prod
+    - node build/deploy.mjs
+    strategy:
+      retry: "0"
+triggers:
+  trigger: auto
+  push:
+    branches:
+      prefix: []
+      precise:
+      - feature-1.0
+      - master
+      include: []
+notify: []
+variables:
+  global:
+  - SERVER_PWD

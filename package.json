@@ -54,6 +54,7 @@
     "unplugin-auto-import": "^20.0.0",
     "unplugin-vue-components": "^29.0.0",
     "vite-plugin-svg-icons": "^2.0.1",
-    "vite-svg-loader": "^5.1.0"
+    "vite-svg-loader": "^5.1.0",
+    "node-ssh": "^13.2.0"
   }
 }
