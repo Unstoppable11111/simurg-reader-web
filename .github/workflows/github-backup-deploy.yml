@@ -1,4 +1,4 @@
-name: Simurg Reader Web CI/CD
+name: Simurg Reader Web CI/CD (GitHub 应急备用)
 
 # 暂停 push 自动触发，后续由 Gitee CI/CD 自动承接；如需 GitHub 部署仅保留手动触发
 # on:
