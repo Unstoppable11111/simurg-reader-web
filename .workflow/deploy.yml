@@ -4,75 +4,59 @@ displayName: 'Simurg Reader Web CI/CD 流水线'
 triggers:
   push:
     branches:
-      - master
-      - feature-1.0
+      precise:
+        - master
+        - feature-1.0
 stages:
-  - stage:
-      name: build-stage
-      displayName: '云端构建与打包'
-      steps:
-        - step: npm-build@1
-          name: npm-build
-          displayName: '安装依赖并编译打包'
-          inputs:
-            node-version: 20
-            step-script: |
-              # 安装 pnpm 包管理工具
-              npm install -g pnpm@9
-              pnpm install
-              # 注入生产环境变量（若 Gitee Go 配置了环境变量则使用，否则使用默认 API 地址）
-              echo "NUXT_PUBLIC_API_BASE=${NUXT_PUBLIC_API_BASE:-http://www.sr-web-test.tata.org.cn:8082/api}" > .env.production
-              # 执行生产打包，自动生成 .output.tar.gz
-              pnpm run build:prod
-        - step: archive@1
-          name: archive
-          displayName: '归档构建产物'
-          inputs:
-            archive-path: .output.tar.gz
+  - name: build-stage
+    displayName: '云端构建与打包'
+    strategy: naturally
+    trigger: auto
+    steps:
+      - step: build@nodejs
+        name: build_nodejs
+        displayName: 'Node.js 构建与打包'
+        nodeVersion: 20
+        commands:
+          - npm install -g pnpm@9
+          - pnpm install
+          - echo "NUXT_PUBLIC_API_BASE=${NUXT_PUBLIC_API_BASE:-http://www.sr-web-test.tata.org.cn:8082/api}" > .env.production
+          - pnpm run build:prod
+        artifacts:
+          - name: output
+            path:
+              - .output.tar.gz
 
-  - stage:
-      name: deploy-stage
-      displayName: '发布部署至宝塔服务器'
-      steps:
-        - step: scp-deploy@1
-          name: scp-deploy
-          displayName: '安全上传产物包'
-          inputs:
-            ssh: '${SSH_SERVER}'
-            source: .output.tar.gz
-            target: /www/wwwroot/simurg-reader-web/
-        - step: ssh-exec@1
-          name: ssh-exec
-          displayName: '执行平滑发布与重载'
-          inputs:
-            ssh: '${SSH_SERVER}'
-            script: |
-              cd /www/wwwroot/simurg-reader-web
-              # 1. 自动备份当前运行中的旧版本
-              if [ -d ".output" ]; then
-                mkdir -p backups
-                BACKUP_DIR="backups/output_$(date +%Y%m%d_%H%M%S)"
-                echo "==> 正在创建版本快照: $BACKUP_DIR"
-                cp -r .output "$BACKUP_DIR"
-                # 保留最近 3 个快照备份，清理历史冗余
-                cd backups && ls -td output_* 2>/dev/null | tail -n +4 | xargs -r rm -rf && cd ..
-              fi
+  - name: deploy-stage
+    displayName: '发布部署至宝塔服务器'
+    strategy: naturally
+    trigger: auto
+    steps:
+      - step: deploy@agent
+        name: deploy_agent
+        displayName: '主机部署与平滑重载'
+        hostGroupID: default
+        deployArtifact:
+          - source: build
+            name: output
+            target: /www/wwwroot/simurg-reader-web
+            dependArtifact: output
+        script: |
+          cd /www/wwwroot/simurg-reader-web
+          # 1. 快照备份旧版本
+          if [ -d ".output" ]; then
+            mkdir -p backups
+            cp -r .output "backups/output_$(date +%Y%m%d_%H%M%S)"
+            cd backups && ls -td output_* 2>/dev/null | tail -n +4 | xargs -r rm -rf && cd ..
+          fi
 
-              # 2. 解压新版本并清理压缩包
-              echo "==> 正在解压最新构建产物..."
-              tar -zxf .output.tar.gz
-              rm -f .output.tar.gz
+          # 2. 解压并清理压缩包
+          tar -zxf output.tar.gz || tar -zxf .output.tar.gz || true
+          rm -f output.tar.gz .output.tar.gz
 
-              # 3. PM2 Cluster 平滑重载 (零停机更新)
-              echo "==> 触发 PM2 平滑重载..."
-              pm2 reload ecosystem.config.cjs --update-env || pm2 start ecosystem.config.cjs
+          # 3. PM2 平滑重载
+          pm2 reload ecosystem.config.cjs --update-env || pm2 start ecosystem.config.cjs
 
-              # 4. 服务健康探测自检
-              sleep 3
-              HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:3001 || true)
-              echo "==> 本地端口健康检查: HTTP $HTTP_CODE"
-              if [ "$HTTP_CODE" = "200" ] || [ "$HTTP_CODE" = "302" ] || [ "$HTTP_CODE" = "301" ]; then
-                echo "==> 自动化部署成功并已平滑上线！"
-              else
-                echo "==> [提示] 请检查服务实时日志: pm2 logs simurg-reader-web"
-              fi
+          # 4. 健康检查
+          sleep 3
+          curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:3001 || true
