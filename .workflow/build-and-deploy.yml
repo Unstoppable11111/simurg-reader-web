@@ -11,10 +11,16 @@ stages:
     name: build_and_deploy
     displayName: Node.js 打包与部署
     nodeVersion: 24.13.0
+    caches:
+    - .pnpm-store
+    - node_modules
     commands:
     - set -e
-    - npm install -g pnpm@9 --prefix ~/.local
+    - npm config set registry https://registry.npmmirror.com
+    - npm install -g pnpm@9 --prefix ~/.local --registry=https://registry.npmmirror.com
     - export PATH=~/.local/bin:$PATH
+    - pnpm config set registry https://registry.npmmirror.com
+    - pnpm config set store-dir .pnpm-store
     - pnpm install --no-frozen-lockfile
     - echo "NUXT_PUBLIC_API_BASE=http://www.sr-web-test.tata.org.cn:8082/api" > .env.production
     - pnpm run build:prod
