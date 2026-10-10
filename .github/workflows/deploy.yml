@@ -43,7 +43,6 @@ jobs:
           host: "111.228.38.154"
           username: "root"
           password: ${{ secrets.SERVER_PASSWORD }}
-          key: ${{ secrets.SERVER_KEY }}
           port: 22
           source: ".output.tar.gz"
           target: "/www/wwwroot/simurg-reader-web"
@@ -54,7 +53,6 @@ jobs:
           host: "111.228.38.154"
           username: "root"
           password: ${{ secrets.SERVER_PASSWORD }}
-          key: ${{ secrets.SERVER_KEY }}
           port: 22
           script: |
             cd /www/wwwroot/simurg-reader-web
