@@ -7,6 +7,10 @@ on:
       - feature-1.0
   workflow_dispatch:
 
+concurrency:
+  group: deploy-simurg-reader-web
+  cancel-in-progress: false
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -15,15 +19,16 @@ jobs:
       - name: 检出代码
         uses: actions/checkout@v4
 
-      - name: 安装 Node.js 24
-        uses: actions/setup-node@v4
-        with:
-          node-version: 24
-
       - name: 启用 pnpm
         uses: pnpm/action-setup@v3
         with:
           version: 9
+
+      - name: 安装 Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: 'pnpm'
 
       - name: 安装依赖
         run: |
@@ -33,54 +38,94 @@ jobs:
         run: |
           echo "NUXT_PUBLIC_API_BASE=http://www.sr-web-test.tata.org.cn:8082/api" > .env.production
 
-      - name: 云端编译并打包 Nuxt SSR 产物
+      - name: 云端编译 Nuxt SSR 产物
         run: |
           pnpm run build:prod
 
-      - name: 安全上传产物包至宝塔服务器 (SCP)
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: "111.228.38.154"
-          username: "root"
-          password: ${{ secrets.SERVER_PASSWORD }}
-          port: 22
-          source: ".output.tar.gz"
-          target: "/www/wwwroot/simurg-reader-web"
+      - name: 安装传输工具 (rsync & sshpass)
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq rsync sshpass
 
-      - name: 触发服务器平滑重载与健康检查 (SSH)
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: "111.228.38.154"
-          username: "root"
-          password: ${{ secrets.SERVER_PASSWORD }}
-          port: 22
-          script: |
+      - name: 原生 rsync 极速增量同步至服务器
+        env:
+          SERVER_HOST: "111.228.38.154"
+          SERVER_USER: "root"
+          SERVER_PORT: "22"
+          SSHPASS: ${{ secrets.SERVER_PASSWORD }}
+          TARGET_DIR: "/www/wwwroot/simurg-reader-web"
+        run: |
+          set -euo pipefail
+
+          # SSH 统一选项（免交互、不检查主机指纹）
+          SSH_OPTS="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p $SERVER_PORT"
+
+          # 确保远程临时目录存在并清空旧残留
+          sshpass -e ssh $SSH_OPTS "$SERVER_USER@$SERVER_HOST" "rm -rf $TARGET_DIR/.output_incoming && mkdir -p $TARGET_DIR/.output_incoming"
+
+          # 同步 ecosystem.config.cjs
+          if [ -f "ecosystem.config.cjs" ]; then
+            echo "==> 同步 PM2 配置文件 ecosystem.config.cjs..."
+            rsync -rclzv \
+              -e "sshpass -e ssh $SSH_OPTS" \
+              ecosystem.config.cjs "$SERVER_USER@$SERVER_HOST:$TARGET_DIR/ecosystem.config.cjs"
+          fi
+
+          # 极速增量压缩同步：-rclz 比对 MD5 校验和与符号链接，--copy-dest 本地复用未修改文件，只跨国传输真正变动的差异数据
+          echo "==> 开始通过 rsync 增量同步 .output 产物..."
+          rsync -rclzv --delete \
+            --copy-dest="$TARGET_DIR/.output" \
+            -e "sshpass -e ssh $SSH_OPTS" \
+            .output/ "$SERVER_USER@$SERVER_HOST:$TARGET_DIR/.output_incoming/"
+
+          echo "==> 产物同步完成！正在执行原子切换与 PM2 平滑重载..."
+
+          # 远程执行原子切换、备份与平滑重载
+          sshpass -e ssh $SSH_OPTS "$SERVER_USER@$SERVER_HOST" bash -s << 'REMOTE'
+            set -euo pipefail
             cd /www/wwwroot/simurg-reader-web
-            # 1. 自动快照备份当前旧版本（若存在）
+
+            export NVM_DIR="$HOME/.nvm"
+            if [ -s "$NVM_DIR/nvm.sh" ]; then
+              . "$NVM_DIR/nvm.sh"
+            fi
+            export PATH="/root/.nvm/versions/node/v24.21.0/bin:$HOME/.nvm/current/bin:$PATH"
+
+            # 1. 自动快照备份当前运行版本（若存在）
             if [ -d ".output" ]; then
               mkdir -p backups
               BACKUP_DIR="backups/output_$(date +%Y%m%d_%H%M%S)"
-              echo "==> 正在创建版本快照: $BACKUP_DIR"
+              echo "==> 创建版本备份: $BACKUP_DIR"
               cp -r .output "$BACKUP_DIR"
-              # 保留最近 3 个历史备份，自动清理更早的历史
-              cd backups && ls -td output_* 2>/dev/null | tail -n +4 | xargs -r rm -rf && cd ..
+              # 保留最近 3 个历史备份，自动清理超出的旧版本
+              cd backups && (ls -td output_* 2>/dev/null || true) | tail -n +4 | xargs -r rm -rf && cd ..
             fi
 
-            # 2. 解压新版本并清理压缩包
-            echo "==> 正在解压最新构建产物..."
-            tar -zxf .output.tar.gz
-            rm -f .output.tar.gz
+            # 2. 原子替换目录（避免覆盖期间影响用户访问）
+            rm -rf .output_old
+            [ -d ".output" ] && mv .output .output_old
+            mv .output_incoming .output
+            rm -rf .output_old
 
             # 3. PM2 零停机平滑重载 (Zero Downtime)
             echo "==> 触发 PM2 平滑重载..."
             pm2 reload ecosystem.config.cjs --update-env || pm2 start ecosystem.config.cjs
 
-            # 4. 服务健康探测自检
+            # 4. 本地端口健康检查
             sleep 3
             HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:3001 || true)
-            echo "==> 本地端口健康检查: HTTP $HTTP_CODE"
+            echo "==> 健康检查状态码: HTTP $HTTP_CODE"
             if [ "$HTTP_CODE" = "200" ] || [ "$HTTP_CODE" = "302" ] || [ "$HTTP_CODE" = "301" ]; then
-              echo "==> 恭喜，GitHub Actions 自动化部署成功上线！"
+              echo "==> 恭喜！自动化极速部署成功上线！"
             else
-              echo "==> [提示] 请检查服务实时日志: pm2 logs simurg-reader-web"
+              echo "==> [警告] 健康检查状态码异常: $HTTP_CODE，开始自动回滚至最新备份..."
+              LATEST_BACKUP=$(ls -td backups/output_* 2>/dev/null | head -n 1 || true)
+              if [ -n "$LATEST_BACKUP" ] && [ -d "$LATEST_BACKUP" ]; then
+                rm -rf .output
+                cp -r "$LATEST_BACKUP" .output
+                pm2 reload ecosystem.config.cjs --update-env || true
+                echo "==> 已回滚至 $LATEST_BACKUP"
+              fi
+              exit 1
             fi
+          REMOTE
