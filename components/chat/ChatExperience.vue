@@ -51,7 +51,7 @@
     </div>
 
     <!-- 消息滚动列表区域 -->
-    <div ref="scrollerRef" class="messages-scroll-area">
+    <div ref="scrollerRef" class="messages-scroll-area" @click="handleScrollerClick">
       <!-- 空状态欢迎界面 -->
       <div v-if="!chatStore.currentMessages.length" class="empty-state">
         <div class="welcome-emblem">
@@ -239,6 +239,24 @@ function handleKeyDown(e: KeyboardEvent) {
   }
 }
 
+// 点击复制代码块
+function handleScrollerClick(e: MouseEvent) {
+  const target = e.target as HTMLElement;
+  const copyBtn = target.closest(".simu-code-copy-btn") as HTMLElement;
+  if (copyBtn) {
+    const code = decodeURIComponent(copyBtn.dataset.code || "");
+    if (code) {
+      navigator.clipboard.writeText(code).then(() => {
+        const orig = copyBtn.textContent;
+        copyBtn.textContent = "已复制 ✓";
+        setTimeout(() => {
+          copyBtn.textContent = orig;
+        }, 2000);
+      });
+    }
+  }
+}
+
 // 跳转登录页并关闭对话窗口
 function handleGoLogin() {
   emit("close");
@@ -377,6 +395,22 @@ function handleGoLogin() {
   flex-direction: column;
 }
 
+/* 自定义极细平滑暗夜滚动条（消除 Windows 粗灰违和条） */
+.messages-scroll-area::-webkit-scrollbar {
+  width: 5px;
+}
+.messages-scroll-area::-webkit-scrollbar-track {
+  background: transparent;
+}
+.messages-scroll-area::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.14);
+  border-radius: 9999px;
+  transition: background 0.2s ease;
+}
+.messages-scroll-area::-webkit-scrollbar-thumb:hover {
+  background: var(--brand-primary, #e59e2b);
+}
+
 /* 空状态欢迎界面 */
 .empty-state {
   margin: auto 0;
@@ -389,12 +423,13 @@ function handleGoLogin() {
   height: 54px;
   margin: 0 auto 12px;
   border-radius: var(--radius-xl, 16px);
-  background: rgba(229, 158, 43, 0.1);
-  border: 1px solid rgba(229, 158, 43, 0.2);
+  background: rgba(229, 158, 43, 0.12);
+  border: 1px solid rgba(229, 158, 43, 0.25);
   color: var(--brand-primary, #e59e2b);
   display: flex;
   align-items: center;
   justify-content: center;
+  box-shadow: 0 4px 16px rgba(229, 158, 43, 0.15);
 }
 
 .welcome-title {
@@ -462,9 +497,9 @@ function handleGoLogin() {
 }
 
 .assistant-mini-avatar {
-  width: 28px;
-  height: 28px;
-  border-radius: var(--radius-sm, 6px);
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
   background: var(--brand-gradient, linear-gradient(135deg, #e59e2b 0%, #e06828 100%));
   color: #fff;
   font-size: 12px;
@@ -472,19 +507,21 @@ function handleGoLogin() {
   display: flex;
   align-items: center;
   justify-content: center;
+  box-shadow: 0 2px 8px rgba(229, 158, 43, 0.3);
+  flex-shrink: 0;
 }
 
 .bubble-wrapper {
-  max-width: 82%;
+  max-width: 86%;
 }
 
 .user-row .bubble-wrapper {
-  max-width: 78%;
+  max-width: 80%;
 }
 
 .bubble-content {
   padding: 10px 14px;
-  border-radius: var(--radius-lg, 12px);
+  border-radius: 14px;
   font-size: 13px;
   line-height: 1.65;
   word-break: break-word;
@@ -493,19 +530,249 @@ function handleGoLogin() {
 .user-row .bubble-content {
   background: var(--brand-gradient, linear-gradient(135deg, #e59e2b 0%, #e06828 100%));
   color: #fff;
-  border-top-right-radius: 2px;
+  border-top-right-radius: 3px;
+  box-shadow: 0 4px 14px rgba(229, 158, 43, 0.25);
 }
 
 .assistant-row .bubble-content {
-  background-color: var(--bg-surface-2, #202227);
-  border: 1px solid var(--border-default, rgba(255, 255, 255, 0.08));
+  background-color: #1f2127;
+  border: 1px solid rgba(255, 255, 255, 0.08);
   color: var(--text-regular, #cfd1d6);
-  border-top-left-radius: 2px;
+  border-top-left-radius: 3px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.28);
 }
 
 .error-bubble {
   border-color: rgba(229, 72, 77, 0.4) !important;
   color: #e5484d !important;
+}
+
+/* ==========================================================================
+   全套富文本 Markdown 与步骤卡片精致渲染样式
+   ========================================================================== */
+.markdown-rendered {
+  font-size: 13.5px;
+  line-height: 1.75;
+  color: #d6d8df;
+  word-break: break-word;
+}
+
+/* 粗体与斜体高亮 */
+.markdown-rendered strong {
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.markdown-rendered em.simu-em {
+  color: var(--brand-primary, #e59e2b);
+  font-style: italic;
+  font-weight: 500;
+}
+
+.markdown-rendered del.simu-del {
+  color: var(--text-muted, #727681);
+  text-decoration: line-through;
+}
+
+/* 标题 */
+.markdown-rendered .simu-h1,
+.markdown-rendered .simu-h2,
+.markdown-rendered .simu-h3,
+.markdown-rendered .simu-h4 {
+  color: #fff;
+  font-weight: 700;
+  margin: 12px 0 6px;
+  line-height: 1.4;
+}
+.markdown-rendered .simu-h1 { font-size: 16px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 4px; }
+.markdown-rendered .simu-h2 { font-size: 15px; }
+.markdown-rendered .simu-h3 { font-size: 14px; }
+.markdown-rendered .simu-h4 { font-size: 13px; color: var(--brand-primary, #e59e2b); }
+
+/* 段落与空行 */
+.markdown-rendered .simu-p-break {
+  height: 8px;
+}
+
+/* 分隔线 */
+.markdown-rendered .simu-divider {
+  border: none;
+  border-top: 1px dashed rgba(255, 255, 255, 0.12);
+  margin: 10px 0;
+}
+
+/* 引用块 */
+.markdown-rendered .simu-quote {
+  margin: 8px 0;
+  padding: 8px 12px;
+  border-left: 3px solid var(--brand-primary, #e59e2b);
+  background: rgba(229, 158, 43, 0.08);
+  border-radius: 0 8px 8px 0;
+  color: #cfd1d6;
+  font-size: 12.5px;
+}
+
+/* 列表 */
+.markdown-rendered .simu-ul,
+.markdown-rendered .simu-ol {
+  margin: 6px 0;
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.markdown-rendered .simu-li {
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.markdown-rendered .simu-ul .simu-li::marker {
+  color: var(--brand-primary, #e59e2b);
+}
+
+.markdown-rendered .simu-ol .simu-li::marker {
+  color: var(--brand-primary, #e59e2b);
+  font-weight: 600;
+}
+
+/* 链接 */
+.markdown-rendered .simu-link {
+  color: var(--brand-primary, #e59e2b);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: opacity 0.2s;
+}
+.markdown-rendered .simu-link:hover {
+  opacity: 0.85;
+}
+
+/* 行内代码 */
+.markdown-rendered .simu-inline-code {
+  display: inline-block;
+  padding: 1px 6px;
+  margin: 0 2px;
+  font-size: 12px;
+  font-family: var(--font-mono, monospace);
+  background: rgba(255, 255, 255, 0.08);
+  color: #f0ac3d;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* 代码卡片 */
+.markdown-rendered .simu-code-card {
+  margin: 10px 0;
+  border-radius: 8px;
+  background: #121316;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+}
+
+.markdown-rendered .code-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 5px 12px;
+  background: #1c1d22;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.markdown-rendered .code-lang-tag {
+  font-size: 11px;
+  font-family: var(--font-mono, monospace);
+  color: var(--text-muted, #727681);
+  text-transform: uppercase;
+}
+
+.markdown-rendered .simu-code-copy-btn {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: var(--text-secondary, #90949d);
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.markdown-rendered .simu-code-copy-btn:hover {
+  color: #fff;
+  border-color: var(--brand-primary, #e59e2b);
+}
+
+.markdown-rendered .code-pre {
+  margin: 0;
+  padding: 10px 12px;
+  overflow-x: auto;
+  font-family: var(--font-mono, monospace);
+  font-size: 12px;
+  line-height: 1.5;
+  color: #f5f5f7;
+}
+
+/* 步进流程卡片 (Step Card) */
+.markdown-rendered .simu-step-card {
+  margin: 12px 0;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: rgba(30, 32, 38, 0.85);
+  border: 1px solid rgba(229, 158, 43, 0.25);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.markdown-rendered .simu-step-card:hover {
+  border-color: rgba(229, 158, 43, 0.45);
+  transform: translateY(-1px);
+}
+
+.markdown-rendered .step-card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.markdown-rendered .step-num-badge {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--brand-gradient, linear-gradient(135deg, #e59e2b 0%, #e06828 100%));
+  color: #fff;
+  font-size: 11.5px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(229, 158, 43, 0.35);
+  flex-shrink: 0;
+}
+
+.markdown-rendered .step-card-titles {
+  display: flex;
+  flex-direction: column;
+}
+
+.markdown-rendered .step-subtitle {
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--brand-primary, #e59e2b);
+  letter-spacing: 0.04em;
+}
+
+.markdown-rendered .step-title {
+  margin: 1px 0 0;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.markdown-rendered .step-card-body {
+  font-size: 12.8px;
+  line-height: 1.65;
+  color: #cfd1d6;
+  padding-left: 32px;
 }
 
 /* 底部输入区 */

@@ -120,15 +120,20 @@ onUnmounted(() => {
   bottom: 24px;
   right: 24px;
   z-index: var(--z-popover, 500);
-  width: min(420px, calc(100vw - 32px));
-  height: min(620px, calc(100vh - 56px));
-  border-radius: var(--radius-xl, 16px);
-  background-color: var(--bg-surface-1, #17181c);
-  border: 1px solid var(--border-default, rgba(255, 255, 255, 0.12));
-  box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.65), 0 0 1px 1px rgba(255, 255, 255, 0.08);
+  width: min(440px, calc(100vw - 32px));
+  height: min(640px, calc(100vh - 56px));
+  border-radius: 18px;
+  background-color: rgba(23, 24, 28, 0.94);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(229, 158, 43, 0.22);
+  box-shadow: 0 24px 64px -12px rgba(0, 0, 0, 0.8), 
+              0 0 24px -4px rgba(229, 158, 43, 0.18), 
+              inset 0 1px 1px rgba(255, 255, 255, 0.12);
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  transition: box-shadow 0.3s ease;
 }
 
 /* 顶栏迷你条 */
@@ -136,16 +141,18 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 6px 14px 4px;
-  background-color: var(--bg-surface-2, #202227);
-  border-bottom: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.06));
+  padding: 8px 16px;
+  background: rgba(30, 32, 38, 0.85);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .bar-tag {
   font-size: 10px;
   font-family: var(--font-mono, monospace);
-  color: var(--text-muted, #5e626c);
-  letter-spacing: 0.08em;
+  font-weight: 600;
+  color: var(--brand-primary, #e59e2b);
+  letter-spacing: 0.1em;
+  opacity: 0.9;
 }
 
 .dialog-close-btn {
@@ -153,17 +160,18 @@ onUnmounted(() => {
   border: none;
   color: var(--text-secondary, #90949d);
   cursor: pointer;
-  padding: 4px;
-  border-radius: var(--radius-xs, 4px);
+  padding: 5px;
+  border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: color 0.15s ease, background-color 0.15s ease;
+  transition: all 0.2s ease;
 }
 
 .dialog-close-btn:hover {
-  color: var(--text-primary, #f5f5f7);
-  background-color: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  background-color: rgba(255, 255, 255, 0.12);
+  transform: rotate(90deg);
 }
 
 .dialog-inner-content {

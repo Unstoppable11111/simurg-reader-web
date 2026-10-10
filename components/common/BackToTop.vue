@@ -42,8 +42,8 @@ onBeforeUnmount(() => {
 <style scoped>
 .back-to-top-btn {
   position: fixed;
-  bottom: var(--space-8);
-  right: var(--space-8);
+  bottom: 80px;
+  right: 24px;
   width: 44px;
   height: 44px;
   border-radius: var(--radius-full);
@@ -89,8 +89,8 @@ onBeforeUnmount(() => {
 
 @media (max-width: 768px) {
   .back-to-top-btn {
-    bottom: var(--space-4);
-    right: var(--space-4);
+    bottom: 74px;
+    right: 16px;
     width: 40px;
     height: 40px;
   }
