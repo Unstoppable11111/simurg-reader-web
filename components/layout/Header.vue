@@ -1,5 +1,5 @@
 <template>
-  <header class="header" :class="{ 'scrolled': isScrolled }">
+  <header class="header" :class="{ 'scrolled': isScrolled, 'menu-open': isMobileMenuOpen }">
     <div class="header-container">
       <!-- 网站 Logo -->
       <NuxtLink to="/" class="logo-link" title="返回首页">
@@ -273,11 +273,19 @@ const handleSearchClear = () => {
   emit('clear-search');
 };
 
+let scrollTicking = false;
 const handleScroll = () => {
-  isScrolled.value = window.scrollY > 40;
+  if (!scrollTicking) {
+    window.requestAnimationFrame(() => {
+      isScrolled.value = window.scrollY > 40;
+      scrollTicking = false;
+    });
+    scrollTicking = true;
+  }
 };
 
 onMounted(() => {
+  handleScroll(); // 初始化立即检测一次滚动状态，防止 F5 刷新时初始样式失真
   window.addEventListener('scroll', handleScroll, { passive: true });
   document.addEventListener('click', closeDropdown);
 });
@@ -296,16 +304,34 @@ onBeforeUnmount(() => {
   right: 0;
   height: 72px;
   z-index: var(--z-index-sticky, 1020);
-  background-color: transparent;
+  background-color: rgba(18, 19, 21, 0.55);
+  -webkit-backdrop-filter: blur(12px) saturate(160%);
+  backdrop-filter: blur(12px) saturate(160%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
   transition: background-color var(--transition-normal, 250ms ease),
+              border-color var(--transition-normal, 250ms ease),
               box-shadow var(--transition-normal, 250ms ease),
+              -webkit-backdrop-filter var(--transition-normal, 250ms ease),
               backdrop-filter var(--transition-normal, 250ms ease);
 
+  &:hover {
+    background-color: rgba(18, 19, 21, 0.78);
+    border-bottom-color: rgba(255, 255, 255, 0.14);
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.25);
+  }
+
   &.scrolled {
-    background-color: rgba(19, 20, 21, 0.88);
+    background-color: rgba(19, 20, 21, 0.92);
+    -webkit-backdrop-filter: blur(16px);
     backdrop-filter: blur(16px);
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
     border-bottom: 1px solid var(--color-border-subtle, rgba(255, 255, 255, 0.06));
+  }
+
+  &.menu-open {
+    background-color: rgba(19, 20, 21, 0.96);
+    border-bottom-color: transparent;
   }
 }
 
