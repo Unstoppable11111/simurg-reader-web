@@ -1,10 +1,12 @@
 name: Simurg Reader Web CI/CD
 
+# 暂停 push 自动触发，后续由 Gitee CI/CD 自动承接；如需 GitHub 部署仅保留手动触发
+# on:
+#   push:
+#     branches:
+#       - master
+#       - feature-1.0
 on:
-  push:
-    branches:
-      - master
-      - feature-1.0
   workflow_dispatch:
 
 concurrency:
