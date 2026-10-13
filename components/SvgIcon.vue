@@ -1,60 +1,104 @@
-<!-- components/SvgIcon.vue -->
 <template>
-  <svg aria-hidden="true" :class="svgClass" :style="svgStyle">
-    <use :href="symbolId" :fill="color" />
+  <svg
+    aria-hidden="true"
+    class="svg-icon"
+    :width="computedWidth"
+    :height="computedHeight  "
+    :style="{
+      display: 'inline-block',
+      verticalAlign: 'middle',
+      overflow: 'hidden',
+      color: color,
+      width: computedWidth,
+      height: computedHeight
+    }"
+    fill="inherit"
+    stroke="inherit"
+  >
+
+    <use :xlink:href="symbolId" />
   </svg>
 </template>
 
-<script setup lang="ts">
+<script setup>
 import { computed } from 'vue'
 
 const props = defineProps({
   prefix: {
     type: String,
-    default: 'icon',
+    default: 'icon'
   },
   name: {
     type: String,
-    required: true,
+    required: true
   },
   color: {
     type: String,
-    default: '',
+    default: 'currentColor'
+  },
+  width: {
+    type: [String, Number],
+    default: '16px'
+  },
+  height: {
+    type: [String, Number],
+    default: '16px'
   },
   size: {
-    type: [Number, String],
-    default: '1em',
-  },
-  className: {
-    type: String,
-    default: '',
-  },
+    type: [String, Number],
+    default: ''
+  }
+})
+
+const formatSize = (size) => {
+  if (typeof size === 'number') {
+    return `${size}px`
+  } else if (typeof size === 'string') {
+    // 如果是字符串但没有单位，添加 px 单位
+    if (!isNaN(Number(size)) && !size.includes('px') && !size.includes('%') && !size.includes('em') && !size.includes('rem')) {
+      return `${size}px`
+    }
+    return size
+  }
+  return '16px'
+}
+
+// 正确的计算属性逻辑
+const computedWidth = computed(() => {
+  if (props.size) {
+    return formatSize(props.size)
+  }
+  return formatSize(props.width)
+})
+
+const computedHeight = computed(() => {
+  if (props.size) {
+    return formatSize(props.size)
+  }
+  return formatSize(props.height)
 })
 
 const symbolId = computed(() => `#${props.prefix}-${props.name}`)
-const svgClass = computed(() => {
-  if (props.className) {
-    return `svg-icon ${props.className}`
-  }
-  return 'svg-icon'
-})
 
-const svgStyle = computed(() => {
-  return {
-    width: typeof props.size === 'number' ? `${props.size}px` : props.size,
-    height: typeof props.size === 'number' ? `${props.size}px` : props.size,
-    fill: props.color || 'currentColor', // 默认跟随文本颜色
-    overflow: 'hidden'
-  }
-})
 </script>
 
-<style scoped>
+<style>
 .svg-icon {
-  width: 1em;
-  height: 1em;
-  vertical-align: -0.15em;
+  box-sizing: border-box !important;
+  preserveAspectRatio: xMidYMid meet;
+  color: inherit;
   fill: currentColor;
-  overflow: hidden;
+  stroke: currentColor;
+  width: inherit;
+  height: inherit;
+}
+
+/* 关键：通过样式强制 use 标签填满 svg 容器 */
+.svg-icon use {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+  fill: currentColor !important;
+  stroke: currentColor !important;
 }
 </style>

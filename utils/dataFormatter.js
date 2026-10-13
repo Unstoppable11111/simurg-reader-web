@@ -13,6 +13,7 @@ export function formatTimestamp(timestamp) {
   return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 }
 
+// 格式化时间戳为年月日
 export function formatTimestampToYMD(timestamp) {
   if (!timestamp) return '';
   
@@ -34,6 +35,21 @@ export function formatSerialStatus(statusCode) {
       return '连载中';
     case 1:
       return '已完结';
+    default:
+      return '未知状态';
+  }
+}
+
+export function formatBookStatus(statusCode) {
+  switch (statusCode) {
+    case 0:
+      return '未发布';
+    case 1:
+      return '审核中';
+    case 2:
+      return '已发布';
+    case 3:
+      return '已下架';
     default:
       return '未知状态';
   }

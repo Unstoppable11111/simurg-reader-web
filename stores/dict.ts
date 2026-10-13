@@ -13,8 +13,8 @@ export const useDictStore = defineStore('dict', {
                     method: 'POST',
                     body: {}
                 })
-                console.log("获取字典成功:", dictResult);
                 this.dict = dictResult.data;
+                this.isLoaded = true;
             } catch (error) {
                 console.log("获取字典失败")
             }

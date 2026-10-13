@@ -1,0 +1,61 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Microsoft Yahei", "PingFang SC", sans-serif;
+}
+
+html,
+body {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+  position: relative;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#__nuxt {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+.simurg-reader-page {
+  min-height: 100vh;
+  background: #fff !important;
+  color: #333 !important;
+  padding: 20px !important;
+  position: relative !important;
+}
+
+/* Global utility styles for consistent UI rhythm */
+.card {
+  background: var(--card-1);
+  border: 1px solid var(--border-1);
+  border-radius: var(--radius-2);
+  box-shadow: var(--shadow-2);
+}
+
+.card-strong {
+  background: var(--card-2);
+  border: 1px solid var(--border-1);
+  border-radius: var(--radius-2);
+  box-shadow: var(--shadow-1);
+}
+
+.btn-primary {
+  background: linear-gradient(90deg, var(--brand-1) 0%, var(--brand-2) 100%);
+  color: #fff;
+  border-radius: var(--radius-3);
+  transition: transform 0.2s var(--ease-1), filter 0.2s var(--ease-1);
+}
+
+.btn-primary:hover {
+  filter: brightness(1.05);
+  transform: translateY(-1px);
+}
+
+.text-muted {
+  color: var(--text-3);
+}

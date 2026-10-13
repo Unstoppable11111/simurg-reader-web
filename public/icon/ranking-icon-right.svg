@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="14px" height="28px" viewBox="0 0 14 28" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>装饰左备份</title>
+    <defs>
+        <linearGradient x1="50%" y1="0%" x2="50%" y2="100%" id="linearGradient-1">
+            <stop stop-color="#F2C854" offset="0%"></stop>
+            <stop stop-color="#E07A2A" offset="100%"></stop>
+        </linearGradient>
+        <linearGradient x1="68.5278811%" y1="5.44967379%" x2="31.4721189%" y2="94.5503262%" id="linearGradient-2">
+            <stop stop-color="#F2C854" offset="0%"></stop>
+            <stop stop-color="#E07A2A" offset="100%"></stop>
+        </linearGradient>
+        <linearGradient x1="50%" y1="0%" x2="50%" y2="100%" id="linearGradient-3">
+            <stop stop-color="#F2C854" offset="0%"></stop>
+            <stop stop-color="#E07A2A" offset="100%"></stop>
+        </linearGradient>
+        <linearGradient x1="110.22553%" y1="8.0664716%" x2="-10.2255301%" y2="91.9335284%" id="linearGradient-4">
+            <stop stop-color="#F2C854" offset="0%"></stop>
+            <stop stop-color="#E07A2A" offset="100%"></stop>
+        </linearGradient>
+        <linearGradient x1="50%" y1="0%" x2="50%" y2="100%" id="linearGradient-5">
+            <stop stop-color="#F2C854" offset="0%"></stop>
+            <stop stop-color="#E07A2A" offset="100%"></stop>
+        </linearGradient>
+        <linearGradient x1="215.267108%" y1="42.092484%" x2="-115.267108%" y2="57.907516%" id="linearGradient-6">
+            <stop stop-color="#F2C854" offset="0%"></stop>
+            <stop stop-color="#E07A2A" offset="100%"></stop>
+        </linearGradient>
+        <linearGradient x1="50%" y1="0%" x2="50%" y2="100%" id="linearGradient-7">
+            <stop stop-color="#F2C854" offset="0%"></stop>
+            <stop stop-color="#E07A2A" offset="100%"></stop>
+        </linearGradient>
+        <linearGradient x1="208.03254%" y1="41.2416544%" x2="-108.03254%" y2="58.7583456%" id="linearGradient-8">
+            <stop stop-color="#F2C854" offset="0%"></stop>
+            <stop stop-color="#E07A2A" offset="100%"></stop>
+        </linearGradient>
+        <linearGradient x1="50%" y1="0%" x2="50%" y2="100%" id="linearGradient-9">
+            <stop stop-color="#F2C854" offset="0%"></stop>
+            <stop stop-color="#E07A2A" offset="100%"></stop>
+        </linearGradient>
+        <linearGradient x1="175.905905%" y1="20.9449515%" x2="-75.9059047%" y2="79.0550485%" id="linearGradient-10">
+            <stop stop-color="#F2C854" offset="0%"></stop>
+            <stop stop-color="#E07A2A" offset="100%"></stop>
+        </linearGradient>
+    </defs>
+    <g id="装饰左备份" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <rect id="矩形" x="0" y="0" width="14" height="28"></rect>
+        <g id="编组-8" transform="translate(6.8476, 13.8743) scale(-1, 1) translate(-6.8476, -13.8743)translate(0.8476, 2.492)">
+            <path d="M6.12590848,5.97632325 C5.03294857,4.33690885 5.03294857,2.5399442 6.12590848,0.585429293 C7.35040799,2.02660535 7.35040799,3.82357 6.12590848,5.97632325 Z" id="路径备份" fill="url(#linearGradient-1)" transform="translate(6.1752, 3.2809) rotate(-27) translate(-6.1752, -3.2809)"></path>
+            <path d="M7.63291802,4.47642711 C9.16193382,3.61804931 9.88795043,2.19316149 9.81096784,0.20176365 C8.25774186,0.849804907 7.53172525,2.27469273 7.63291802,4.47642711 Z" id="路径备份-4" fill="url(#linearGradient-2)" transform="translate(8.7201, 2.3391) rotate(-14) translate(-8.7201, -2.3391)"></path>
+            <path d="M4.92518242,10.3645165 C3.61729046,8.402709 3.61729046,6.25236883 4.92518242,3.91349593 C6.3904814,5.6380812 6.3904814,7.78842138 4.92518242,10.3645165 Z" id="路径备份-2" fill="url(#linearGradient-3)" transform="translate(4.9842, 7.139) rotate(-33) translate(-4.9842, -7.139)"></path>
+            <path d="M7.04647174,8.44622817 C9.00742323,7.79644531 10.0680222,6.54043284 10.2282686,4.67819076 C8.26477036,5.12970487 7.20417142,6.38571734 7.04647174,8.44622817 Z" id="路径备份-7" fill="url(#linearGradient-4)" transform="translate(8.6374, 6.5622) rotate(-360) translate(-8.6374, -6.5622)"></path>
+            <path d="M5.73365036,23.9443415 C4.42575841,21.5979281 4.42575841,19.0260208 5.73365036,16.2286195 C7.19894934,18.2913041 7.19894934,20.8632114 5.73365036,23.9443415 Z" id="路径备份-3" fill="url(#linearGradient-5)" transform="translate(5.7927, 20.0865) rotate(-63) translate(-5.7927, -20.0865)"></path>
+            <path d="M7.31158041,18.7926146 C9.29223562,19.4337139 11.0892003,18.4358066 12.7024744,15.7988928 C10.3637581,15.8392249 8.5667934,16.8371322 7.31158041,18.7926146 Z" id="路径备份-8" fill="url(#linearGradient-6)" transform="translate(10.007, 17.3898) scale(-1, 1) rotate(-99) translate(-10.007, -17.3898)"></path>
+            <path d="M3.82482132,19.3875218 C2.51692937,17.055246 2.51692937,14.4988348 3.82482132,11.7182884 C5.29012031,13.7685449 5.29012031,16.3249561 3.82482132,19.3875218 Z" id="路径备份-5" fill="url(#linearGradient-7)" transform="translate(3.8838, 15.5529) rotate(-59) translate(-3.8838, -15.5529)"></path>
+            <path d="M6.26694047,15.316014 C8.21093499,15.5369994 9.91198447,14.6012744 11.3700889,12.508839 C9.42222499,11.9935557 7.72117551,12.9292807 6.26694047,15.316014 Z" id="路径备份-9" fill="url(#linearGradient-8)" transform="translate(8.8185, 13.8596) scale(-1, 1) rotate(-93) translate(-8.8185, -13.8596)"></path>
+            <path d="M3.28208833,14.7040002 C1.97419638,12.48983 1.97419638,10.0628747 3.28208833,7.42313414 C4.74738732,9.36956638 4.74738732,11.7965217 3.28208833,14.7040002 Z" id="路径备份-6" fill="url(#linearGradient-9)" transform="translate(3.3411, 11.0636) rotate(-46) translate(-3.3411, -11.0636)"></path>
+            <path d="M6.03072917,12.4398938 C8.25394078,12.0535281 9.70312477,10.728077 10.3782811,8.46354071 C8.19018209,8.69351919 6.7409981,10.0189702 6.03072917,12.4398938 Z" id="路径备份-10" fill="url(#linearGradient-10)" transform="translate(8.2045, 10.4517) scale(-1, 1) rotate(-84) translate(-8.2045, -10.4517)"></path>
+        </g>
+    </g>
+</svg>

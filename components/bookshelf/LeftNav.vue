@@ -37,13 +37,17 @@
       class="my-book-shelf" 
       :class="{ 'active': activeNav === 'bookshelf' }"
       @click="$emit('switch-tab', 'bookshelf')">
+      <SvgIcon name="bookshelf" class="bookshelf" :class="{ 'active-icon': activeNav === 'bookshelf' }" size="12" />
       我的书架
+      <SvgIcon name="arrow-right" class="arrow-right" :class="{ 'active-icon': activeNav === 'bookshelf' }" size="12"/>
     </div>
     <div 
       class="my-history"  
       :class="{ 'active': activeNav === 'history' }"
       @click="$emit('switch-tab', 'history')">
+      <SvgIcon name="history" class="history" :class="{ 'active-icon': activeNav === 'bookshelf' }" size="12" />
       历史记录
+      <SvgIcon name="arrow-right" class="arrow-right" :class="{ 'active-icon': activeNav === 'bookshelf' }" size="12" />
     </div>
 
     <!-- 头像裁剪弹窗：居中+背景模糊 -->
@@ -101,8 +105,9 @@
 
 <script setup>
   import { ref, onMounted } from 'vue'
+  import SvgIcon from '@/components/SvgIcon.vue';
   import { EditPen } from '@element-plus/icons-vue'
-  import { VueCropper } from 'vue-cropper' // 引入裁切组件
+  
   import { API_ENDPOINTS, apiRequest } from "@/utils/api" // 假设你有接口请求工具
 
   const props = defineProps({
@@ -121,6 +126,7 @@
   const cropperAvatar = ref('') // 修复：声明裁剪用的头像变量
   const cropImg = ref('') // 待裁剪的图片（上传后赋值）
   const uploadInput = ref(null) // 上传input实例  // 编辑用户信息（原有逻辑）
+  const localUserInfo = ref({ ...props.userInfo })
   // 打开弹窗
   const openAvatarModal = async() => {
      // 解构props中的userInfo，避免直接赋值
@@ -257,7 +263,7 @@
       if (userData.pictureUrl) {
         userData.pictureUrl = await convertImgToBase64(userData.pictureUrl);
       }
-      userInfo.value = userData;
+      localUserInfo.value = userData;
     }
   });
 </script>
@@ -295,7 +301,7 @@
   margin-top: 16px;
   cursor: pointer;
   &:hover {
-    color: #F96E08;
+    color: #F9A825;
   }
 }
 .edit-icon {
@@ -314,7 +320,7 @@
   margin-top: 4px;
   cursor: pointer;
   &:hover {
-    color: #F64E05;
+    color: #F9A825;
   }
 }
 .follow-box { 
@@ -336,7 +342,7 @@
 .author-follow-num, .author-fan-num { 
   color: #fff;
   &:hover {
-    color: #F96E08;
+    color: #F9A825;
   }
 }
 .author-follow { 
@@ -369,7 +375,7 @@
   font-family: PingFangSC, PingFang SC;
   font-weight: 600;
   font-size: 18px;
-  color: #F96E08;
+  color: #F9A825;
   line-height: 25px;
   text-align: left;
   font-style: normal;
@@ -390,6 +396,9 @@
   margin-top: 16px;
 }
 .my-book-shelf, .my-history { 
+  position: relative;
+  display: flex;
+  align-items: center;
   width: 220px;
   height: 48px;
   background: #424242;
@@ -405,8 +414,24 @@
 .my-book-shelf { 
   margin-top: 6px;
 }
+.bookshelf, .history, .ranking-hot, .bookshelfTest {
+  width: 12px;
+  height: 12px;
+  color: transparent;
+  margin: 0 6px 0 16px;
+}
+.arrow-right {
+  position: absolute;
+  right: 16px;
+  width: 12px;
+  height: 12px;
+  color: transparent;
+}
 .active {
-  color: #F96E08;
+  color: #F9A825;
+}
+.active-icon {
+  color: #F9A825;
 }
 
 /* 新增：头像弹窗样式 */
@@ -493,7 +518,7 @@
   border-radius: 4px;
   cursor: pointer;
   &:hover {
-    background: #F96E08;
+    background: #F9A825;
   }
 }
 
@@ -520,9 +545,49 @@
 .save-btn {
   padding: 8px 20px;
   border: none;
-  background: #F96E08;
+  background: #F9A825;
   color: #fff;
   border-radius: 4px;
   cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .book-shelf-left-nav-box {
+    width: 100%;
+    height: auto;
+  }
+  .author-avatar-box {
+    width: 100%;
+    height: auto;
+    padding: 16px 0;
+    border-radius: 6px;
+  }
+  .follow-box {
+    width: 100%;
+  }
+  .author-follow,
+  .author-fan {
+    width: 50%;
+  }
+  .user-balance-box {
+    width: 100%;
+    height: auto;
+    padding-bottom: 12px;
+  }
+  .balance-recharge-box {
+    justify-content: space-between;
+    padding: 0 8px;
+  }
+  .balance-recharge-btn,
+  .balance-recharge-record-btn {
+    width: 50%;
+  }
+  .my-book-shelf,
+  .my-history {
+    width: 100%;
+  }
+  .avatar-modal-content {
+    width: 90vw;
+  }
 }
 </style>

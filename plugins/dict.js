@@ -4,17 +4,24 @@ export default defineNuxtPlugin((nuxtApp) => {
   // 1. 获取 Nuxt3 封装的 Vue Router 实例
   const router = nuxtApp.$router;
 
-  // 2. 监听路由守卫：进入页面之前（等价于 Vue Router 的 beforeEach）
+  // 2. 监听路由守卫：进入页面之前
   router.beforeEach(async (to, from, next) => {
-    // 3. 获取字典 Store（Nuxt3 会自动处理服务端/客户端的实例隔离）
-    const dictStore = useDictStore();
+    // 核心新增逻辑：判断是否是倒计时页面
+    const isCountdownPage = to.path === '/countdown';
+    
+    // 如果是倒计时页面，直接放行，不处理字典加载
+    if (isCountdownPage) {
+      next();
+      return; // 终止后续逻辑，避免执行字典加载
+    }
 
-    // 4. 预加载字典：未加载则等待完成，已加载则直接放行
+    // 非倒计时页面，仍保留原有字典加载逻辑
+    const dictStore = useDictStore();
     if (!dictStore.isLoaded) {
       await dictStore.fetchDictMap(); // 等待字典请求完成
     }
 
-    // 5. 放行路由（Nuxt3 中 next() 可选，也可直接 return）
+    // 放行路由（Nuxt3 中 next() 可选，也可直接 return）
     next();
     // 或用 return 控制：return true（放行）/ return false（拦截）/ return '/login'（跳转）
   });

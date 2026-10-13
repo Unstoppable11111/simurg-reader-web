@@ -1,12 +1,21 @@
-import axios from 'axios'
+// axios 未在本文件使用，已移除 import
 /**
  * 开发、测试、生产
  */
-const API_BASE_URL = "http://www.sr-web-test.tata.org.cn:8082/api"
-// const API_BASE_URL = "http://www.sr-web-test.tata.org.cn:8082/api";
+// 统一获取 API 基础地址（优先取 Nuxt runtimeConfig，兼容纯客户端环境与外部脚本）
+export const getApiBaseUrl = () => {
+  try {
+    const config = useRuntimeConfig();
+    if (config?.public?.apiBase) {
+      return config.public.apiBase;
+    }
+  } catch (e) {
+    // 非 Nuxt 上下文
+  }
+  return "http://www.sr-web-test.tata.org.cn:8082/api";
+};
 
-// const API_BASE_URL = config.public.API_BASE_URL
-// const API_BASE_URL = process.env.NUXT_API_BASE_URL || 'http://8.129.12.50:8082/simurg_reader_web/api'
+const API_BASE_URL = getApiBaseUrl();
 export const API_ENDPOINTS = {
   /** 首页相关接口开始 */
   BANNERS: `${API_BASE_URL}/banner/role`,
@@ -28,13 +37,13 @@ export const API_ENDPOINTS = {
   /** 用户相关接口结束 */
 
   /** 书籍相关接口开始 */
-  CREATE_BOOK: `${API_BASE_URL}/book/oauth/create_book`,
-  UPDATE_BOOK: `${API_BASE_URL}/book/oauth/update_book`,
-  DELETE_BOOK: `${API_BASE_URL}/book/oauth/delete_book`,
-  LIST_ALL_BOOS_BY_AUTHOR: `${API_BASE_URL}/book/oauth/all_book`,
+  CREATE_BOOK: `${API_BASE_URL}/author/oauth/create_book`,
+  UPDATE_BOOK: `${API_BASE_URL}/author/oauth/update_book`,
+  DELETE_BOOK: `${API_BASE_URL}/author/oauth/delete_book`,
+  UPDATE_BOOK_SERIAL_STATUS: `${API_BASE_URL}/author/oauth/update/serial_status`,
+  LIST_ALL_BOOS_BY_AUTHOR: `${API_BASE_URL}/author/oauth/all_book`,
   LIST_PUBLISHED_BOOKS: `${API_BASE_URL}/book/list/published_book/author/`,
-  LIST_AUTHOR_BOOKS: `${API_BASE_URL}/book/oauth/all_book`,
-  
+
   /** 书籍相关接口结束 */
 
   /** 书籍评论相关接口开始 */
@@ -50,12 +59,14 @@ export const API_ENDPOINTS = {
   /** 书籍分类相关接口结束 */
 
   /** 书籍章节相关接口开始 */
-  CREATE_CHAPTER: `${API_BASE_URL}/chapters/create_chapter`,
-  UPDATE_CHAPTER: `${API_BASE_URL}/chapters/update_chapter`,
-  DELETE_CHAPTER: `${API_BASE_URL}/chapters/delete_chapter`,
-  PUBLISH_CHAPTER: `${API_BASE_URL}/chapters/publish_chapter`,
+  CREATE_CHAPTER: `${API_BASE_URL}/author/create_chapter`,
+  UPDATE_CHAPTER: `${API_BASE_URL}/author/update_chapter`,
+  DELETE_CHAPTER: `${API_BASE_URL}/author/delete_chapter`,
+  PUBLISH_CHAPTER: `${API_BASE_URL}/author/publish_chapter`,
   LIST_PUBLISHED_CHAPTERS: `${API_BASE_URL}/chapters/published/Chapters/list`,
   GET_CHAPTER_DETAIL: `${API_BASE_URL}/chapters/chapter/detail`,
+  GET_NEXT_CHAPTER_NUM: `${API_BASE_URL}/author/next_chapter_num/`,
+  LIST_ALL_CHAPTERS: `${API_BASE_URL}/author/oauth/list_by_book`,
   /** 书籍章节相关接口结束 */
 
   /** 书架相关接口开始 */
@@ -67,13 +78,16 @@ export const API_ENDPOINTS = {
   LIST_FAVORITE_BOOKS: `${API_BASE_URL}/oauth/favorite/list`,
   ADD_BOOKS_TO_FAVORITE: `${API_BASE_URL}/oauth/favorite/add`,
   DELETE_BOOKS_FROM_FAVORITE: `${API_BASE_URL}/oauth/favorite/cancel`,
+  UPLOAD_READING_RECORDS: `${API_BASE_URL}/oauth/reading-record/progress`,
 
   CHAPTER_DETAIL: `${API_BASE_URL}/chapters/chapter/detail`,
   /** 书架相关接口结束 */
 
   /** 成为作者接口开始 */
   BECOME_AUTHOR: `${API_BASE_URL}/oauth/user/become/author`,
-  AUTHO_INFO: `${API_BASE_URL}/author/info/`,
+  AUTHO_INFO: `${API_BASE_URL}/author/oauth/info`,
+  AUTHO_INFO_BY_ID: `${API_BASE_URL}/author/info`,
+  UPDATE_AUTHOR_INFO: `${API_BASE_URL}/author/oauth/update_info`,
   /** 成为作者接口结束 */
 
   // 认证相关
@@ -81,6 +95,7 @@ export const API_ENDPOINTS = {
   CALLBACK_GOOGLE: `${API_BASE_URL}/auth/callback`,
   AUTH_FACEBOOK: `${API_BASE_URL}/auth/2`,
   AUTH_BY_ACCOUNT: `${API_BASE_URL}/auth/login`,
+  LOGOUT: `${API_BASE_URL}/auth/logout`,
 
   // 用户反馈
   USER_FEEDBACK: `${API_BASE_URL}/feedback/oauth/submit`,
@@ -123,8 +138,8 @@ function getRefreshToken() {
   return null;
 }
 
-// 通用的fetch请求函数（不需要认证和登录）
-export async function apiRequest(endpoint, options = {}) {
+// 通用的fetch请求函数（需要登录和认证）
+export async function apiAuthRequest(endpoint, options = {}) {
   try {
     // 获取accessToken
     const accessToken = getAccessToken()
@@ -136,33 +151,73 @@ export async function apiRequest(endpoint, options = {}) {
       ...options.headers
       }
     }
-    
-    // 如果存在accessToken，则添加到Authorization头部
-    
+
     if (accessToken) {
        defaultOptions.headers.Authorization = `${accessToken}`
     }
     if (refreshToken) {
       defaultOptions.headers.RefreshToken = `${refreshToken}`
     }
-    
+
     // 合并选项
     const mergedOptions = {
       ...defaultOptions,
       ...options
     }
     const response = await fetch(endpoint, mergedOptions);
-    console.log("响应参数",response);
-    if (response.code === 2008 || response.status === 401) {
-      window.location.href = '/login'
-    }
-    if (!response.code === 200) {
+    if (!response.ok) {
+      if (response.status === 401 && typeof window !== 'undefined') {
+        window.location.href = '/login'
+      }
       throw new Error(`HTTP error! status: ${response.status}`)
     }
-    // TODO: 如果返回的参数请求头有accessToken，需要替换
-    if (response.headers.get('X-New-Access-Token')) {
-      console.log("返回的请求头参数有新的accessToken，", response.headers.get('X-New-Access-Token'));
-      localStorage.setItem('auth_token', response.headers.get('accessToken'))
+    // 如果返回的参数请求头有新 accessToken，进行替换
+    if (response.headers?.get('X-New-Access-Token') && typeof localStorage !== 'undefined') {
+      localStorage.setItem('auth_token', response.headers.get('X-New-Access-Token'))
+    }
+    const result = await response.json()
+    if (result.code === 2008 && typeof window !== 'undefined') {
+      window.location.href = '/login'
+    }
+    return result
+  } catch (error) {
+    console.error('API auth request failed:', error)
+    throw error
+  }
+}
+
+export async function apiRequest(endpoint, options = {}) {
+  try {
+    // 获取accessToken
+    const accessToken = getAccessToken()
+    const refreshToken = getRefreshToken()
+    const defaultOptions = {
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+      }
+    }
+
+    // 如果存在accessToken，则添加到Authorization头部
+    if (accessToken) {
+       defaultOptions.headers.Authorization = `${accessToken}`
+    }
+    if (refreshToken) {
+      defaultOptions.headers.RefreshToken = `${refreshToken}`
+    }
+
+    // 合并选项
+    const mergedOptions = {
+      ...defaultOptions,
+      ...options
+    }
+    const response = await fetch(endpoint, mergedOptions);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`)
+    }
+    // 如果返回的参数请求头有新 accessToken，进行替换
+    if (response.headers?.get('X-New-Access-Token') && typeof localStorage !== 'undefined') {
+      localStorage.setItem('auth_token', response.headers.get('X-New-Access-Token'))
     }
     return await response.json()
   } catch (error) {
@@ -176,12 +231,12 @@ export async function apiFileAuthRequest(endpoint, options = {}) {
   try {
     // 获取accessToken
     const accessToken = getAccessToken()
-    
+
     // 设置默认选项
     const defaultOptions = {
       ...options
     }
-    
+
     // 如果存在accessToken，则添加到Authorization头部
     if (accessToken) {
       defaultOptions.headers = {
@@ -189,21 +244,21 @@ export async function apiFileAuthRequest(endpoint, options = {}) {
         Authorization: `${accessToken}`
       }
     }
-    
+
     // 合并选项
     const mergedOptions = {
       ...defaultOptions,
       ...options
     }
-    
+
     let response = await fetch(endpoint, mergedOptions)
-    
+
     // 如果是401错误，尝试刷新token
     if (response.status === 401) {
       try {
         // 尝试刷新token
         await refreshAccessToken()
-        
+
         // 刷新成功后重新发起请求
         const newAccessToken = getAccessToken()
         if (newAccessToken) {
@@ -212,7 +267,7 @@ export async function apiFileAuthRequest(endpoint, options = {}) {
             Authorization: `${newAccessToken}`
           }
         }
-        
+
         response = await fetch(endpoint, mergedOptions)
       } catch (refreshError) {
         // 刷新失败，清除认证信息并跳转到登录页
@@ -221,11 +276,11 @@ export async function apiFileAuthRequest(endpoint, options = {}) {
         throw refreshError
       }
     }
-    
+
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`)
     }
-    
+
     return await response.json()
   } catch (error) {
     console.error('API file request failed:', error)
@@ -238,15 +293,61 @@ export async function apiFileRequest(endpoint, options = {}) {
     const response = await fetch(endpoint, {
       ...options
     })
-    
+
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`)
     }
-    
+
     return await response.json()
   } catch (error) {
     console.error('API request failed:', error)
     throw error
+  }
+}
+
+/**
+ * 生成后端需要的时间戳
+ * @returns {Number} 毫秒级时间戳
+ */
+export const generateTimestamp = () => {
+  return Date.now();
+}
+
+
+let cachedIp = null; // 内存缓存，比 localStorage 更快
+
+export async function getUserIp() {
+  // 1. 内存缓存优先
+  if (cachedIp) {
+    return cachedIp;
+  }
+
+  // 2. 读 localStorage 缓存
+  const CACHE_KEY = "client_ip_cache";
+  const storedIp = process.client ? localStorage.getItem(CACHE_KEY) : null;
+  if (storedIp) {
+    cachedIp = storedIp;
+    return storedIp;
+  }
+
+  // 3. 调用自己的 Nuxt 接口获取 IP（无跨域）
+  try {
+    const res = await fetch('/api/client-ip', {
+      signal: AbortSignal.timeout(3000)
+    });
+    const data = await res.json();
+    const ip = data.ip || '127.0.0.1';
+
+    // 缓存到内存和 localStorage
+    cachedIp = ip;
+    if (process.client) {
+      localStorage.setItem(CACHE_KEY, ip);
+    }
+    return ip;
+  } catch (e) {
+    // 失败返回默认 IP
+    cachedIp = '127.0.0.1';
+    return cachedIp;
   }
 }
 

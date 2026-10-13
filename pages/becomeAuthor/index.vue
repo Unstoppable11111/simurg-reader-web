@@ -127,7 +127,7 @@
     if (file && file.type.startsWith('image/')) {
       uploadAvatar(file);
     } else {
-      alert('请上传有效的图片文件');
+      ElMessage.error('请上传有效的图片文件');
     }
   };
 
@@ -162,7 +162,7 @@
       }
     } catch (error) {
       console.error('上传错误:', error);
-      alert('头像上传失败，请重试');
+      ElMessage.error('头像上传失败，请重试');
     }
   };
 
@@ -197,7 +197,7 @@
       }
     } catch (error) {
       console.error('提交错误:', error);
-      alert('提交失败，请检查填写的表单数据');
+      ElMessage.error('提交失败，请检查填写的表单数据');
     }
   };
 </script>
@@ -261,7 +261,7 @@
     font-family: PingFangSC, PingFang SC;
     font-weight: 400;
     font-size: 18px;
-    color: #ED5B00;
+    color: #F9A825;
     line-height: 25px;
     text-align: left;
     font-style: normal;
@@ -381,7 +381,7 @@
   }
   .submit-btn {
     padding: 12px 40px;
-    background: linear-gradient( 90deg, #FF9B51 0%, #ED5B00 100%);
+    background: linear-gradient( 90deg, #F9A825 0%, #F9A825 100%);
     color: white;
     border: none;
     border-radius: 20px;
@@ -392,5 +392,58 @@
   .submit-btn:disabled {
     opacity: 0.6;
     cursor: not-allowed;
+  }
+
+  @media (max-width: 768px) {
+    .become-author-container {
+      width: 100%;
+      height: auto;
+      margin: 90px 0 0;
+      border-radius: 0;
+      padding: 16px;
+    }
+    .become-author-recommend-box {
+      width: 100%;
+      height: auto;
+      margin: 0 0 16px;
+      padding: 16px;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .become-author-recommend-img {
+      margin: 0;
+    }
+    .become-author-recommend-text {
+      margin: 0;
+      font-size: 16px;
+    }
+    .become-author-recommend-text-sub {
+      margin: 8px 0 0;
+      font-size: 14px;
+    }
+    .become-author-form-box {
+      width: 100%;
+      margin-bottom: 24px;
+    }
+    .become-author-form-item {
+      flex-direction: column;
+      align-items: flex-start;
+      margin: 0 0 16px;
+    }
+    .form-label {
+      width: auto;
+      margin-bottom: 8px;
+    }
+    .avatar-upload-container {
+      margin-left: 0;
+      width: 100%;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .form-input,
+    .form-textarea {
+      width: 100%;
+    }
   }
 </style>

@@ -208,11 +208,11 @@ const deleteBookShelf = async (bookId) => {
       method: 'POST',
       body: JSON.stringify(deleteFavoriteReq)
     });
-    console.log("删除用户收藏的该书籍成功", response);
-    alert("删除成功");
+    ElMessage.success('删除成功');
     queryMyBookShelf();
   } catch (error) {
     console.error('删除用户收藏的该书籍失败：', error);
+    ElMessage.error('删除失败');
   }
 }
 
@@ -230,12 +230,12 @@ const fetchUserInfo = async () => {
 
 // 处理书币充值
 const handleRecharge = () => {
-  alert('跳转到充值页面');
+  ElMessage.info('跳转到充值页面');
 };
 
 // 显示充值记录
 const showRechargeRecord = () => {
-  alert('跳转到充值记录页面');
+  ElMessage.info('跳转到充值记录页面');
 };
 
 // 页面加载时默认加载书架数据
@@ -267,5 +267,24 @@ onMounted(() => {
   height: 646px;
   border-radius: 6px;
   margin-left: 24px;
+}
+
+@media (max-width: 768px) {
+  .book-shelf-box {
+    flex-direction: column;
+    width: 100%;
+    margin-top: 90px;
+    padding: 0 16px;
+  }
+  .left-nav {
+    margin-left: 0;
+    width: 100%;
+  }
+  .book-shelf-right-nav-box {
+    width: 100%;
+    height: auto;
+    margin-left: 0;
+    margin-top: 16px;
+  }
 }
 </style>

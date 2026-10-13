@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>icon/分类</title>
+    <defs>
+        <linearGradient x1="89.6178416%" y1="9.19846146%" x2="14.1946204%" y2="67.6634673%" id="linearGradient-1">
+            <stop stop-color="#FFF3C3" offset="0%"></stop>
+            <stop stop-color="#FFD24C" offset="100%"></stop>
+        </linearGradient>
+        <linearGradient x1="50%" y1="0%" x2="50%" y2="99.8688811%" id="linearGradient-2">
+            <stop stop-color="#FFF9D9" offset="0%"></stop>
+            <stop stop-color="#F8A30C" offset="87.0929851%"></stop>
+            <stop stop-color="#E87908" offset="100%"></stop>
+        </linearGradient>
+    </defs>
+    <g id="icon/分类" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <rect id="矩形备份-36" x="0" y="0" width="24" height="24"></rect>
+        <g id="编组-42" transform="translate(2.5, 2.5)">
+            <path d="M4.5,0 C6.98528137,-8.8817842e-16 9,2.01471863 9,4.5 L9,9 L9,9 L4.5,9 C2.01471863,9 0,6.98528137 0,4.5 C0,2.01471863 2.01471863,0 4.5,0 Z" id="矩形" fill="url(#linearGradient-1)"></path>
+            <path d="M4.5,10 C6.98528137,10 9,12.0147186 9,14.5 L9,19 L9,19 L4.5,19 C2.01471863,19 0,16.9852814 0,14.5 C0,12.0147186 2.01471863,10 4.5,10 Z" id="矩形备份-37" fill="url(#linearGradient-1)" transform="translate(4.5, 14.5) scale(1, -1) translate(-4.5, -14.5)"></path>
+            <path d="M14.5,0 C16.9852814,-8.8817842e-16 19,2.01471863 19,4.5 L19,9 L19,9 L14.5,9 C12.0147186,9 10,6.98528137 10,4.5 C10,2.01471863 12.0147186,0 14.5,0 Z" id="矩形备份-28" fill="url(#linearGradient-2)" transform="translate(14.5, 4.5) scale(-1, 1) translate(-14.5, -4.5)"></path>
+            <path d="M14.5,10 C16.9852814,10 19,12.0147186 19,14.5 L19,19 L19,19 L14.5,19 C12.0147186,19 10,16.9852814 10,14.5 C10,12.0147186 12.0147186,10 14.5,10 Z" id="矩形备份-38" fill="url(#linearGradient-1)" transform="translate(14.5, 14.5) scale(-1, -1) translate(-14.5, -14.5)"></path>
+        </g>
+    </g>
+</svg>

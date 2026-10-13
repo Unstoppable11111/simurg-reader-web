@@ -20,7 +20,7 @@ onMounted(async () => {
   const code = route.query.code
   const state = route.query.state
   if (!code) {
-    alert('登录失败：未获取到授权码')
+    ElMessage.error('登录失败：未获取到授权码')
     router.push('/login')
     return
   }
@@ -41,7 +41,7 @@ onMounted(async () => {
     router.push(redirectPath)
   } catch (error) {
     console.error('Google 登录回调失败：', error)
-    alert('登录失败，请重试')
+    ElMessage.error('登录失败, 请稍后重试')
     router.push('/login')
   }
 })
@@ -49,7 +49,11 @@ onMounted(async () => {
 
 <style scoped>
 .callback-page {
+  min-height: 60vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   text-align: center;
-  padding: 50px;
+  padding: 40px 16px;
 }
 </style>

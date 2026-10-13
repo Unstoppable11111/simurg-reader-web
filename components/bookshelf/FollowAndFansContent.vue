@@ -108,7 +108,8 @@
   // 统一的请求方法：支持指定Tab，预加载另一组数据
   const fetchFollowAndFansList = async (currentTab = props.initialTab) => {
     // 1. 请求当前Tab的数据（若父组件无缓存）
-    if (currentTab === 'follow' && props.followList.length === 0) {
+    // if (currentTab === 'follow' && props.followList.length === 0) {
+    if (currentTab === 'follow') {
       try {
         const followListReq = { page: 1, size: 10 };
         const followListResult = await apiRequest(API_ENDPOINTS.LIST_FOLLOW, {
@@ -121,7 +122,8 @@
       } catch (error) {
         console.error('获取关注列表失败：', error);
       }
-    } else if (currentTab === 'fans' && props.fansList.length === 0) {
+    // } else if (currentTab === 'fans' && props.fansList.length === 0) {
+    } else if (currentTab === 'fans') {
       try {
         const fansListReq = { page: 1, size: 10 };
         const fansListResult = await apiRequest(API_ENDPOINTS.LIST_FANS, {
@@ -165,7 +167,7 @@
 
         // 2. 刷新粉丝列表
         emit('update-count', { 
-          followCount: props.followCount + 1, 
+          followCount: props.followCount ++ , 
           fanCount: props.fanCount // 粉丝数不变
         });
         // await fetchFollowAndFansList('fans');
@@ -202,7 +204,7 @@
           }
         }
         // 2、通知父组件更新计数
-        let newFollowCount = props.followCount - 1;
+        let newFollowCount = props.followCount --;
         console.log('计算后的newFollowCount：', newFollowCount);
         emit('update-count', {
           followCount: Math.max(0, newFollowCount),
@@ -394,7 +396,7 @@
   font-family: PingFangSC, PingFang SC;
   font-weight: 400;
   font-size: 12px;
-  color: #F96E08;
+  color: #F9A825;
   line-height: 20px;
   text-align: center;
   font-style: normal;
@@ -418,5 +420,38 @@
   line-height: 17px;
   text-align: center;
   font-style: normal;
+}
+
+@media (max-width: 768px) {
+  .follow-box {
+    width: 100%;
+    height: auto;
+  }
+  .follow-header-box {
+    width: 100%;
+  }
+  .follow-content-box {
+    width: 100%;
+    min-height: auto;
+  }
+  .follow-item,
+  .fan-item {
+    flex-direction: column;
+    align-items: flex-start;
+    height: auto;
+    gap: 8px;
+    padding: 12px;
+  }
+  .follow-user-info,
+  .fan-user-info {
+    margin-left: 0;
+  }
+  .follow-status,
+  .follow-back-btn,
+  .following-btn {
+    position: static;
+    width: 120px;
+    margin-top: 4px;
+  }
 }
 </style>

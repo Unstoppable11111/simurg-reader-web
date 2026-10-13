@@ -1,16 +1,18 @@
 <template>
   <div class="book-cate-box">
     <div class="book-cate-list">
-      <!-- 使用v-for循环循环渲染分类项 -->
+      <!-- 使用v-for循环渲染分类项 -->
       <div 
         class="book-cate-item" 
         v-for="(category, index) in bookCateList" 
-        :key="index"
+        :key="category.categoryId || index"
+        @click="gotoCategory(category.categoryId)"
       >
         <img 
           :src="category.iconImageUrl" 
-          :alt="category.categoryName" 
+          :alt="category.categoryName || '分类'" 
           class="cate-img"
+          loading="lazy"
         />
       </div>
     </div>
@@ -18,49 +20,87 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import { API_ENDPOINTS, apiRequest } from '@/utils/api'
 const router = useRouter();
 const props = defineProps({
-    bookCateList: {
-      type: Array,
-      default: () => [],
-      required: true
-    },
-    apiUrl: {
+  bookCateList: {
+    type: Array,
+    default: () => [],
+    required: true
+  },
+  apiUrl: {
     type: String,
     default: API_ENDPOINTS.RANKING_BOOKS
-    },
-})
+  },
+});
+
+const gotoCategory = (categoryId) => {
+  if (categoryId) {
+    router.push(`/bookcate?categoryId=${categoryId}`);
+  } else {
+    router.push('/bookcate');
+  }
+};
 </script>
 
 <style lang="scss" scoped>
-  .book-cate-box {
-    margin-top: 38px;
+.book-cate-box {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.book-cate-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 16px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.book-cate-item {
+  width: 100%;
+  cursor: pointer;
+  border-radius: var(--radius-md, 10px);
+  overflow: hidden;
+  transition: transform 0.3s ease;
+  aspect-ratio: 154 / 185;
+
+  &:hover {
+    transform: translateY(-4px);
+    .cate-img {
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+      filter: brightness(1.06);
+    }
   }
+}
+
+.cate-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  border-radius: var(--radius-md, 10px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  transition: box-shadow 0.3s ease, filter 0.3s ease;
+}
+
+@media (max-width: 768px) {
   .book-cate-list {
-    display: flex;
-    gap: 20px;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
   }
-  
-  .cate-img {
-    width: 154px;
-    height: 185px;
-    box-shadow: 0px 4px 10px 0px rgba(197,195,195,0.5);
-    border-radius: 10px;
-    transition: transform 0.3s ease; /* 添加过渡效果 */
-    &:not(:valid) {
-      background-color: #828282;
-    }
+}
+
+@media (max-width: 520px) {
+  .book-cate-list {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
   }
-  
-  // 为分类项添加悬停效果
-  .book-cate-item {
-    cursor: pointer;
-    
-    &:hover .cate-img {
-      transform: translateY(-5px); /* 悬停时上浮 */
-      box-shadow: 0px 8px 15px 0px rgba(197,195,195,0.7); /* 增强阴影 */
-    }
+}
+
+@media (max-width: 360px) {
+  .book-cate-list {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
   }
+}
 </style>

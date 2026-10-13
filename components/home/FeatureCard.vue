@@ -1,43 +1,50 @@
 <template>
   <div class="feature-card-carousel">
-
-    <!-- 左箭头 -->
-    <button 
-      class="carousel-arrow left-arrow" 
-      @click="moveLeft(books)" 
-      aria-label="上一页"
-    >
+    <button class="carousel-arrow left-arrow" aria-label="上一页">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M15 19L8 12L15 5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
     </button>
 
     <div class="view-port">
-      <div class="feature-card-track">
-        <div
-          class="feature-card"
-          v-for="(book, idx) in books"
-          :key="book.bookId"
-          :class="{ 
-          'first-part': idx === 0,
-          'active-part': idx === activeIndex
-          }"
-          @click="gotoBookDetail(book.bookId)"
-          :style="getItemStyles(idx)"
+      <swiper
+        :modules="modules"
+        :slides-per-view="6"
+        :space-between="24"
+        :centered-slides="true"
+        :loop="true"
+        :navigation="{
+          prevEl: '.left-arrow',
+          nextEl: '.right-arrow',
+        }"
+        :breakpoints="breakpoints"
+        class="mySwiper"
+      >
+        <swiper-slide 
+          v-for="(book, idx) in [...books, ...books]" 
+          :key="`${book.bookId}-${idx}`"
+          v-slot="{ isActive }"
         >
-          <img :src="book.coverImageUrl" :alt="book.title" class="book-img" />
-          <div class="book-title">{{ book.title }}</div>
-          <div class="book-cate">{{ book.bookCategoryResponseList[0].categoryName }}</div>
-        </div>
-      </div>
+          <div 
+            class="feature-card" 
+            :class="{ 'active-part': isActive }"
+            @click="gotoBookDetail(book.bookId)"
+          >
+            <div class="book-img-box">
+              <img :src="book.coverImageUrl" :alt="book.title" class="book-img" />
+            </div>
+            <div class="book-info">
+              <div class="book-title">{{ book.title }}</div>
+              <div class="book-cate">
+                {{ book.bookCategoryResponseList?.[0]?.categoryName }}
+              </div>
+            </div>
+          </div>
+        </swiper-slide>
+      </swiper>
     </div>
 
-    <!-- 右箭头 -->
-    <button 
-      class="carousel-arrow right-arrow" 
-      @click="moveRight(books)" 
-      aria-label="下一页"
-    >
+    <button class="carousel-arrow right-arrow" aria-label="下一页">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M9 5L16 12L9 19" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
@@ -46,242 +53,218 @@
 </template>
 
 <script setup>
-  const props = defineProps({
-    books: {
-      type: Array,
-      default: () => [],
-      required: true
-    }
-  })
+import { Swiper, SwiperSlide } from 'swiper/vue';
+import { Navigation } from 'swiper/modules';
+import { useRouter } from 'vue-router';
 
-  const router = useRouter()
+import 'swiper/css';
+import 'swiper/css/navigation';
 
-  // 跟踪当前active-part的索引，初始值为2（第三个元素）
-  const activeIndex = ref(3)
-  // 定义.first-part的样式状态
-  const firstPartStyles = ref({
-    marginLeft: '-96px',
-    // 可以添加其他初始样式
-    transition: 'margin-left 0.5s ease-in-out' // 添加过渡动画属性
-  })
-  // 激活元素的样式（带过渡）
-  const activePartStyle = {
-    // 基础过渡动画
-    width: '234px',
-    height: '396px',
-    transition: 'all 0.5s ease-in-out',
-    // 激活状态样式
-    boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1)'
+const props = defineProps({
+  books: {
+    type: Array,
+    default: () => [],
+    required: true
   }
+});
 
-  // 根据索引获取元素样式
-  const getItemStyles = (idx) => {
-    // 第一个元素的样式
-    if (idx === 0) {
-      return { ...firstPartStyles.value };
-    }
-    // 激活元素的样式
-    else if (idx === activeIndex.value) {
-      return { ...activePartStyle };
-    }
-    // 其他元素的默认样式
-    else {
-      return { ...{} };
-    }
-  }
+const modules = [Navigation];
+const router = useRouter();
 
-  // 点击书籍跳转到详情页
-  const gotoBookDetail = async (bookId) => {
-      router.push(`/book/${bookId}`)
+const breakpoints = {
+  0: {
+    slidesPerView: 2.3,
+    spaceBetween: 12,
+    centeredSlides: false
+  },
+  480: {
+    slidesPerView: 3.2,
+    spaceBetween: 14,
+    centeredSlides: false
+  },
+  768: {
+    slidesPerView: 4.2,
+    spaceBetween: 18,
+    centeredSlides: true
+  },
+  1024: {
+    slidesPerView: 6,
+    spaceBetween: 24,
+    centeredSlides: true
   }
+};
 
-  // 左右偏移量
-  const lv = 192;
-  // 点击左箭头时调整样式
-  const moveLeft = () => {
-    activeIndex.value--
-    console.log('向右移动')
-    // 每次点击左箭头，增加margin-left值（示例：每次增加50px）
-    const currentMargin = parseInt(firstPartStyles.value.marginLeft)
-    console.log('当前margin-left:', currentMargin)
-    firstPartStyles.value.marginLeft = currentMargin + lv + 'px'
-    console.log('更新后margin-left:', firstPartStyles.value.marginLeft)
-  }
-
-  const moveRight = () => {
-    activeIndex.value++
-    console.log('向右移动')
-    // 每次点击左箭头，增加margin-left值（示例：每次增加50px）
-    const currentMargin = parseInt(firstPartStyles.value.marginLeft)
-    console.log('当前margin-left:', currentMargin)
-    firstPartStyles.value.marginLeft = currentMargin - lv + 'px'
-    console.log('更新后margin-left:', firstPartStyles.value.marginLeft)
-    // 可以同时调整其他样式
-  }
-    
+const gotoBookDetail = (bookId) => {
+  router.push(`/book/${bookId}`);
+};
 </script>
 
 <style lang="scss" scoped>
-  $card-width: 168px;
-  $card-height: 294px;
-  $card-gap: 24px;
-  $card-part: calc($card-width / 3);
+$base-w: 168px;
+$base-h: 224px;
+/* 这里的 active 尺寸用于计算比例，我们主要通过 scale 实现等比放大 */
+$active-w: 216px; 
+$active-h: 288px;
+$info-h: 60px;
 
-  .feature-card-carousel {
-    // width: calc($card-width * 5 + $card-gap * 6 + $card-part * 2); // 5张完整卡片+6个间距+两侧各三分之一
-    width: 1200px;
-    overflow: hidden;
-    position: relative;
-    margin: 0 auto;
-  }
+.feature-card-carousel {
+  width: 100%;
+  max-width: 1200px;
+  position: relative;
+  margin: 0 auto;
+  padding: 50px 0; /* 上下留出空间给放大后的图片 */
+}
 
-  // 可视区域 - 固定宽度1360px，超出部分隐藏
-  .view-port {
-    width: 1200px;
-    margin-top: 28px;
-  }
+.view-port {
+  width: 100%;
+}
 
-  // 书籍轨道
-  .feature-card-track {
-    display: flex;
-    will-change: transform; // 性能优化
-  }
+:deep(.swiper-slide) {
+  display: flex;
+  justify-content: center;
+  align-items: center; /* 改为居中对齐，实现上下等比放大 */
+  height: 400px; 
+  transition: transform 0.4s ease;
+}
 
-  .feature-card-track {
-    display: flex;
-    transition: transform 0.4s;
-  }
+.feature-card {
+  width: $base-w;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 
-  .feature-card {
-    width: $card-width;
-    height: $card-height;
-    overflow: hidden;
-    flex-shrink: 0;
-    display: flex;
-    flex-direction: column;
-    margin-right: $card-gap;
-    position: relative;
-    margin-top: 38px;
-  }
-
-  .feature-card .book-img {
-    // margin-top: 28px;
-  }
-
-  .active-part{
-    margin-top: 0 !important;
-    // position: relative;
-    // top: -38px; /* 向上偏移38px，视觉上就比其他元素高出38px */
-  }
-
-  .first-part {
-    margin-left: -96px;
-    z-index: 1;
-  }
-
-  .last-part {
-    z-index: 1;
-  }
-
-  .active-part .book-img{
-    width: 216px;
-    height: 288px;
-    z-index: 3;
-  }
-  .active-part .book-title{
-    font-size: 18px;
-    margin-left: 8px;
-  }
-  .active-part .book-cate{
-    font-size: 14px;
-    margin-left: 8px;
-  }
-
-  .book-img {
-    width: 168px;
-    height: 224px;
-    object-fit: cover;
-    margin: 0 auto;
+  .book-img-box {
+    width: $base-w;
+    height: $base-h;
     border-radius: 10px;
-    &:not(:valid) {
-      background-color: #828282;
-    }
-  }
-
-  .book-title {
-    height: 22px;
-    font-family: PingFangSC, PingFang SC;
-    font-weight: 400;
-    font-size: 16px;
-    color: #FFFFFF;
-    line-height: 22px;
-    text-align: left;
-    font-style: normal;
-    white-space: nowrap;
     overflow: hidden;
-    text-overflow: ellipsis;
-    margin-top: 28px;
-
+    background-color: #333;
+    transition: inherit;
     
-  }
-   // 鼠标悬停时的颜色变化
-  .book-title:hover {
-    color: #ED5B00; /* 悬停时的颜色，与热度数值同色保持协调 */
-    cursor: pointer; /* 鼠标变为手型，提示可点击 */
+    .book-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
   }
 
-  .book-cate {
-    height: 17px;
-    font-family: PingFangSC, PingFang SC;
-    font-weight: 400;
-    font-size: 12px;
-    color: #A2A0A0;
-    line-height: 17px;
-    text-align: left;
-    font-style: normal;
+  .book-info {
+    margin-top: 15px;
+    height: $info-h;
+    text-align: center;
+    transition: inherit;
+    width: 100%; 
+    
+    .book-title {
+      font-size: 14px;
+      color: #FFFFFF;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-weight: 400;
+      &:hover { color: #F9A825; }
+    }
+    .book-cate {
+      font-size: 12px;
+      color: #A2A0A0;
+      margin-top: 4px;
+    }
   }
-  // 箭头样式 - 确保能点击到
-  .carousel-arrow {
-    position: absolute;
-    // top: calc(50% + 24px);
-    top: 183px;
-    transform: translateY(-50%);
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    background-color: rgba(0, 0, 0, 0.6);
-    border: none;
-    cursor: pointer;
+
+  /* 激活状态 */
+  &.active-part {
+    /* 通过 transform 实现中心等比放大 */
+    transform: scale(1.25); 
     z-index: 10;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s;
-    padding: 0; // 去除默认按钮内边距
-    
-    &:hover {
-      background-color: rgba(0, 0, 0, 0.8);
-      transform: translateY(-50%) scale(1.05);
-    }
-    
-    &:disabled {
-      opacity: 0.3;
-      cursor: not-allowed;
-      background-color: rgba(0, 0, 0, 0.4);
-      transform: translateY(-50%); // 禁用状态不缩放
-    }
-    
-    // 确保箭头图标可点击
-    svg {
-      pointer-events: none;
-    }
-  }
 
-  .left-arrow {
-    left: 20px; // 调整位置确保可见且可点击
-  }
+    .book-img-box {
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+    }
 
-  .right-arrow {
-    right: 20px; // 调整位置确保可见且可点击
+    .book-info {
+      /* 放大后图片变长，为了不遮挡文字且保持视觉比例，轻微向下偏移 */
+      transform: translateY(10px); 
+      
+      .book-title {
+        font-weight: 800; /* 字体加重 */
+        color: #FFFFFF;
+        /* 抵消整体 scale 导致的模糊，微调字号 */
+        font-size: 14px; 
+      }
+      .book-cate {
+        font-weight: 600;
+        color: #F9A825; /* 选中时类别文字高亮，增加质感 */
+      }
+    }
   }
+}
+
+.carousel-arrow {
+  position: absolute;
+  z-index: 10;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  top: 50%;
+  transform: translateY(-50%);
+  transition: all 0.25s ease;
+
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.8);
+    transform: translateY(-50%) scale(1.08);
+    svg path {
+      stroke: #18191b;
+    }
+  }
+  
+  &:disabled, &.swiper-button-disabled {
+    opacity: 0.2;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+}
+
+.left-arrow { left: 8px; }
+.right-arrow { right: 8px; }
+
+@media (max-width: 768px) {
+  .feature-card-carousel {
+    width: 100%;
+    padding: 16px 0;
+    overflow: hidden;
+  }
+  :deep(.swiper-slide) {
+    height: auto;
+    padding: 8px 0;
+  }
+  .feature-card {
+    width: 100%;
+    max-width: 140px;
+    transform: none;
+
+    .book-img-box {
+      width: 100%;
+      height: auto;
+      aspect-ratio: 3 / 4;
+    }
+  }
+  .feature-card.active-part {
+    transform: none;
+    .book-info {
+      transform: none;
+    }
+  }
+  .carousel-arrow {
+    display: none;
+  }
+}
 </style>

@@ -78,27 +78,17 @@
             <div class="contact-info">
               <div class="contact-item">
                 <h3>客服邮箱</h3>
-                <p>support@simurgreader.com</p >
-              </div>
-              
-              <div class="contact-item">
-                <h3>商务合作</h3>
-                <p>business@simurgreader.com</p >
+                <p>destek@simurg.top</p >
               </div>
               
               <div class="contact-item">
                 <h3>作者投稿</h3>
-                <p>author@simurgreader.com</p >
-              </div>
-              
-              <div class="contact-item">
-                <h3>技术问题</h3>
-                <p>tech@simurgreader.com</p >
+                <p>basvuru@simurg.top</p >
               </div>
               
               <div class="contact-item">
                 <h3>媒体联络</h3>
-                <p>media@simurgreader.com</p >
+                <p>待提供</p >
               </div>
             </div>
           </div>
@@ -363,13 +353,19 @@
             </div>
           </div>
         </div>
+
       </div>
+
     </div>
+
+    
+    <Footer />
   </div>
 </template>
 
 <script setup>
 import Header from '@/components/layout/Header.vue'
+import Footer from '@/components/layout/Footer.vue';
 const route = useRoute()
 // 响应式状态，用于跟踪当前激活的菜单项
 const activeMenu = ref('about')
@@ -402,7 +398,9 @@ watch(() => route.query.section, (newSection) => {
 <style lang="scss" scoped>
 .footer-common-page {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  // justify-content: center;
+  align-items: center;
   padding: 40px 20px;
   min-height: calc(100vh - 120px);
   background-color: #1a1a1a;
@@ -418,6 +416,7 @@ watch(() => route.query.section, (newSection) => {
   overflow: hidden;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   margin-top: 50px;
+  margin-bottom: 50px;
 }
 
 .sidebar {
@@ -556,6 +555,13 @@ watch(() => route.query.section, (newSection) => {
   
   .main-content {
     padding: 20px;
+  }
+
+  .content-section h2 {
+    font-size: 20px;
+  }
+  .content-wrapper p {
+    font-size: 14px;
   }
 }
 </style>

@@ -189,4 +189,16 @@ useHead({
 .content li {
   margin-bottom: 5px;
 }
+
+@media (max-width: 768px) {
+  .privacy-policy-page {
+    padding: 16px;
+  }
+  .header h1 {
+    font-size: 22px;
+  }
+  .content p {
+    font-size: 14px;
+  }
+}
 </style>

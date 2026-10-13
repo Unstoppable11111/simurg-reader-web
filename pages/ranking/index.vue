@@ -1,6 +1,6 @@
 <template>
   <div class="ranking-page">
-    <Header :margin-left="'360px'" />
+    <Header />
     <div class="ranking-container">
       <div class="ranking-box">
         <div class="ranking-nav-box">
@@ -11,7 +11,8 @@
               class="ranking-nav-item"
               :class="{ 'active': item.active }"
               @click="selectRanking(item)">
-                <div>{{ item.name }}</div>
+                <SvgIcon :name="item.active ? item.iconActivePath : item.iconPath" :class="item.active ? item.iconActivePath : item.iconPath" color=""/>
+                <div style="margin-left: 10px;" :class="{ 'active-text': item.active }">{{ item.name }}</div>
             </div>
           </div>
         </div>
@@ -23,29 +24,16 @@
               {{ currentRanking }}
           </div>
         </div>
-        <!-- <div class="ranking-desc-box">
-          <div class="ranking-desc-text">基于昨日书籍热度排行</div>
-          <div 
-            class="ranking-day"
-            :class="{ 'active-type': rankingType === '日榜' }"
-            @click="selectRankingType('日榜')">
-            日榜
-          </div>
-          <div 
-            class="ranking-month"
-            :class="{ 'active-type': rankingType === '月榜' }"
-            @click="selectRankingType('月榜')">
-            月榜
-          </div>
-        </div> -->
         <div class="ranking-book-box">
-          <div class="ranking-book-list">
+          <div class="ranking-book-list" v-reveal>
             <div 
               v-for="book in rankingBooks" 
               :key="book.bookId"
               @click="gotoBookDetail(book.bookId)"
-              class="ranking-book-item">
-              <img class="book-img" :src="book.coverImageUrl" :alt="book.title">
+              class="ranking-book-item motion-card">
+              <div class="cover-wrapper">
+                <img class="book-img" :src="book.coverImageUrl" :alt="book.title || '封面'" loading="lazy">
+              </div>
               <div class="book-info">
                 <div class="book-title">{{ book.title }}</div>
                 <div class="book-author">{{ book.penName }}</div>
@@ -64,16 +52,17 @@
 
 <script setup>
   import Header from "@/components/layout/Header.vue";
+  import SvgIcon from "@/components/SvgIcon.vue";
   import { formatTimestamp, formatSerialStatus } from '@/utils/dataFormatter';
   
   // 榜单导航项数据
   const rankingNavItems = ref([
-    { id: 1, name: '热门榜', code: '1', active: true },
-    { id: 2, name: '新书榜', code: '2', active: false },
-    { id: 3, name: '畅销榜', code: '3', active: false },
-    { id: 4, name: '完结榜', code: '4', active: false },
-    { id: 5, name: '大神榜', code: '5', active: false },
-    { id: 6, name: '热搜榜', code: '6', active: false }
+    { id: 1, name: '热门榜', code: '1', active: true, iconPath: 'ranking-hot', iconActivePath: 'ranking-hot-active', },
+    { id: 2, name: '新书榜', code: '2', active: false, iconPath: 'ranking-new', iconActivePath: 'ranking-new-active', },
+    { id: 3, name: '畅销榜', code: '3', active: false, iconPath: 'ranking-selling', iconActivePath: 'ranking-selling-active', },
+    { id: 4, name: '完结榜', code: '4', active: false, iconPath: 'ranking-finish', iconActivePath: 'ranking-finish-active', },
+    { id: 5, name: '大神榜', code: '5', active: false, iconPath: 'ranking-god', iconActivePath: 'ranking-god-active', },
+    { id: 6, name: '热搜榜', code: '6', active: false, iconPath: 'ranking-search', iconActivePath: 'ranking-search-active', }
   ]);
   
   // 当前选中的榜单
@@ -128,18 +117,9 @@
     await fetchRankingData(currentRankingCode.value);
     
   };
-  
-  // 选择榜单类型
-  const selectRankingType = (type) => {
-    rankingType.value = type;
-    // 这里可以添加请求对应榜单类型数据的逻辑
-    console.log(`切换到${type}`);
-  };
 
   // 点击书籍跳转到详情页
   const gotoBookDetail = (bookId) => {
-    console.log('点击了书籍，ID:', bookId)
-    // 使用路由跳转到书籍详情页
     router.push(`/book/${bookId}`)
   }
 </script>
@@ -150,27 +130,32 @@
     flex-direction: column;
   }
   .ranking-container {
-    width: 1200px;
+    max-width: 1200px;
+    width: calc(100% - 32px);
+    margin: 0 auto;
     display: flex;
     padding-top: 122px;
   }
   .ranking-box {
     width: 200px;
     margin-right: 38px;
-    margin-left: 360px;
+    margin-left: 0;
   }
   .ranking-nav-list {
     display: flex;
     flex-direction: column;
   }
   .ranking-nav-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     width: 180px;
-    height: 82px;
+    height: 58px;
     text-align: center;
-    line-height: 82px;
+    line-height: 72px;
     font-family: PingFangSC, PingFang SC;
     font-weight: 400;
-    font-size: 18px;
+    font-size: 16px;
     color: #A2A0A0;
     text-align: center;
     font-style: normal;
@@ -194,20 +179,34 @@
     color: #FFFFFF;
   }
   .active {
-    background: rgba(249,110,8,0.65);
+    background: linear-gradient(90deg, #F9A825 0%, #ED5B00 100%);
     color: #FFFFFF;
+    font-weight: 600;
+  }
+  .ranking-hot, .ranking-new, 
+  .ranking-hot-active, .ranking-new-active,
+  .ranking-selling, .ranking-selling-active,
+  .ranking-finish, .ranking-finish-active,
+  .ranking-god, .ranking-god-active,
+  .ranking-search, .ranking-search-active {
+    width: 22px;
+    height: 22px;
+    color: transparent;
+  }
+  .ranking-hot, .ranking-hot-active {
+    width: 20px;
   }
   
   .ranking-title-box {
     width: 982px;
     height: 78px;
-    background: linear-gradient( 270deg, #FE5C54 0%, #F1951E 100%);
-    border-radius: 10px 10px 0px 0px;
+    // background: linear-gradient( 270deg, #FE5C54 0%, #F1951E 100%);
+    // border-radius: 10px 10px 0px 0px;
   }
   .ranking-title {
     font-family: PingFangSC, PingFang SC;
     font-weight: 600;
-    font-size: 24px;
+    font-size: 20px;
     color: #FFFFFF;
     line-height: 33px;
     text-align: left;
@@ -259,60 +258,89 @@
     font-weight: 600 !important;
     color: #D8D8D8 !important;
   }
-  .ranking-book-box {
-    // margin-top: 34px;
+  .ranking-book-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 26px;
   }
   .ranking-book-item {
     display: flex;
-    padding: 34px;
-    // border-radius: 10px;
+    flex-direction: column;
     margin-bottom: 20px;
-    // &:hover {
-    //   /* 只改变容器背景，不影响子元素 */
-    //   background: linear-gradient(270deg, #FE5C54 0%, #F1951E 100%);
-    //   opacity: 0.4;
-    // }
+    width: 310px;
+    height: 480px;
+    background: var(--bg-surface-1, rgba(255, 255, 255, 0.05));
+    border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.08));
+    border-radius: 20px;
+    cursor: pointer;
+    overflow: hidden;
+
+    &:hover {
+      border-color: var(--brand-primary, #e59344);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
+
+      .book-img {
+        transform: scale(1.03);
+      }
+    }
   }
-  .ranking-book-item:hover {
-    background: linear-gradient(270deg, #783535 0%, #734C1F 100%);
-    // opacity: 0.4;
+  .cover-wrapper {
+    overflow: hidden;
+    margin: 24px 35px 0 35px;
+    border-radius: 10px;
+    display: flex;
+    justify-content: center;
+  }
+  .book-img {
+    width: 240px;
+    height: 320px;
+    border-radius: 10px;
+    object-fit: cover;
+    transition: transform var(--duration-medium, 300ms) var(--ease-out-smooth, cubic-bezier(0.16, 1, 0.3, 1));
   }
   .book-info {
     display: flex;
     flex-direction: column;
-    padding-left: 16px;
-  }
-  .book-img {
-    width: 156px;
-    height: 208px;
-    border-radius: 10px;
+    width: 310px;
+    height: 182px;
+    background: #FFFFFF;
+    border-radius: 16px;
+    margin-top: -50px;
     z-index: 2;
-  }
-  .ranking-book-item:hover {
-    .book-info {
-      opacity: 1 !important;
-      filter: none;
-    }
+    background: linear-gradient(to top, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.1));
+    backdrop-filter: blur(13px);
+    -webkit-backdrop-filter: blur(13px);
+    color: #fff;
   }
   .book-title {
     font-family: PingFangSC, PingFang SC;
     font-weight: 600;
-    font-size: 20px;
+    font-size: 16px;
     color: #FFFFFF;
-    line-height: 28px;
-    margin-bottom: 10px;
+    line-height: 22px;
+    margin: 16px 14px 0 14px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
     &:hover {
-      color: #EA7D2B;
+      color: #F9A825;
       cursor: pointer;
     }
   }
   .book-author {
     font-family: PingFangSC, PingFang SC;
     font-weight: 400;
-    font-size: 16px;
+    font-size: 14px;
     color: #B2B2B2;
-    line-height: 22px;
-    margin-bottom: 10px;
+    line-height: 20px;
+    margin: 0 14px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    &:hover {
+      color: #F9A825;
+      cursor: pointer;
+    }
   }
   .book-desc {
     font-family: PingFangSC, PingFang SC;
@@ -320,13 +348,87 @@
     font-size: 14px;
     color: #B2B2B2;
     line-height: 20px;
-    margin-bottom: 10px;
+    /** 超出3行显示省略号 */
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin: 0 14px;
+    &:hover {
+      color: #F9A825;
+      cursor: pointer;
+    }
   }
   .book-status {
     font-family: PingFangSC, PingFang SC;
     font-weight: 400;
-    font-size: 14px;
+    font-size: 12px;
     color: #B2B2B2;
-    line-height: 20px;
+    line-height: 18px;
+    margin: 20px 0 0 14px;
+    &:hover {
+      color: #F9A825;
+      cursor: pointer;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .ranking-container {
+      width: 100%;
+      flex-direction: column;
+      padding: 90px 16px 0;
+    }
+    .ranking-box {
+      width: 100%;
+      margin: 0 0 16px 0;
+    }
+    .ranking-nav-list {
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .ranking-nav-item {
+      width: calc(50% - 4px);
+      height: 44px;
+      line-height: 44px;
+      border-radius: 10px;
+    }
+    .ranking-title-box {
+      width: 100%;
+      height: auto;
+    }
+    .ranking-title {
+      padding-left: 0;
+      line-height: 40px;
+    }
+    .ranking-book-list {
+      gap: 12px;
+      justify-content: space-between;
+    }
+    .ranking-book-item {
+      width: calc(50% - 6px);
+      height: auto;
+      border-radius: 16px;
+    }
+    .book-img {
+      width: 100%;
+      height: 200px;
+      margin: 16px 0 0 0;
+    }
+    .book-info {
+      width: 100%;
+      height: auto;
+      margin-top: -24px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .ranking-book-item {
+      width: 100%;
+    }
+    .book-img {
+      height: 220px;
+    }
   }
 </style>

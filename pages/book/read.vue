@@ -1,7 +1,7 @@
 <template>
   <div class="reading-page" ref="pageRef" :class="{'blur-effect' : showToc}" @click="handlePageClick">
     <div class="reading-container" ref="mainContentRef" :style="{ marginRight: containerMarginRight} ">
-      <div class="back-book-detail"><a :href="`/book/${bookId}`">< {{ book.title }}</a></div>
+      <div class="back-book-detail"><NuxtLink :to="`/book/${bookId}`">< {{ book.title }}</NuxtLink></div>
       <div class="book-table-content">
         <div class="book-table-title">第{{ book.chapterNumber }}章 {{ book.chapterTitle }}</div>
         <div class="book-info-box">
@@ -59,7 +59,7 @@
   </div>
 
   <!-- 目录侧边栏 -->
-  <div v-if="showToc" class="toc-sidebar" :style="{ left: sidebarLeft + 'px' }" @click.stop>
+  <div v-if="showToc" class="toc-sidebar" @click.stop>
     <div class="toc-header">
       <img class="book-img" :src="book.coverImageUrl" alt="">
       <div class="table-info-box">
@@ -68,7 +68,7 @@
         <span class="table-info-book-author"> {{ book.authorPenName }} </span>
       </div>
     </div>
-    <div class="toc-list">
+    <div class="toc-list" ref="tocListRef" @scroll="handleTocScroll">
       <div class="table-of-box">
         <span class="table-of-title">目录 ·  {{ chapterCount }}</span>
         <div class="sort-btn">
@@ -78,7 +78,7 @@
       </div>
       <div class="table-of-content-list">
         <div class="table-of-content-item"
-            v-for="chapter in chapterList"
+            v-for="chapter in paginatedChapterList "
             :key="chapter.chapterNumber"
             :class="{'chapter-active' : isCurrentChapter(chapter.chapterNumber)}"
             @click="goToChapter(chapter.chapterNumber)"
@@ -87,13 +87,16 @@
           <span class="chapter-title">{{ chapter.chapterTitle }}</span>
         </div>
       </div>
+      <!-- 加载更多提示 -->
+      <div v-if="loadingMore" class="loading-more">加载中...</div>
+      <div v-if="noMoreData" class="no-more-data">已加载全部章节</div>
     </div>
   </div>
   <!-- 蒙层遮罩 -->
   <div v-if="showToc" class="overlay" @click="closeToc"></div>
 
   <!-- 设置侧边栏 -->
-  <div v-if="showSettings" class="settings-sidebar" :style="{ left: settingsSidebarLeft + 'px' }" @click.stop>
+  <div v-if="showSettings" class="settings-sidebar" @click.stop>
     <div class="close-settings" @click="closeSettings">
       x
     </div>
@@ -124,12 +127,12 @@
   </div>
 
   <!-- 评论框展示 -->
-  <div v-if="showComment" class="comment-container" :style="{ left: commentLeft + 'px' }">
+  <div v-if="showComment" class="comment-container">
     <div class="comment-box">
       <!-- 评论列表展示框 -->
-      <div class="comment-list-box" v-if="haveComment">
+      <div class="comment-list-box" v-if="haveComment" @scroll="handleCommentScroll">
         <div class="close-comment-box" @click="closeCommentBox">x</div>
-        <div class="comment-title">评论<span class="comment-count">{{paragraphCommentList.length}}条</span></div>
+        <div class="comment-title">评论<span class="comment-count">{{totalCommentCount}}条</span></div>
         <div class="comment-item"
               v-for="(comment, index) in paragraphCommentList"
               :key="comment.commentId || index">
@@ -143,6 +146,9 @@
             <!-- <button class="reply-btn">回复</button> -->
           </div>
         </div>
+        <!-- 评论加载更多提示 -->
+        <div v-if="commentLoadingMore" class="comment-loading-more">加载中...</div>
+        <div v-if="commentNoMoreData && paragraphCommentList.length > 0" class="comment-no-more" >已加载全部评论</div>
       </div>
       <!-- 无评论展示框 -->
       <div class="no-comment-box" v-else>
@@ -170,7 +176,7 @@
               <span class="upload-img"></span>
               <span class="submit-word-count">{{ commentCount }}/500</span>
               <button class="cancel-btn">取消</button>
-              <button class="submit-btn" @click="handleCommentSubmit(commentText)">发表</button>
+              <button class="submit-btn" @click="handleCommentSubmit(commentText)" :disabled="commentSubmitting">{{commentSubmitting ? '提交中...' : '发表' }}</button>
             </div>
           </div>
         </div>
@@ -181,13 +187,12 @@
 
 <script setup>
 import CryptoJS from 'crypto-js';
-import { API_ENDPOINTS, apiRequest } from '@/utils/api.js'
+import { API_ENDPOINTS, apiRequest, generateTimestamp } from '@/utils/api.js'
 import { formatTimestamp, formatSerialStatus } from '@/utils/dataFormatter';
 import { useAuth } from '@/composables/useAuth';
 import { decryptData } from '@/utils/crypto';
 import V3Emoji from 'vue3-emoji';
 import 'vue3-emoji/dist/style.css'
-
 
 const DEFAULT_SECRET_KEY = 'JTDDnc1mrUf7TOfuX+9I4A==';
 
@@ -207,9 +212,6 @@ const paragraphCommentList = ref([])
 const mainContentRef = ref(null)
 const pageRef = ref(null)
 const bookContentRef = ref(null)
-const sidebarLeft = ref(0)
-const settingsSidebarLeft = ref(0)
-const commentLeft = ref(0)
 const chapterCount = ref(0)
 const chapterList = ref([])
 const sortOrder = ref('asc')
@@ -272,6 +274,7 @@ const selectionStart = ref(0)
 const selectionEnd = ref(0)
 const showCommentBox = ref(false)
 const commentContent = ref('')
+const commentSubmitting = ref(false);
 const showSubmitBox = ref(true);
 const commentText = ref('');
 const commentCount = computed(() => {
@@ -280,6 +283,51 @@ const commentCount = computed(() => {
 const {isLoggedIn, isAuthor, userAvatar, userName} = useAuth();
 const emojiRef = ref(null)
 const showEmojiPanel = ref(true)
+
+// 分页相关状态参数定义
+const tocListRef = ref([])
+const currentPage = ref(1)
+const pageSize = ref(50)
+const loadingMore = ref(false)
+const noMoreData = ref(false)
+const paginatedChapterList = computed(() => {
+  const start = (currentPage.value - 1) * pageSize.value;
+  const end = start + pageSize.value;
+  return chapterList.value.slice(0, end);
+});
+
+// 评论分页相关参数定义
+const commentCurrentPage = ref(1)
+const commentPageSize = ref(10)
+const commentLoadingMore = ref(false)
+const commentNoMoreData = ref(false)
+const totalCommentCount = ref(0)
+
+// 新增阅读记录上报相关状态
+const readCharacterIndex = ref(0) // 阅读字符索引
+const scrollTop = ref('0') // 滚动条位置
+const hasScrolled = ref(false) // 是否有滚动行为
+const stayStartTime = ref(null) // 停留开始时间
+const hasReportedCurrentChapter = ref(false) // 当前章节是否已上报过
+const reportDebounce = ref(null) // 防抖定时器
+
+const prevChapterInfo = ref({
+  bookId: '',
+  chapterId: '',
+  chapterNumber: '',
+  readCharacterIndex: 0,
+  scrollTop: '0',
+  hasScrolled: false,
+  stayStartTime: Date.now()
+});
+const currentChapterStatus = ref({
+  hasScrolled: false,
+  stayStartTime: Date.now(),
+  hasReported: false,
+  readCharacterIndex: 0,
+  scrollTop: '0',
+});
+
 watch(isLoggedIn, (newVal) => {
   console.log('isLoggedIn changed to:', newVal);
 }, { immediate: true });
@@ -347,6 +395,10 @@ const applyFontSizeAndLineHeight = () => {
   }
 };
 
+/**
+ * 获取书籍章节信息
+ * @param chapterNum 章节序号
+ */
 const fetchChapterContent = async (chapterNum) => { 
   try {
     const getChapterDetailReq = {
@@ -370,27 +422,69 @@ const fetchChapterContent = async (chapterNum) => {
 fetchChapterContent(chapterNumber.value)
 
 /**
- * 获取所有已发布的章节信息
+ * 获取所有已发布的章节信息 - 支持分页
  */
-const fetchAllPublishedChapters = async () => { 
+const fetchAllPublishedChapters = async (loadMore = false) => { 
+  if (loadMore) {
+    loadingMore.value = true
+  } else {
+    // 重新加载（排序/首次加载），重置分页状态
+    currentPage.value = 1
+    noMoreData.value = false
+  }
+
   try {
     const listPublishedChaptersReq = {
       bookId: bookId,
       orderDirection: sortOrder.value,
-      page: 1,
-      size: 10
+      page: currentPage.value,
+      size: pageSize.value
     }
     const listPublishedChaptersResult = await apiRequest(API_ENDPOINTS.LIST_PUBLISHED_CHAPTERS, {
         method: "POST",
         body: JSON.stringify(listPublishedChaptersReq),
     });
     console.log("获取所有已发布的章节信息结果：｛｝", listPublishedChaptersResult);
-    console.log("获取所有已发布的章节信息结果records：｛｝", listPublishedChaptersResult.data.records);
     if (listPublishedChaptersResult.code === 200) {
-      chapterCount.value = listPublishedChaptersResult.data.records.length;
-      chapterList.value = listPublishedChaptersResult.data.records;
+      const {records, total, pages} = listPublishedChaptersResult.data
+      if (loadMore) {
+        // 加载更多：追加数据
+        chapterList.value = [...chapterList.value, ...records]
+      } else {
+        // 首次加载/排序：替换数据
+        chapterList.value = records
+      }
+      chapterCount.value = total;
+      if (currentPage.value >= pages) {
+        noMoreData.value = true
+      }
+      if (!noMoreData.value) {
+        currentPage.value += 1
+      }
+      // chapterCount.value = listPublishedChaptersResult.data.records.length;
+      // chapterList.value = listPublishedChaptersResult.data.records;
     }
   } catch (error){
+    console.log("获取章节列表失败:", error)
+  } finally {
+    loadingMore.value = false
+  }
+}
+
+/**
+ * 处理目录滚动触底
+ */
+const handleTocScroll = () => {
+  const el = tocListRef.value
+  if ( !el || loadingMore.value || noMoreData.value) return
+
+  // 计算滚动位置（距离底部小于100px时加载更多）
+  const scrollTop = el.scrollTop
+  const scrollHeight = el.scrollHeight
+  const clientHeight = el.clientHeight
+
+  if (scrollTop + clientHeight >= scrollHeight - 100) {
+    fetchAllPublishedChapters(true) // 加载更多
   }
 }
 
@@ -416,6 +510,10 @@ const handleTextSelection = (event) => {
   }
 }
 
+/**
+ * 处理段落点击事件
+ * @param paragraph 
+ */
 const handleParagraphClick = (paragraph) => {
   console.log('点击段落:', paragraph);
   console.log(`段落范围: ${paragraph.startIndex} - ${paragraph.endIndex}`);
@@ -427,16 +525,29 @@ const handleParagraphClick = (paragraph) => {
   fetchParagraphComments(selectedParagraph.value);
 }
 
-const fetchParagraphComments = async (paragraph) => { 
-  // api=/comment/list_with_paragraph
+/**
+ * 获取评论列表
+ * @param paragraph 选中的段落
+ * @param loadMore 是否加载更多 true:加载更多，false:重新加载
+ */
+const fetchParagraphComments = async (paragraph, loadMore = false) => { 
+  // 加载更多时重置状态
+  if (loadMore) {
+    commentLoadingMore.value = true;
+    if (commentNoMoreData.value) return;
+  } else {
+    commentCurrentPage.value = 1;
+    commentNoMoreData.value = false;
+    paragraphCommentList.value = [];
+  }
   try {
     const listWithParagraphReq = {
       "bookId": bookId,
       "chapterId": book.value.chapterId,
       "paragraphStartPos": paragraph.startIndex,
       "paragraphEndPos": paragraph.endIndex,
-      "page": 1,
-      "size": 10
+      "page": commentCurrentPage.value,
+      "size": commentPageSize.value
     }
     console.log("获取段落评论请求参数：", listWithParagraphReq);
     const listWithParagraphResult = await apiRequest(API_ENDPOINTS.LIST_COMMENTS, {
@@ -445,13 +556,23 @@ const fetchParagraphComments = async (paragraph) => {
     });
     console.log("获取段落评论结果：｛｝", listWithParagraphResult);
     if (listWithParagraphResult.code === 200 && listWithParagraphResult.data) {
-      if (listWithParagraphResult.data.size > 0) {
-        paragraphCommentList.value = listWithParagraphResult.data.records
-        haveComment.value = true;
+      const {records, total, pages} = listWithParagraphResult.data
+      totalCommentCount.value = total;
+      if (loadMore) {
+        // 加载更多评论，追加评论列表
+        paragraphCommentList.value = [...paragraphCommentList.value, ...records]
       } else {
-        paragraphCommentList.value = [];
-        haveComment.value = false;
+        // 首次加载，替换评论列表
+        paragraphCommentList.value = records
       }
+      // 判断是否有更多数据
+      commentNoMoreData.value = commentCurrentPage.value >= pages
+      if (!commentNoMoreData.value) {
+        commentCurrentPage.value += 1
+      }
+      // 更新是否有评论的状态
+      haveComment.value = total > 0;
+      
     } else {
       paragraphCommentList.value = [];
       haveComment.value = false;
@@ -460,11 +581,45 @@ const fetchParagraphComments = async (paragraph) => {
     console.error("获取段落评论失败：", error);
     paragraphCommentList.value = [];
     haveComment.value = false;
+  } finally {
+    commentLoadingMore.value = false
   }
 }
 
+/**
+ * 评论下拉触底获取列表处理
+ * @param event 鼠标下滑事件
+ */
+const handleCommentScroll = (event) => { 
+  const el = event.target
+  // 过滤条件：加载中/无更多数据/无评论时不处理
+  if (commentLoadingMore.value || commentNoMoreData.value || !haveComment.value) return;
+  // 计算滚动位置（距离底部小于100px时加载更多）
+  const scrollTop = el.scrollTop
+  const scrollHeight = el.scrollHeight
+  const clientHeight = el.clientHeight
+  if (scrollTop + clientHeight >= scrollHeight - 100) {
+    fetchParagraphComments(selectedParagraph.value, true)
+  }
+  
+}
+
+/**
+ * 获取下一章节
+ */
 const nextPage = async() => { 
-  console.log("获取下一页内容");
+  cacheCurrentToPrev();
+  // 切换前上报当前章节记录
+  await uploadReadingRecord(true);
+
+  const nexChapterNum = ++route.query.chapter ;
+  console.log("下一章节：", nexChapterNum);
+  const newUrl = `/book/read?book=${bookId}&chapter=${nexChapterNum}`
+  await router.push(newUrl)
+  await fetchChapterContent(nexChapterNum);
+
+  // 重置当前章节阅读状态
+  resetChapterReadState();
 }
 
 const floatingButtonStyle = computed(() => {
@@ -485,6 +640,9 @@ const floatingButtonStyle = computed(() => {
   }
 })
 
+/**
+ * 添加到书架
+ */
 const addToBookshelf = async() =>{
   console.log(isLoggedIn.value)
   if (!isLoggedIn.value) {
@@ -506,11 +664,10 @@ const addToBookshelf = async() =>{
       method: 'POST',
       body: JSON.stringify(addFavoriteReq)
     });
-    console.log("添加结果",response);
     if (response.code === 2008) {
       router.push(`/login?redirectPath=${encodeURIComponent(router.currentRoute.value.fullPath)}`);
     } else if (response.code === 200) {
-      alert("已添加到书架");
+      ElMessage.success('已添加到书架！');
     }
   } catch (error) {
     console.error('Error adding book to favorite:', error);
@@ -552,26 +709,44 @@ const containerMarginRight = computed(() => {
   // return showComment.value ? '400px' : '0'
 })
 
+/**
+ * 切换章节
+ * @param chapterNumber 章节序号
+ */
 const goToChapter = async (chapterNumber) => { 
+  cacheCurrentToPrev();
+  // 切换前上报当前章节记录
+  await uploadReadingRecord(true);
+
   console.log("跳转到章节：", chapterNumber);
   const newUrl = `/book/read?book=${bookId}&chapter=${chapterNumber}`
   await router.push(newUrl)
   await fetchChapterContent(chapterNumber);
   closeToc();
+  // 重置当前章节阅读状态
+  resetChapterReadState();
 }
 
+/**
+ * 目录正序
+ */
 const sortAsc = async () => {
-  console.log("获取章节内容升序");
   sortOrder.value = 'asc'
-  await fetchAllPublishedChapters();
+  await fetchAllPublishedChapters(false);
 }
 
+/**
+ * 目录倒序
+ */
 const sortDesc = async () => { 
-  console.log("获取章节内容降序");
   sortOrder.value = 'desc'
-  await fetchAllPublishedChapters();
+  await fetchAllPublishedChapters(false);
 }
 
+/**
+ * 设置阅读背景色
+ * @param bgClass 
+ */
 const setBackground = (bgClass) => { 
   activeBackground.value = bgClass
   const config = backgroundConfigs[bgClass]
@@ -628,7 +803,10 @@ const onClickEmoji = (val) => {
 }
 
 const handleCommentSubmit = async (userComment) => { 
+  // 防止空评论 + 重复提交
+  if (!userComment.trim() || commentSubmitting.value) return;
   console.log("提交评论：", userComment);
+  commentSubmitting.value = true
   try {
     const addCommentReq = {
       bookId: bookId,
@@ -648,13 +826,25 @@ const handleCommentSubmit = async (userComment) => {
       router.push(`/login?redirectPath=${encodeURIComponent(router.currentRoute.value.fullPath)}`);
     }
     if (addCommentResult.code === 200) {
-      alert("评论添加成功");
+      ElMessage.success({
+        message: "评论添加成功",
+        duration: 2000,
+      });
       commentText.value = ''
-      await fetchChapterContent(book.value.chapterNumber)
+      await fetchParagraphComments(selectedParagraph.value, false);
     } else {
-      alert("评论添加失败");
+      ElMessage.error({
+        message: "评论添加失败",
+        duration: 2000,
+      });
     }
   } catch (error) { 
+    ElMessage.error({
+      message: "评论提交异常，请重试",
+      duration: 2000,
+    });
+  } finally {
+    commentSubmitting.value = false
   }
 }
 
@@ -663,18 +853,168 @@ const isCurrentChapter = (chapterNum) => {
   return parseInt(chapterNum) === parseInt(chapterNumber.value)
 }
 
-// 计算并设置目录位置的函数
-const setSidebarPosition = async() => {
-  if (mainContentRef.value) {
-    const mainRect = mainContentRef.value.getBoundingClientRect();
-    sidebarLeft.value = mainRect.right - 407; // 目录左侧 = 主视图右侧
-    settingsSidebarLeft.value = mainRect.right - 343;
-    commentLeft.value = mainRect.right;
-    console.log("目录位置：", sidebarLeft.value);
-    console.log("设置位置：", settingsSidebarLeft.value);
-    console.log("评论位置：", commentLeft.value);
+/**
+ * 自定义防抖函数
+ * @param func 
+ * @param wait 
+ */
+const debounce = (func, wait) => {
+  let timeout;
+  return function(...args) {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func.apply(this, args), wait);
   }
-};
+}
+
+/**
+ * 滚动阅读内容
+ * @param {*} scrollTop 
+ */
+const handleContentScroll = () => { 
+  if (!bookContentRef) return;
+  // 标记滚动行为
+  currentChapterStatus.value.hasScrolled = true;
+  // 获取滚动位置
+  currentChapterStatus.value.scrollTop = bookContentRef.value.scrollTop.toString();
+  // 计算已读字符索引
+  calculateReadCharacterIndex();
+}
+
+/**
+ * 计算已读字符索引
+ */
+const calculateReadCharacterIndex = () => {
+  if (!bookContentRef.value || !chapterContent.value.length) {
+    currentChapterStatus.value.readCharacterIndex = 0;
+    return;
+  }
+  const scrollTopVal = bookContentRef.value.scrollTop;
+  const totalChars = 0;
+  // 便利所有段落，计算滚动位置前的总字符数
+  for (const paragraph of chapterContent.value) {
+    const el = bookContentRef.value.querySelector(`.book-text[key="${paragraph.id}"]`);
+    if (!el) continue;
+    
+    const rect = el.getBoundingClientRect();
+    const containerRect = bookContentRef.value.getBoundingClientRect();
+    
+    // 段落完全在可视区域上方：累计全部字符
+    if (rect.bottom < containerRect.top) {
+      totalChars += paragraph.content.length;
+    } 
+    // 段落部分在可视区域：计算可视比例
+    else if (rect.top < containerRect.bottom && rect.bottom > containerRect.top) {
+      const visibleHeight = Math.max(0, Math.min(rect.bottom, containerRect.bottom) - Math.max(rect.top, containerRect.top));
+      const ratio = visibleHeight / rect.height;
+      totalChars += Math.floor(paragraph.content.length * ratio);
+      break; // 只计算到可视段落
+    } 
+    // 段落完全在可视区域下方：停止计算
+    else {
+      break;
+    }
+  }
+  currentChapterStatus.value.readCharacterIndex = totalChars;
+}
+
+/**
+ * 上报阅读历史记录进度
+ * @param isChapterChange 是否章节切换 true-是，false-否
+ */
+const uploadReadingRecord = async (isChapterChange = false) => { 
+  let targetChapterInfo;
+  // 章节切换 -> 上报上一章节
+  if (isChapterChange) {
+    if (!prevChapterInfo.value.bookId || !prevChapterInfo.value.chapterId) {
+      console.log("无有效的上一章节缓存，跳过上报")
+      return;
+    }
+    targetChapterInfo = {
+      bookId: prevChapterInfo.value.bookId,
+      chapterId: prevChapterInfo.value.chapterId,
+      readCharacterIndex: prevChapterInfo.value.readCharacterIndex,
+      scrollTop: prevChapterInfo.value.scrollTop,
+      timestamp: generateTimestamp()
+    }
+    const stayTime = Math.floor((Date.now() - stayStartTime.value) / 1000);
+    if (stayTime <= 10) {
+      console.log(`停留时间${stayTime}s过短，取消上报`)
+      return;
+    }
+  } else {
+    if (!bookId || !book.value.chapterId) {
+      console.log("无有效的当前章节信息，跳过上报")
+      return;
+    }
+    if (currentChapterStatus.value.hasScrolled) {
+      console.log("当前章节已上报，跳过上报")
+      return;
+    }
+    targetChapterInfo = {
+      bookId: bookId,
+      chapterId: book.value.chapterId,
+      readCharacterIndex: currentChapterStatus.value.readCharacterIndex,
+      scrollTop: currentChapterStatus.value.scrollTop,
+      timestamp: generateTimestamp()
+    }
+    // 计算停留时间
+     const stayTime = Math.floor((Date.now() - stayStartTime.value) / 1000);
+     if (stayTime <= 10) {
+      console.log(`停留时间${stayTime}s过短，取消上报`)
+      return;
+    }
+  }
+  try {
+    console.log("上报进度参数：", targetChapterInfo);
+    const uploadResult = await apiRequest(API_ENDPOINTS.UPLOAD_READING_RECORDS, {
+      method: "POST",
+      body: JSON.stringify(targetChapterInfo)
+    });
+    console.log("上报进度结果：", uploadResult);
+    if (uploadResult.code === 200) {
+      currentChapterStatus.value.hasReported = true;
+    }
+  } catch (error) { 
+    console.error(`上报失败 ${isChapterChange ? '上一章节' : '当前章节'}:`, error);
+  }
+
+}
+
+/**
+ * 缓存当前章节为上一章节（章节切换前调用）
+ */
+const cacheCurrentToPrev = () => { 
+  console.log ('cacheCurrentToPrev', bookId, book.value.chapterId);
+  if ( !bookId || !book.value.chapterId) return;
+  prevChapterInfo.value = {
+    bookId: bookId,
+    chapterId: book.value.chapterId,
+    chapterNumber: chapterNumber.value,
+    readCharacterIndex: currentChapterStatus.value.readCharacterIndex,
+    scrollTop: currentChapterStatus.value.scrollTop,
+    hasScrolled: currentChapterStatus.value.hasScrolled,
+    stayStartTime: currentChapterStatus.value.stayStartTime,
+    timestamp: generateTimestamp()
+  }
+  console.log('缓存当前章节为上一章节:', prevChapterInfo.value);
+}
+
+/**
+ * 重置章节状态（章节切换后调用）
+ */
+const resetChapterReadState = () => {
+  currentChapterStatus.value = {
+    hasScrolled: false,
+    stayStartTime: Date.now(),
+    hasReported: false,
+    readCharacterIndex: 0,
+    scrollTop: '0'
+  }
+  if (bookContentRef.value) {
+    bookContentRef.value.scrollTop = 0;
+  }
+}
+
 
 // 初始化：组件挂载后计算位置
 onMounted(async () => {
@@ -698,12 +1038,13 @@ onMounted(async () => {
   }catch (error){
   }
   await fetchChapterContent(chapterNumber);
-  await fetchAllPublishedChapters();
-  nextTick(setSidebarPosition); // 确保 DOM 渲染完成后执行
-  // 监听滚动和 resize 事件
-  // window.addEventListener('scroll', setSidebarPosition);
-  // window.addEventListener('resize', setSidebarPosition);
-  // 设置监听器
+  await fetchAllPublishedChapters(false);
+  // 初始化停留时间
+  currentChapterStatus.value.stayStartTime = Date.now();
+  // 监听滚动时间
+  if (bookContentRef.value) {
+    bookContentRef.value.addEventListener('scroll', handleContentScroll);
+  }
   watch(
     () => chapterNumber,
     async (newChapter, oldChapter) => {
@@ -713,18 +1054,17 @@ onMounted(async () => {
     },
     { immediate: true }
   )
-   watch(
-    () => mainContentRef.value?.getBoundingClientRect().right,
-    () => {
-      setSidebarPosition();
-    }
-  )
 });
 
 // 组件卸载时移除事件监听（避免内存泄漏）
 onUnmounted( () => {
-  window.removeEventListener('scroll', setSidebarPosition);
-  window.removeEventListener('resize', setSidebarPosition);
+  // 移除滚动事件监听
+  if (bookContentRef.value) {
+    bookContentRef.value.removeEventListener('scroll', handleContentScroll);
+  }
+  // 清除防抖定时器
+  if (reportDebounce.value) clearTimeout(reportDebounce.value);
+  uploadReadingRecord(false);
 });
 
 watch(
@@ -734,7 +1074,22 @@ watch(
       await fetchChapterContent(bookId.value);
     }
   },
-  { immediate: true } // 立即执行一次
+  { immediate: true }, // 立即执行一次
+  
+  () => chapterNumber.value,
+  async (newChapter, oldChapter) => { 
+    if (newChapter !== oldChapter && oldChapter) {
+      cacheCurrentToPrev();
+      // 章节变化时上报上一章节
+      await uploadReadingRecord(true);
+    }
+    if (newChapter !== oldChapter) {
+      await fetchChapterContent(newChapter);
+      // 重置新章节阅读状态
+      resetChapterReadState();
+    }
+  },
+  { immediate: true }
 )
 
 </script>
@@ -750,13 +1105,11 @@ watch(
 }
 .reading-container {
   width: 800px;
-  height: 100vh;
   background: #262626;
   position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-  /* background-color: #121212; */
   color: white;
 }
 .back-book-detail {
@@ -836,6 +1189,7 @@ watch(
   word-break: break-word;
   white-space: normal;
   background: #262626;
+  margin-top: 42px;
 }
 .book-text {
   font-family: PingFangSC, PingFang SC;
@@ -845,11 +1199,13 @@ watch(
   line-height: 25px;
   text-align: left;
   font-style: normal;
+  margin-bottom: 10px;
+  word-spacing: 0.3em;
 }
 .next-page-btn {
   width: 118px;
   height: 36px;
-  background: linear-gradient( 90deg, #FF9B51 0%, #ED5B00 100%);
+  background: linear-gradient( 90deg, #F9A825 0%, #F9A825 100%);
   border-radius: 18px;
   font-family: PingFangSC, PingFang SC;
   font-weight: 400;
@@ -858,7 +1214,7 @@ watch(
   line-height: 20px;
   text-align: center;
   font-style: normal;
-  margin-top: 18px;
+  margin: 38px 0 40px 0;
 }
 .chapter-header {
   text-align: center;
@@ -887,7 +1243,7 @@ watch(
   line-height: 25px;
   text-align: left;
   font-style: normal;
-  padding: 0 50px;
+  padding: 10px 50px;
   line-height: 20px;
 }
 
@@ -929,12 +1285,34 @@ watch(
 /* 响应式 */
 @media (max-width: 768px) {
   .reading-container {
-    width: 90%;
-    padding: 20px;
+    width: 100%;
+    padding: 16px;
   }
 
   .book-text {
     font-size: 16px;
+  }
+  .back-book-detail {
+    position: static;
+    margin: 8px 0 0;
+    align-self: flex-start;
+  }
+  .book-table-content,
+  .book-content {
+    width: 100%;
+  }
+  .book-info-box {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .book-table-title {
+    margin-top: 64px;
+  }
+  .book-content {
+    margin-top: 24px;
+  }
+  .next-page-btn {
+    width: 100%;
   }
 }
 /* 悬浮按钮样式 */
@@ -986,15 +1364,16 @@ watch(
 /* 响应式 */
 @media (max-width: 768px) {
   .reading-container {
-    width: 90%;
-    padding: 20px;
+    width: 100%;
+    padding: 16px;
   }
   .book-text {
     font-size: 16px;
   }
   
   .floating-buttons {
-    right: 15px;
+    right: 12px;
+    bottom: 16px;
   }
   
   .floating-btn {
@@ -1011,16 +1390,36 @@ watch(
   }
 }
 
+@media (max-width: 768px) {
+  .toc-sidebar,
+  .comment-container {
+    width: 100% !important;
+    left: 0 !important;
+    right: 0 !important;
+  }
+  .settings-sidebar {
+    width: 100% !important;
+    max-width: 100vw !important;
+    top: auto !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    transform: none !important;
+    border-radius: 16px 16px 0 0 !important;
+  }
+}
 
 /* 目录侧边栏 */
 .toc-sidebar {
   position: fixed;
   top: 0;
+  right: 0;
   width: 400px;
+  max-width: 100vw;
   height: 100vh;
   background: #343434;
   color: #e0e0e0;
-  box-shadow: -2px 0 10px rgba(0, 0, 0, 0.5);
+  box-shadow: -4px 0 20px rgba(0, 0, 0, 0.5);
   z-index: 1001;
   overflow-y: auto;
   transition: transform 0.3s ease;
@@ -1116,7 +1515,7 @@ watch(
   cursor: pointer;
   
   &.active {
-    background: linear-gradient(90deg, #FF9B51 0%, #ED5B00 100%);
+    background: linear-gradient(90deg, #F9A825 0%, #F9A825 100%);
     color: #000000;
   }
 }
@@ -1150,6 +1549,42 @@ watch(
   height: 40px; /* 固定高度 */
   border-radius: 9px;
 }
+/* 新增目录分页相关样式 */
+.toc-list {
+  margin-top: 40px;
+  margin-left: 30px;
+  height: calc(100vh - 150px); /* 固定高度，开启滚动 */
+  overflow-y: auto;
+  position: relative;
+}
+
+.loading-more {
+  text-align: center;
+  padding: 10px 0;
+  color: #A2A0A0;
+  font-size: 12px;
+}
+
+.no-more-data {
+  text-align: center;
+  padding: 10px 0;
+  color: #636363;
+  font-size: 12px;
+}
+
+/* 优化目录滚动条样式 */
+.toc-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.toc-list::-webkit-scrollbar-thumb {
+  background-color: #535353;
+  border-radius: 3px;
+}
+
+.toc-list::-webkit-scrollbar-track {
+  background-color: #242424;
+}
 
 .table-of-scroll {
   display: flex;
@@ -1160,8 +1595,8 @@ watch(
   --el-scrollbar-width: 8px;
   --el-scrollbar-track-background: rgba(255, 255, 255, 0.05);
   --el-scrollbar-thumb-background: #F96E08;
-  --el-scrollbar-thumb-hover-background: #FF9B51;
-  --el-scrollbar-thumb-active-background: #ED5B00;
+  --el-scrollbar-thumb-hover-background: #F9A825;
+  --el-scrollbar-thumb-active-background: #F9A825;
   
   /* 滚动条圆角 */
   --el-scrollbar-thumb-border-radius: 4px;
@@ -1231,10 +1666,19 @@ watch(
 // 设置样式
 .settings-sidebar { 
   width: 336px;
-  height: 260px;
-  background: #343434;
+  max-width: calc(100vw - 32px);
+  height: auto;
+  max-height: 90vh;
+  background: #28292c;
   position: fixed;
-  top: 416px;
+  top: 50%;
+  right: 24px;
+  transform: translateY(-50%);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6);
+  z-index: 1002;
+  padding-bottom: 24px;
 }
 .close-settings {
   position: absolute;
@@ -1425,10 +1869,15 @@ watch(
 .comment-container {
   position: fixed;
   top: 0;
+  right: 0;
   width: 400px;
+  max-width: 100vw;
   height: 100vh;
-  background: #262626;
-  border-left: 1px solid #636363;
+  background: #202124;
+  border-left: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: -4px 0 24px rgba(0, 0, 0, 0.5);
+  z-index: 1001;
+  transition: transform 0.3s ease;
 }
 .comment-box {
   display: flex;
@@ -1528,6 +1977,34 @@ watch(
   line-height: 14px;
   text-align: left;
   font-style: normal;
+}
+
+
+// 评论加载中/无更多样式
+.comment-loading-more {
+  text-align: center;
+  padding: 8px 0;
+  font-size: 12px;
+  color: #A2A0A0;
+}
+
+.comment-no-more {
+  text-align: center;
+  padding: 8px 0;
+  font-size: 12px;
+  color: #636363;
+}
+
+// 优化评论列表滚动条
+.comment-list-box::-webkit-scrollbar {
+  width: 4px;
+}
+.comment-list-box::-webkit-scrollbar-thumb {
+  background-color: #535353;
+  border-radius: 2px;
+}
+.comment-list-box::-webkit-scrollbar-track {
+  background-color: #242424;
 }
 .reply-btn {
   font-family: PingFangSC, PingFang SC;

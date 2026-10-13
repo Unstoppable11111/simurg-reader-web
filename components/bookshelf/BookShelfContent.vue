@@ -11,23 +11,25 @@
         <img class="book-img" :src="book.coverImageUrl" :alt="book.title">
         <div class="book-title">{{ book.title }}</div>
         <div class="book-author">{{ book.penName }}</div>
-        <div class="book-read-history">最近阅读至：第{{book.currentReadingChapterNumber}}章 {{ book.chapterTitle }}</div>
+        <div class="book-read-history" v-if="book.currentReadingChapterNumber != null && book.currentReadingChapterNumber !== '' && 
+                book.chapterTitle != null && book.chapterTitle !== ''" >最近阅读至：第{{book.currentReadingChapterNumber}}章 {{ book.chapterTitle }}</div>
         <div class="book-operate">
-          <div class="continue-read">继续阅读</div>
+          <div class="continue-read" @click="continueRead(book.bookId, book.currentReadingChapterNumber)">继续阅读</div>
           <div class="book-delete" @click.stop="$emit('delete-book', book.bookId)">删除</div>
         </div>
       </div>
       <!-- 添加喜欢的小说按钮 -->
-      <div class="add-book-btn-box">
+      <NuxtLink class="add-book-btn-box" to="/">
         <el-icon class="icon-plus"><Plus /></el-icon>
         <button class="add-book-btn">点击添加你喜欢的小说</button>
-      </div>
+      </NuxtLink>
     </div>
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
   import { Plus } from '@element-plus/icons-vue'
+  const router = useRouter();
   defineProps({
     books: {
       type: Array,
@@ -36,6 +38,12 @@
   });
 
   defineEmits(['goto-book-detail', 'delete-book']);
+
+  const continueRead = (bookId: string, chapterId: string) => {
+    console.log('继续阅读', bookId, chapterId);
+    // 获取用户阅读记录，用于跳转
+    router.push(`/book/read?book=${bookId}&chapter=${chapterId}`);
+  }
 </script>
 
 <style lang="scss" scoped>
@@ -54,6 +62,9 @@
 .icon-plus { 
   font-size: 28px;
   color: #fff;
+  &:hover { 
+    cursor: pointer;
+  }
 }
 .add-book-btn {
   background-color: transparent;
@@ -128,7 +139,7 @@
   white-space: nowrap;  
   cursor: pointer;
   &:hover {
-    color: #F96E08;
+    color: #F9A825;
   }
 }
 .book-author {
@@ -142,10 +153,11 @@
   margin-top: 4px;
   cursor: pointer;
   &:hover {
-    color: #F64E05;
+    color: #F9A825;
   }
 }
 .book-read-history {
+  width: 210px;
   font-family: PingFangSC, PingFang SC;
   font-weight: 400;
   font-size: 12px;
@@ -154,8 +166,11 @@
   text-align: left;
   font-style: normal;
   cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   &:hover {
-    color: #F64E05;
+    color: #F9A825;
   }
 }
 .book-operate {
@@ -168,7 +183,7 @@
   bottom: 16px;
   width: 80px;
   height: 28px;
-  background: linear-gradient( 90deg, #FF9B51 0%, #ED5B00 100%);
+  background: linear-gradient( 90deg, #F9A825 0%, #F9A825 100%);
   border-radius: 18px;
   font-family: PingFangSC, PingFang SC;
   font-size: 14px;
@@ -178,7 +193,7 @@
   font-style: normal;
   cursor: pointer;
   &:hover {
-    background: linear-gradient( 90deg, #F96C05 0%, #F64E05 100%);
+    background: linear-gradient( 90deg, #F9A825 0%, #F9A825 100%);
   }
 }
 .book-delete {
@@ -199,6 +214,42 @@
   &:hover {
     border: 1px solid #A3A3A3;
     color: #A3A3A3;
+  }
+}
+
+@media (max-width: 768px) {
+  .bookshelf-book-list {
+    width: 100%;
+    gap: 12px;
+    margin-right: 0;
+  }
+  .book-item,
+  .add-book-btn-box {
+    width: calc(50% - 6px);
+    height: auto;
+    padding-bottom: 12px;
+  }
+  .book-img {
+    width: 96px;
+    height: 128px;
+    margin-top: 16px;
+  }
+  .book-read-history {
+    width: 90%;
+  }
+  .book-operate {
+    position: static;
+    margin-top: 12px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: center;
+  }
+  .continue-read,
+  .book-delete {
+    position: static;
+    width: 70%;
   }
 }
 </style>

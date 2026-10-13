@@ -1,26 +1,85 @@
 <template>
   <div class="last-update-book-box">
-    <div class="last-update-book-list">
+    <div class="table-container">
+      <!-- 桌面端表头 -->
       <div class="table-header">
-        <div class="th th-book-name">书名</div>
-        <div class="th th-book-content-name">最新章节</div>
-        <div class="th th-book-author">作者</div>
-        <div class="th th-type">类型</div>
-        <div class="th th-book-update-time">更新时间</div>
+        <div class="th col-type">类型</div>
+        <div class="th col-title">书名</div>
+        <div class="th col-chapter">最新章节</div>
+        <div class="th col-author">作者</div>
+        <div class="th col-time">更新时间</div>
       </div>
+
+      <!-- 数据行列表 -->
       <div class="table-body">
         <div 
           v-for="book in recentUpdateBooks" 
           :key="book.bookId" 
           class="table-row"
         >
-          <div class="tr th-book-name" @click="gotoBookDetail(book.bookId)">{{ book.title }}</div>
-          <div class="tr th-book-content-name" @click="startReading(book.bookId, book.chapterNumber)">{{ book.chapterTitle }}</div>
-          <div class="tr th-book-author" @click="gotoAuthorDetail(book.authorId)">{{ book.authorPenName }}</div>
-          <div class="tr th-type">{{ book.bookCategoryResponseList && book.bookCategoryResponseList.length > 0 
-              ? book.bookCategoryResponseList[0].categoryName 
-              : '' }}</div>
-          <div class="tr th-book-update-time">{{ formatTimestamp(book.lastUpdateTime) }}</div>
+          <!-- 桌面端展示 -->
+          <div class="tr col-type">
+            <span class="type-badge">
+              {{ book.bookCategoryResponseList?.[0]?.categoryName || '小说' }}
+            </span>
+          </div>
+
+          <div 
+            class="tr col-title book-link" 
+            @click="gotoBookDetail(book.bookId)"
+            :title="book.title"
+          >
+            {{ book.title }}
+          </div>
+
+          <div 
+            class="tr col-chapter chapter-link"
+            @click="startReading(book.bookId, book.lastChapterNumber)"
+            :title="book.chapterTitle || '最新章节'"
+          >
+            {{ book.chapterTitle || '暂无更新' }}
+          </div>
+
+          <div 
+            class="tr col-author author-link" 
+            @click="gotoAuthorDetail(book.authorId)"
+            :title="book.authorPenName"
+          >
+            {{ book.authorPenName || '未知作家' }}
+          </div>
+
+          <div class="tr col-time">
+            {{ formatTimestamp(book.lastUpdateTime) }}
+          </div>
+
+          <!-- 移动端紧凑排版 -->
+          <div class="mobile-row-content">
+            <div class="mobile-top">
+              <span class="type-badge-mini">
+                {{ book.bookCategoryResponseList?.[0]?.categoryName || '小说' }}
+              </span>
+              <span class="mobile-title" @click="gotoBookDetail(book.bookId)">
+                {{ book.title }}
+              </span>
+              <span class="mobile-time">
+                {{ formatTimestamp(book.lastUpdateTime) }}
+              </span>
+            </div>
+            <div class="mobile-bottom">
+              <span 
+                class="mobile-chapter" 
+                @click="startReading(book.bookId, book.lastChapterNumber)"
+              >
+                {{ book.chapterTitle || '暂无更新' }}
+              </span>
+              <span 
+                class="mobile-author" 
+                @click="gotoAuthorDetail(book.authorId)"
+              >
+                {{ book.authorPenName }}
+              </span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -28,134 +87,229 @@
 </template>
 
 <script setup>
-  import { formatTimestamp } from '@/utils/dataFormatter';
-  const router = useRouter();
-  const props = defineProps({
-      recentUpdateBooks: {
-        type: Array,
-        default: () => [],
-        required: true
-      }
-  })
+import { useRouter } from 'vue-router';
+import { formatTimestamp } from '@/utils/dataFormatter';
 
-  // 点击书籍跳转到详情页
-  const gotoBookDetail = (bookId) => {
-    console.log('点击了书籍，ID:', bookId)
-    // 使用路由跳转到书籍详情页
-    router.push(`/book/${bookId}`)
+const router = useRouter();
+
+const props = defineProps({
+  recentUpdateBooks: {
+    type: Array,
+    default: () => [],
+    required: true
   }
+});
 
-  // 点击章节开始阅读书籍
-  const startReading = async(bookId, chapterNumber) => {
+const gotoBookDetail = (bookId) => {
+  if (bookId) {
+    router.push(`/book/${bookId}`);
+  }
+};
+
+const startReading = (bookId, chapterNumber) => {
+  if (!bookId) return;
+  if (chapterNumber) {
     router.push(`/book/read?book=${bookId}&chapter=${chapterNumber}`);
+  } else {
+    router.push(`/book/${bookId}`);
   }
+};
 
-  // 点击作者跳转到作者详情页
-  const gotoAuthorDetail = (authorId) => {
-    console.log('点击作者', authorId)
-    router.push(`/author/${authorId}`)
+const gotoAuthorDetail = (authorId) => {
+  if (authorId) {
+    router.push(`/author/${authorId}`);
   }
+};
 </script>
 
 <style lang="scss" scoped>
 .last-update-book-box {
-  width: 1200px;
-}
-.table-header {
-  display: flex;
-  flex-direction: row;
-  gap: 24px;
-  font-family: PingFangSC, PingFang SC;
-  font-weight: 400;
-  font-size: 21px;
-  color: #DADADA;
-  line-height: 29px;
-  text-align: left;
-  font-style: normal;
-  border-bottom: 1px solid #434343;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  box-sizing: border-box;
 }
 
-.th-type {
-  width: 166px;
-  height: 68px;
-  line-height: 68px;
-  padding-left: 20px;
-   // 添加以下样式实现单行显示和省略号效果
-  white-space: nowrap;
+.table-container {
+  width: 100%;
+  border-radius: var(--radius-lg, 12px);
+  background: var(--color-surface-base, #18191b);
+  border: 1px solid var(--color-border-subtle, rgba(255, 255, 255, 0.06));
   overflow: hidden;
-  text-overflow: ellipsis;
 }
-.th-book-name {
-  width: 332px;
-  height: 68px;
-  line-height: 68px;
-   // 添加以下样式实现单行显示和省略号效果
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+
+.table-header {
+  display: grid;
+  grid-template-columns: 100px 240px 1fr 160px 140px;
+  align-items: center;
+  padding: 14px 20px;
+  background: rgba(255, 255, 255, 0.02);
+  border-bottom: 1px solid var(--color-border-subtle, rgba(255, 255, 255, 0.06));
+
+  .th {
+    font-size: var(--font-size-small, 13px);
+    font-weight: 500;
+    color: var(--color-text-muted, #7c7e82);
+    text-align: left;
+  }
+
+  .col-time {
+    text-align: right;
+  }
 }
-.th-book-content-name {
-  width: 358px;
-  height: 68px;
-  line-height: 68px;
-   // 添加以下样式实现单行显示和省略号效果
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.th-book-author {
-  width: 216px;
-  height: 68px;
-  line-height: 68px;
-   // 添加以下样式实现单行显示和省略号效果
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.th-book-update-time {
-  width: 210px;
-  height: 68px;
-  line-height: 68px;
-   // 添加以下样式实现单行显示和省略号效果
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.table-row { 
+
+.table-body {
   display: flex;
-  flex-direction: row;
-  gap: 24px;
-  font-family: PingFangSC, PingFang SC;
-  font-weight: 400;
-  font-size: 21px;
-  color: #DADADA;
-  line-height: 29px;
-  text-align: left;
-  font-style: normal;
-  border-bottom: 1px solid #434343;
+  flex-direction: column;
 }
-.table-row div {
-   &:hover {
-    color: #ED5B00;
+
+.table-row {
+  display: grid;
+  grid-template-columns: 100px 240px 1fr 160px 140px;
+  align-items: center;
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--color-border-subtle, rgba(255, 255, 255, 0.04));
+  transition: background-color var(--transition-fast, 150ms ease);
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &:hover {
+    background-color: var(--color-surface-hover, rgba(255, 255, 255, 0.03));
+  }
+
+  .tr {
+    font-size: var(--font-size-body, 14px);
+    color: var(--color-text-secondary, #b0b1b3);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .book-link {
+    color: var(--color-text-primary, #ffffff);
+    font-weight: 500;
+    cursor: pointer;
+    padding-right: 16px;
+
+    &:hover {
+      color: var(--color-brand-primary, #e59344);
+    }
+  }
+
+  .chapter-link {
+    cursor: pointer;
+    color: var(--color-text-secondary, #a8a9aa);
+    padding-right: 16px;
+
+    &:hover {
+      color: var(--color-brand-light, #f0ad6a);
+      text-decoration: underline;
+    }
+  }
+
+  .author-link {
+    cursor: pointer;
+    &:hover {
+      color: var(--color-brand-primary, #e59344);
+    }
+  }
+
+  .col-time {
+    font-size: var(--font-size-caption, 12px);
+    color: var(--color-text-muted, #7c7e82);
+    text-align: right;
+  }
+}
+
+.type-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--color-text-secondary, #b0b1b3);
+  font-size: var(--font-size-caption, 12px);
+}
+
+.mobile-row-content {
+  display: none;
+}
+
+/* 响应式断点适配 */
+@media (max-width: 900px) {
+  .table-header {
+    display: none;
+  }
+
+  .table-row {
+    display: block;
+    padding: 12px 16px;
+
+    .tr {
+      display: none;
+    }
+  }
+
+  .mobile-row-content {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .mobile-top {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .type-badge-mini {
+    padding: 1px 6px;
+    border-radius: 3px;
+    background: rgba(229, 147, 68, 0.12);
+    color: var(--color-brand-primary, #e59344);
+    font-size: 11px;
+    flex-shrink: 0;
+  }
+
+  .mobile-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-text-primary, #ffffff);
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
     cursor: pointer;
   }
-}
-.th {
-  font-family: PingFangSC, PingFang SC;
-  font-weight: 400;
-  font-size: 16px;
-  color: #747474;
-  text-align: left;
-  font-style: normal;
+
+  .mobile-time {
+    font-size: 11px;
+    color: var(--color-text-muted, #7c7e82);
+    flex-shrink: 0;
   }
-.table-row .tr {
-  height: 68px;
-  font-family: PingFangSC, PingFang SC;
-  font-weight: 400;
-  font-size: 16px;
-  color: #DADADA;
-  line-height: 68px;
-  text-align: left;
-  font-style: normal;
+
+  .mobile-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    font-size: 12px;
+  }
+
+  .mobile-chapter {
+    color: var(--color-text-secondary, #a8a9aa);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex: 1;
+    cursor: pointer;
+  }
+
+  .mobile-author {
+    color: var(--color-text-muted, #828488);
+    flex-shrink: 0;
+    cursor: pointer;
+  }
 }
 </style>

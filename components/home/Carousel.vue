@@ -1,8 +1,8 @@
 <template>
   <div class="banner-carousel">
     <!-- 加载状态 -->
-    <div v-if="isLoading" class="loading-state">
-      <div class="spinner"></div>
+    <div v-if="isLoading" class="loading-state skeleton-shimmer">
+      <div class="motion-spinner"></div>
     </div>
 
     <!-- 轮播图主体 -->
@@ -17,16 +17,16 @@
           v-for="(item, index) in displayBanners" 
           :key="item.id || index"
           :data-index="index"
-          
         >
-          <a class="banner-image-container" href="`/book/${item.id}`">
+          <NuxtLink class="banner-image-container" :to="`/book/${item.id}`">
             <img 
               :src="item.imageUrl" 
               :alt="item.bannerTitle || '轮播图'" 
               class="banner-image"
               @error="handleImageError(item)"
+              loading="lazy"
             />
-          </a>
+          </NuxtLink>
           <div v-if="item.caption" class="slide-caption">
             <h3>{{ item.caption.title }}</h3>
             <p>{{ item.caption.description }}</p>
@@ -42,8 +42,11 @@
 
 <script setup>
   import { ref, onMounted, computed, onUnmounted } from 'vue'
-  import Swiper from 'swiper/bundle'
-  import 'swiper/css/bundle'
+  // 性能优化：按需导入 Swiper 核心 + 所需模块（替代全量 bundle 约减少 100KB）
+  import Swiper from 'swiper'
+  import { Pagination, Autoplay } from 'swiper/modules'
+  import 'swiper/css'
+  import 'swiper/css/pagination'
   import { API_ENDPOINTS, apiRequest } from '@/utils/api'
   // 关键：导入Nuxt路由跳转函数
   import { navigateTo } from 'nuxt/app'
@@ -130,13 +133,8 @@
     hasError.value = false
     
     try {
-      const response = await apiRequest(props.apiUrl)
-      
-      if (!response.code === 200) {
-        throw new Error(`HTTP error! status: ${response.status}`)
-      }
-      
-      const result = await response
+      // apiRequest 内部已完成 response.json()，返回的直接是业务数据对象
+      const result = await apiRequest(props.apiUrl)
       
       if (result.code === 200 && Array.isArray(result.data)) {
         banners.value = result.data
@@ -160,6 +158,7 @@
     setTimeout(() => {
       if (document.querySelector('.swiper')) {
         swiperInstance.value = new Swiper('.swiper', {
+          modules: [Pagination, Autoplay],
           ...props.carouselOptions,
           pagination: {
             el: '.swiper-pagination.custom-pagination',
@@ -250,27 +249,16 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background-color: #f5f5f5;
-}
-
-.spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid #f3f3f3;
-  border-top: 4px solid #3498db;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  background-color: var(--bg-surface-1, #17181c);
+  border-radius: var(--radius-lg, 12px);
 }
 
 /* 轮播图样式 */
 .swiper {
   margin: 0 auto;
   cursor: pointer;
+  border-radius: var(--radius-lg, 12px);
+  overflow: hidden;
 }
 
 .swiper-slide {
@@ -285,22 +273,21 @@
   height: 100%;
   overflow: hidden;
   position: relative;
+  display: block;
 }
 
-/* 核心：图片自适应处理 */
+/* 核心：图片自适应处理与平滑微动效 */
 .banner-image {
   width: 100%;
   height: 100%;
   object-fit: cover;
   object-position: center;
   cursor: pointer;
+  transition: transform var(--duration-large, 450ms) var(--ease-out-smooth, cubic-bezier(0.16, 1, 0.3, 1));
 }
 
-.slide-image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: all 0.3s ease;
+.banner-image-container:hover .banner-image {
+  transform: scale(1.02);
 }
 
 /* 轮播文字内容 */

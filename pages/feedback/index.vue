@@ -51,21 +51,21 @@
           <label class="form-label">上传截图</label>
           <div class="screenshot-upload-container" @click="triggerFileSelect">
             <input ref="fileInput" type="file" accept="image/*" @change="handleScreenshotChange" class="hidden-input" />
-            
+
             <div class="upload-preview-area">
               <img v-if="screenshotPreview" :src="screenshotPreview" class="preview-img" />
               <div v-else class="upload-placeholder">点击上传问题截图</div>
             </div>
-            
+
             <button type="button" class="upload-btn-secondary">上传图片</button>
           </div>
         </div>
       </div>
 
       <div class="feedback-action-box">
-        <button 
-          class="submit-btn" 
-          :disabled="!isFormValid" 
+        <button
+          class="submit-btn"
+          :disabled="!isFormValid"
           @click="handleSubmit"
         >
           提交反馈
@@ -150,7 +150,7 @@ const handleSubmit = async () => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  background-color: #1a1a1a; 
+  background-color: #1a1a1a;
   min-height: 100vh;
 }
 

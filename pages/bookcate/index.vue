@@ -1,6 +1,6 @@
 <template>
   <div class="book-cate-container">
-    <Header :margin-left="'360px'"/>
+    <Header />
     <div class="book-cate-box">
       <!-- Breadcrumb navigation -->
       <div class="breadcrumb">
@@ -68,23 +68,26 @@
 
       <!-- 按照分类查找书籍 -->
       <div class="book-cate-book-list">
-        <div class="book-cate-book-item"
-          v-for="book in libraryBookList">
-          <img class="book-img" :src="book.coverImageUrl" :alt="book.title">
+        <div 
+          class="book-cate-book-item"
+          v-for="book in libraryBookList"
+          :key="book.bookId || book.id"
+          @click="gotoBookDetail(book.bookId || book.id)"
+        >
+          <img class="book-img" :src="book.coverImageUrl" :alt="book.title || '封面'" loading="lazy">
           <div class="item-book-info">
             <span class="book-title">{{ book.title }}</span>
-            <span class="book-desc">【穿越+爽文】穿越成年文中的炮灰女配，带全家逆袭！穿越成年文中的炮灰女配，带全家逆袭！穿越成年文中的炮灰女配，带全家逆袭！</span>
-            <span class="book-author"> 田拽拽 </span>
+            <span class="book-desc">{{ book.description || book.protagonistIntroduction || '暂无简介' }}</span>
+            <span class="book-author">{{ book.authorPenName || book.penName || '未知作者' }}</span>
             <div class="book-tag">
-              <span class="book-status"> {{ formatSerialStatus(book.serialStatus) }} </span>
-              <div class="devier"></div>
-              <span class="tag"> {{book.tag}} </span>
-              <div class="devier"></div>
-              <span class="book-hot">1.1万热度</span>
+              <span class="book-status" v-if="book.serialStatus !== undefined">{{ formatSerialStatus(book.serialStatus) }}</span>
+              <div class="devier" v-if="book.tag"></div>
+              <span class="tag" v-if="book.tag">{{ book.tag }}</span>
+              <div class="devier" v-if="book.bookViews"></div>
+              <span class="book-hot" v-if="book.bookViews">{{ book.bookViews }} 热度</span>
             </div>
           </div>
         </div> 
-        
       </div>
 
       <div class="no-more">暂无更多内容</div>
@@ -95,6 +98,12 @@
 <script setup>
   import Header from "@/components/layout/Header.vue";
   import { formatTimestamp, formatSerialStatus } from '@/utils/dataFormatter';
+  const router = useRouter();
+  const gotoBookDetail = (bookId) => {
+    if (bookId) {
+      router.push(`/book/${bookId}`);
+    }
+  };
   const bookCateList = ref([])
   const selectedCategoryId = ref(null)
   const selectedStatus = ref(null)
@@ -163,20 +172,13 @@
     // 获取书籍分类
   try {
     const bookCateResult = await apiRequest(API_ENDPOINTS.CATEGORIES, {
-      method: 'POST',
-      body: JSON.stringify({})
+      method: 'GET'
     });
-    console.log("分类类型", bookCateResult)
-    if (!bookCateResult.code === 200) {
-      throw new Error(`HTTP error! status: ${bookCateResult.status}`)
-    }
-    
-    const result = await bookCateResult
-    
-    if (result.code === 200 && Array.isArray(result.data)) {
-      bookCateList.value = result.data;
+    if (bookCateResult?.code === 200 && Array.isArray(bookCateResult.data)) {
+      bookCateList.value = bookCateResult.data;
     }
   } catch (error) {
+    console.error('获取分类列表失败:', error);
   }
 
   // 根据选择类型，获取分类书籍列表
@@ -194,14 +196,18 @@
         method: 'POST',
         body: JSON.stringify(libraryBookListReq)
       });
-      console.log("根据分类获取书籍列表内容", libraryBookListResult);
-      libraryBookList.value = libraryBookListResult.data.records;
+      libraryBookList.value = libraryBookListResult?.data?.records || [];
     } catch (error) { 
+      libraryBookList.value = [];
     }
   }
 
+  const route = useRoute();
   onMounted(() => { 
-    getLibraryBookList()
+    if (route.query.categoryId) {
+      selectedCategoryId.value = route.query.categoryId;
+    }
+    getLibraryBookList();
   })
 
 </script>
@@ -211,17 +217,19 @@
   .book-cate-container {
     display: flex;
     flex-direction: column;
+    min-height: 100vh;
+    background-color: var(--color-bg-base, #131415);
   }
   .book-cate-box {
-    width: 1200px;
-    height: 292px;
-    // margin: 0 auto;
-    padding-top: 80px;
-    margin-left: 360px;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 88px 24px 60px;
+    box-sizing: border-box;
   }
   .breadcrumb {
     color: #fff;
-    margin-top: 28px;
+    margin-top: 16px;
   }
   .to-simurg-reader-index {
     font-family: PingFangSC, PingFang SC;
@@ -295,9 +303,9 @@
     line-height: 30px;
     text-align: center;
     font-style: normal;
-    // background: linear-gradient(0deg, #FF9B51 0%, #ED5B00 100%);
+    // background: linear-gradient(0deg, #F9A825 0%, #F9A825 100%);
     /* 渐变背景，这里用红→橙示例，可自定义颜色、方向 */
-    background: linear-gradient(0deg, #FF9B51 0%, #ED5B00 100%);
+    background: linear-gradient(0deg, #F9A825 0%, #F9A825 100%);
     /* 关键：让背景裁剪成文字形状 */
     -webkit-background-clip: text; 
     /* 文字填充色设透明，让渐变背景透出来 */
@@ -336,9 +344,9 @@
     line-height: 30px;
     text-align: center;
     font-style: normal;
-    // background: linear-gradient(0deg, #FF9B51 0%, #ED5B00 100%);
+    // background: linear-gradient(0deg, #F9A825 0%, #F9A825 100%);
     /* 渐变背景，这里用红→橙示例，可自定义颜色、方向 */
-    background: linear-gradient(0deg, #FF9B51 0%, #ED5B00 100%);
+    background: linear-gradient(0deg, #F9A825 0%, #F9A825 100%);
     /* 关键：让背景裁剪成文字形状 */
     -webkit-background-clip: text; 
     /* 文字填充色设透明，让渐变背景透出来 */
@@ -357,11 +365,23 @@
     display: flex;
     width: 384px;
     height: 168px;
+    cursor: pointer;
+    border-radius: var(--radius-md, 8px);
+    transition: transform var(--transition-fast, 150ms ease), background-color var(--transition-fast, 150ms ease);
+    padding: 6px;
+    box-sizing: border-box;
+
+    &:hover {
+      transform: translateY(-2px);
+      background: var(--color-surface-hover, rgba(255, 255, 255, 0.04));
+    }
   }
   .book-img {
-    width: 126px;
-    height: 168px;
+    width: 120px;
+    height: 156px;
+    border-radius: var(--radius-sm, 6px);
     object-fit: cover;
+    box-shadow: var(--shadow-sm, 0 2px 4px rgba(0, 0, 0, 0.2));
   }
   .item-book-info {
     position: relative;
@@ -438,5 +458,59 @@
     font-style: normal;
     margin-top: 30px;
     padding-bottom: 60px;
+  }
+
+  @media (max-width: 768px) {
+    .book-cate-box {
+      width: 100%;
+      height: auto;
+      margin-left: 0;
+      padding: 80px 16px 0;
+    }
+    .book-cate-content-box {
+      flex-direction: column;
+      gap: 12px;
+    }
+    .book-cate-content-title {
+      align-items: flex-start;
+      width: auto;
+    }
+    .book-cate-item-box,
+    .book-status-item-box,
+    .book-word-item-box {
+      gap: 12px;
+    }
+    .book-cate-item,
+    .book-status-item,
+    .book-word-item,
+    .without-div {
+      margin-left: 0;
+      margin-bottom: 12px;
+    }
+    .book-cate-item-box .book-cate-item ~ .book-cate-item,
+    .book-status-item-box .book-status-item ~ .book-status-item,
+    .book-word-item-box .book-word-item ~ .book-word-item {
+      margin-left: 0;
+    }
+    .book-cate-book-list {
+      flex-direction: column;
+      gap: 16px;
+    }
+    .book-cate-book-item {
+      width: 100%;
+      height: auto;
+      padding: 12px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.04);
+    }
+    .book-img {
+      width: 96px;
+      height: 128px;
+    }
+    .book-tag {
+      position: static;
+      margin-top: 8px;
+      flex-wrap: wrap;
+    }
   }
 </style>
