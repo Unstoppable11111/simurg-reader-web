@@ -19,8 +19,9 @@
       <div class="countdown-card">
         <img src="/images/simurg-reader-logo.svg" alt="simurg reader logo" class="header-logo" />
         <p class="slogon">一千零一夜的故事正在被重写</p>
-        <p class="card-subtitle">距离 simurg reader 上线还有</p>
-        <div class="countdown-display">
+        <p class="card-subtitle">{{ isLaunched ? '🎉 Simurg Reader 已全面上线！' : '距离 simurg reader 上线还有' }}</p>
+        
+        <div v-if="!isLaunched" class="countdown-display">
           <span class="count-item">{{ days }}</span>
           <span class="count-separator">:</span>
           <span class="count-item">{{ hours }}</span>
@@ -29,13 +30,20 @@
           <span class="count-separator">:</span>
           <span class="count-item">{{ seconds }}</span>
         </div>
-        <div class="countdown-labels">
+        <div v-if="!isLaunched" class="countdown-labels">
           <span>天</span>
           <span>时</span>
           <span>分</span>
           <span>秒</span>
         </div>
-        <p class="card-footer">• 敬请期待</p>
+
+        <div v-else class="launched-action-box">
+          <NuxtLink to="/" class="enter-home-btn">
+            🚀 立即进入首页开启阅读
+          </NuxtLink>
+        </div>
+
+        <p class="card-footer">{{ isLaunched ? '• 欢迎探索沉浸式阅读世界' : '• 敬请期待' }}</p>
 
         <!-- 传送门控制按钮：按官方示例样式，匹配你的页面金色主题 -->
         <div class="portal-control-buttons">
@@ -55,13 +63,15 @@
           <li class="feature-item">🔄 多端互通，随时随地畅读</li>
           <li class="feature-item">🎁 新人福利，上线即可免费阅读</li>
         </ul>
-        <button class="notify-button" @click.stop="activatePortal">→ 上线第一时间通知你</button>
+        <button class="notify-button" @click="handleActionClick">
+          {{ isLaunched ? '→ 立即开启沉浸阅读' : '→ 上线第一时间通知你' }}
+        </button>
       </div>
     </div>
 
     <!-- 页脚：保留你的原有样式 -->
     <footer class="site-footer">
-      <p>© 2025 simurg reader 版权所有</p>
+      <p>© 2026 simurg reader 版权所有</p>
     </footer>
   </div>
 </template>
@@ -69,8 +79,12 @@
 <script setup lang="ts">
 // 导入Vue/Nuxt原生API，移除无用的手动Button导入
 import { ref, onMounted, onUnmounted } from 'vue'
+import { useRouter } from 'vue-router'
 import CosmicPortal from '@/components/ui/cosmic-portal/CosmicPortal.vue'
 import Button from '@/components/ui/button/Button.vue'
+
+const router = useRouter()
+const isLaunched = ref(false)
 
 // 倒计时核心逻辑：完全保留你的原有代码，无修改
 const days = ref('00')
@@ -85,12 +99,13 @@ const cosmicPortal = ref<InstanceType<typeof CosmicPortal> | null>(null)
 // 补零函数：保留你的原有代码
 const addZero = (num: number) => num < 10 ? `0${num}` : num
 
-// 秒级倒计时更新：保留你的原有代码
+// 秒级倒计时更新：当已过期时切换为已上线状态
 const updateCountdown = () => {
   const now = Date.now()
   const remainingTime = targetTime - now
 
   if (isNaN(remainingTime) || remainingTime <= 0) {
+    isLaunched.value = true
     days.value = '00'
     hours.value = '00'
     minutes.value = '00'
@@ -99,10 +114,19 @@ const updateCountdown = () => {
     return
   }
 
+  isLaunched.value = false
   days.value = addZero(Math.floor(remainingTime / (1000 * 60 * 60 * 24)))
   hours.value = addZero(Math.floor((remainingTime % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)))
   minutes.value = addZero(Math.floor((remainingTime % (1000 * 60 * 60)) / (1000 * 60)))
   seconds.value = addZero(Math.floor((remainingTime % (1000 * 60)) / 1000))
+}
+
+const handleActionClick = () => {
+  if (isLaunched.value) {
+    router.push('/')
+  } else {
+    activatePortal()
+  }
 }
 
 // 传送门方法：严格按官方示例编写，增加控制台日志便于调试
@@ -241,6 +265,32 @@ onUnmounted(() => {
   color: #888888 !important;
   font-size: 14px !important;
   letter-spacing: 1px !important;
+}
+.launched-action-box {
+  margin: 30px 0;
+  display: flex;
+  justify-content: center;
+}
+.enter-home-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #f9a825 0%, #ed5b00 100%);
+  color: #ffffff !important;
+  text-decoration: none;
+  padding: 14px 32px;
+  border-radius: 30px;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  box-shadow: 0 4px 20px rgba(249, 168, 37, 0.4);
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+.enter-home-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 26px rgba(249, 168, 37, 0.6);
+  filter: brightness(1.1);
 }
 .card-footer {
   margin-top: 40px !important;

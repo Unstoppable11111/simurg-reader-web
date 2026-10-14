@@ -1,6 +1,16 @@
 <template>
-  <div class="reading-page" ref="pageRef" :class="{'blur-effect' : showToc}" @click="handlePageClick">
-    <div class="reading-container" ref="mainContentRef" :style="{ marginRight: containerMarginRight} ">
+  <div 
+    class="reading-page" 
+    ref="pageRef" 
+    :class="{'blur-effect' : showToc}" 
+    :style="{ backgroundColor: backgroundConfigs[activeBackground]?.pageBg }"
+    @click="handlePageClick"
+  >
+    <div 
+      class="reading-container" 
+      ref="mainContentRef" 
+      :style="{ marginRight: containerMarginRight, backgroundColor: backgroundConfigs[activeBackground]?.contentBg }"
+    >
       <div class="back-book-detail"><NuxtLink :to="`/book/${bookId}`">< {{ book.title }}</NuxtLink></div>
       <div class="book-table-content">
         <div class="book-table-title">第{{ book.chapterNumber }}章 {{ book.chapterTitle }}</div>
@@ -25,32 +35,62 @@
       </div>
 
       <!-- <div class="book-content" ref="bookContentRef" @mouseup="handleTextSelection" @selectstart.prevent> -->
-      <div class="book-content" ref="bookContentRef" @mouseup="handleTextSelection">
+      <div 
+        class="book-content" 
+        ref="bookContentRef" 
+        :style="{ backgroundColor: backgroundConfigs[activeBackground]?.contentBg }"
+        @mouseup="handleTextSelection"
+      >
         <!-- <p class="book-text">{{ chapterContent }}</p> -->
         <p
           v-for="bookParagraph in chapterContent"
           :key="bookParagraph.id"
           class="book-text"
+          :style="{
+            fontSize: `${fontSize}px`,
+            lineHeight: `${lineHeight}px`,
+            fontFamily: fontFamilies[activeFont],
+            color: backgroundConfigs[activeBackground]?.textColor
+          }"
           @click="handleParagraphClick(bookParagraph)"
         >
           {{ bookParagraph.content }}
         </p>
       </div>
 
-      <button class="next-page-btn" @click="nextPage" @click.stop>下一页</button>
-
+      <!-- 翻页操作区域 -->
+      <div class="chapter-nav-actions">
+        <button 
+          v-if="hasPrevChapter" 
+          class="chapter-nav-btn prev-chapter-btn" 
+          @click.stop="prevPage"
+        >
+          ← 上一章
+        </button>
+        <button 
+          class="chapter-nav-btn next-chapter-btn" 
+          @click.stop="nextPage"
+        >
+          下一章 →
+        </button>
+      </div>
 
       <!-- 悬浮按钮 -->
       <div class="floating-buttons" :style="floatingButtonStyle">
-        <button class="floating-btn" @click="addToBookshelf" @click.stop>
-          <span class="btn-icon">📚</span>
-          <span class="btn-text">加入书架</span>
+        <button 
+          class="floating-btn" 
+          :class="{ 'btn-in-bookshelf': isInBookshelf }"
+          :disabled="isInBookshelf"
+          @click.stop="addToBookshelf"
+        >
+          <span class="btn-icon">{{ isInBookshelf ? '✓' : '📚' }}</span>
+          <span class="btn-text">{{ isInBookshelf ? '已在书架' : '加入书架' }}</span>
         </button>
-        <button class="floating-btn" @click="showTableOfContents" @click.stop>
+        <button class="floating-btn" @click.stop="showTableOfContents">
           <span class="btn-icon">📑</span>
           <span class="btn-text">目录</span>
         </button>
-        <button class="floating-btn" @click="openSettings" @click.stop>
+        <button class="floating-btn" @click.stop="openSettings">
           <span class="btn-icon">⚙️</span>
           <span class="btn-text">设置</span>
         </button>
@@ -59,6 +99,7 @@
   </div>
 
   <!-- 目录侧边栏 -->
+  <transition name="drawer-slide-right">
   <div v-if="showToc" class="toc-sidebar" @click.stop>
     <div class="toc-header">
       <img class="book-img" :src="book.coverImageUrl" alt="">
@@ -72,8 +113,8 @@
       <div class="table-of-box">
         <span class="table-of-title">目录 ·  {{ chapterCount }}</span>
         <div class="sort-btn">
-          <button class="sort-asc-btn" :class="{'active' : sortOrder === 'asc'}" @click="sortAsc" @click.stop>正序</button>
-          <button class="sort-desc-btn" :class="{'active' : sortOrder === 'desc'}" @click="sortDesc" @click.stop>倒序</button>
+          <button class="sort-asc-btn" :class="{'active' : sortOrder === 'asc'}" @click.stop="sortAsc">正序</button>
+          <button class="sort-desc-btn" :class="{'active' : sortOrder === 'desc'}" @click.stop="sortDesc">倒序</button>
         </div>
       </div>
       <div class="table-of-content-list">
@@ -81,8 +122,7 @@
             v-for="chapter in paginatedChapterList "
             :key="chapter.chapterNumber"
             :class="{'chapter-active' : isCurrentChapter(chapter.chapterNumber)}"
-            @click="goToChapter(chapter.chapterNumber)"
-            @click.stop>
+            @click.stop="goToChapter(chapter.chapterNumber)">
           <span class="chapter-num">第{{ chapter.chapterNumber }}章</span>
           <span class="chapter-title">{{ chapter.chapterTitle }}</span>
         </div>
@@ -92,14 +132,18 @@
       <div v-if="noMoreData" class="no-more-data">已加载全部章节</div>
     </div>
   </div>
+  </transition>
   <!-- 蒙层遮罩 -->
+  <transition name="backdrop-fade">
   <div v-if="showToc" class="overlay" @click="closeToc"></div>
+  </transition>
 
   <!-- 设置侧边栏 -->
+  <transition name="modal-fade-zoom">
   <div v-if="showSettings" class="settings-sidebar" @click.stop>
-    <div class="close-settings" @click="closeSettings">
-      x
-    </div>
+    <button class="close-settings" @click="closeSettings" aria-label="关闭设置">
+      ✕
+    </button>
     <div class="settings-sidebar-title">
       设置
     </div>
@@ -125,13 +169,15 @@
       <button class="song-font" :class="{'active-font' : activeFont === 'song'}" @click="setFont('song')">宋体</button>
     </div>
   </div>
+  </transition>
 
   <!-- 评论框展示 -->
+  <transition name="drawer-slide-right">
   <div v-if="showComment" class="comment-container">
     <div class="comment-box">
       <!-- 评论列表展示框 -->
       <div class="comment-list-box" v-if="haveComment" @scroll="handleCommentScroll">
-        <div class="close-comment-box" @click="closeCommentBox">x</div>
+        <button class="close-comment-box" @click="closeCommentBox" aria-label="关闭评论">✕</button>
         <div class="comment-title">评论<span class="comment-count">{{totalCommentCount}}条</span></div>
         <div class="comment-item"
               v-for="(comment, index) in paragraphCommentList"
@@ -158,7 +204,7 @@
       <!--  替换原有的 write-comment-box 部分 -->
       <div class="write-comment-container">
         <div class="write-comment-box">
-          <img class="writor-img" src="http://www.tata2025.xyz/uploads/2025/10/21/2566ebd9-91e1-4d0c-b239-9d2e89b325de.png" alt=""/>
+          <img class="writor-img" :src="userAvatar || '/images/default-avatar.png'" alt="用户头像"/>
           <div class="textarea-container">
             <textarea 
               class="write-input" 
@@ -175,7 +221,7 @@
               </ClientOnly>
               <span class="upload-img"></span>
               <span class="submit-word-count">{{ commentCount }}/500</span>
-              <button class="cancel-btn">取消</button>
+              <button class="cancel-btn" @click="cancelComment">取消</button>
               <button class="submit-btn" @click="handleCommentSubmit(commentText)" :disabled="commentSubmitting">{{commentSubmitting ? '提交中...' : '发表' }}</button>
             </div>
           </div>
@@ -183,6 +229,7 @@
       </div>
     </div>
   </div>
+  </transition>
 </template>
 
 <script setup>
@@ -193,8 +240,6 @@ import { useAuth } from '@/composables/useAuth';
 import { decryptData } from '@/utils/crypto';
 import V3Emoji from 'vue3-emoji';
 import 'vue3-emoji/dist/style.css'
-
-const DEFAULT_SECRET_KEY = 'JTDDnc1mrUf7TOfuX+9I4A==';
 
 // 获取路由参数
 const route = useRoute()
@@ -281,6 +326,11 @@ const commentCount = computed(() => {
   return commentText.value.length
 })
 const {isLoggedIn, isAuthor, userAvatar, userName} = useAuth();
+const isInBookshelf = ref(false);
+const hasPrevChapter = computed(() => {
+  const num = parseInt(chapterNumber.value, 10);
+  return !isNaN(num) && num > 1;
+});
 const emojiRef = ref(null)
 const showEmojiPanel = ref(true)
 
@@ -329,7 +379,11 @@ const currentChapterStatus = ref({
 });
 
 watch(isLoggedIn, (newVal) => {
-  console.log('isLoggedIn changed to:', newVal);
+  if (newVal) {
+    checkBookInBookshelf();
+  } else {
+    isInBookshelf.value = false;
+  }
 }, { immediate: true });
 
 // 章节内容分割函数
@@ -361,6 +415,10 @@ const increaseFontSize = () => {
     lineHeight.value = Math.min(lineHeight.value + lineHeightStep, maxFontSize + 7); // 保持一定的行高间距
     applyFontSize();
     applyFontSizeAndLineHeight();
+    // 持久化字号设置
+    if (process.client) {
+      localStorage.setItem('reader_fontSize', fontSize.value.toString())
+    }
   }
 }
 
@@ -371,6 +429,10 @@ const decreaseFontSize = () => {
     lineHeight.value = Math.max(lineHeight.value - lineHeightStep, minFontSize + 10); // 最小行高限制
     applyFontSize();
     applyFontSizeAndLineHeight();
+    // 持久化字号设置
+    if (process.client) {
+      localStorage.setItem('reader_fontSize', fontSize.value.toString())
+    }
   }
 }
 
@@ -605,22 +667,65 @@ const handleCommentScroll = (event) => {
 }
 
 /**
- * 获取下一章节
+ * 校验当前书籍是否已经在书架中
  */
-const nextPage = async() => { 
+const checkBookInBookshelf = async () => {
+  if (!isLoggedIn.value || !bookId) return;
+  try {
+    const response = await apiRequest(API_ENDPOINTS.LIST_FAVORITE_BOOKS, {
+      method: "POST",
+      body: JSON.stringify({ page: 1, size: 50 })
+    });
+    if (response.code === 200 && response.data?.records) {
+      isInBookshelf.value = response.data.records.some(b => String(b.bookId) === String(bookId));
+    }
+  } catch (error) {
+    console.error("检查书架状态失败:", error);
+  }
+};
+
+/**
+ * 切换到上一章节
+ */
+const prevPage = async () => {
+  if (!hasPrevChapter.value) return;
   cacheCurrentToPrev();
   // 切换前上报当前章节记录
   await uploadReadingRecord(true);
 
-  const nexChapterNum = ++route.query.chapter ;
+  const prevChapterNum = Math.max(1, parseInt(chapterNumber.value, 10) - 1);
+  console.log("上一章节：", prevChapterNum);
+  const newUrl = `/book/read?book=${bookId}&chapter=${prevChapterNum}`;
+  await router.push(newUrl);
+  await fetchChapterContent(prevChapterNum);
+
+  // 重置当前章节阅读状态
+  resetChapterReadState();
+  if (process.client) {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+};
+
+/**
+ * 获取下一章节
+ */
+const nextPage = async () => { 
+  cacheCurrentToPrev();
+  // 切换前上报当前章节记录
+  await uploadReadingRecord(true);
+
+  const nexChapterNum = parseInt(chapterNumber.value, 10) + 1;
   console.log("下一章节：", nexChapterNum);
-  const newUrl = `/book/read?book=${bookId}&chapter=${nexChapterNum}`
-  await router.push(newUrl)
+  const newUrl = `/book/read?book=${bookId}&chapter=${nexChapterNum}`;
+  await router.push(newUrl);
   await fetchChapterContent(nexChapterNum);
 
   // 重置当前章节阅读状态
   resetChapterReadState();
-}
+  if (process.client) {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+};
 
 const floatingButtonStyle = computed(() => {
   if (showComment.value) {
@@ -643,12 +748,14 @@ const floatingButtonStyle = computed(() => {
 /**
  * 添加到书架
  */
-const addToBookshelf = async() =>{
-  console.log(isLoggedIn.value)
+const addToBookshelf = async () => {
+  if (isInBookshelf.value) {
+    ElMessage.info('该书籍已在书架中');
+    return;
+  }
   if (!isLoggedIn.value) {
     const currentPath = router.currentRoute.value.fullPath;
-    console.log(isLoggedIn.value);
-    console.log('当前路径：', currentPath);
+    ElMessage.info('请先登录后再加入书架');
     router.push(`/login?redirectPath=${encodeURIComponent(currentPath)}`);
     return;
   }
@@ -657,8 +764,6 @@ const addToBookshelf = async() =>{
   const addFavoriteReq = {
     bookIdList: [bookId]
   };
-  // 跳转到书籍详情页面
-  console.log("添加到我的书架", JSON.stringify(addFavoriteReq));
   try {
     const response = await apiRequest(API_ENDPOINTS.ADD_BOOKS_TO_FAVORITE, {
       method: 'POST',
@@ -667,12 +772,12 @@ const addToBookshelf = async() =>{
     if (response.code === 2008) {
       router.push(`/login?redirectPath=${encodeURIComponent(router.currentRoute.value.fullPath)}`);
     } else if (response.code === 200) {
+      isInBookshelf.value = true;
       ElMessage.success('已添加到书架！');
     }
   } catch (error) {
     console.error('Error adding book to favorite:', error);
   }
-  
 }
 
 const showTableOfContents = () => { 
@@ -771,6 +876,11 @@ const setBackground = (bgClass) => {
       element.style.color = config.textColor
     })
   }
+
+  // 持久化阅读偏好到 localStorage
+  if (process.client) {
+    localStorage.setItem('reader_bg', bgClass)
+  }
 }
 
 const setFont = (fontClass) => { 
@@ -782,9 +892,19 @@ const setFont = (fontClass) => {
       element.style.fontFamily = fontFamilies[fontClass]
     })
   }
+
+  // 持久化阅读偏好到 localStorage
+  if (process.client) {
+    localStorage.setItem('reader_font', fontClass)
+  }
 }
 const closeCommentBox = () => { 
   showComment.value = false
+}
+// 取消评论 - 清空输入内容
+const cancelComment = () => {
+  commentText.value = ''
+  showSubmitBox.value = false
 }
 const handleCommentInput = (event) => { 
   commentText.value = event.target.value
@@ -889,7 +1009,7 @@ const calculateReadCharacterIndex = () => {
     return;
   }
   const scrollTopVal = bookContentRef.value.scrollTop;
-  const totalChars = 0;
+  let totalChars = 0;
   // 便利所有段落，计算滚动位置前的总字符数
   for (const paragraph of chapterContent.value) {
     const el = bookContentRef.value.querySelector(`.book-text[key="${paragraph.id}"]`);
@@ -1018,26 +1138,30 @@ const resetChapterReadState = () => {
 
 // 初始化：组件挂载后计算位置
 onMounted(async () => {
+  // 恢复阅读器偏好设置
+  if (process.client) {
+    const savedBg = localStorage.getItem('reader_bg')
+    if (savedBg && backgroundConfigs[savedBg]) {
+      setBackground(savedBg)
+    }
+    const savedFont = localStorage.getItem('reader_font')
+    if (savedFont && fontFamilies[savedFont]) {
+      setFont(savedFont)
+    }
+    const savedFontSize = localStorage.getItem('reader_fontSize')
+    if (savedFontSize) {
+      const parsedSize = parseInt(savedFontSize, 10)
+      if (!isNaN(parsedSize) && parsedSize >= minFontSize && parsedSize <= maxFontSize) {
+        fontSize.value = parsedSize
+        lineHeight.value = Math.min(parsedSize + 7, maxFontSize + 7)
+      }
+    }
+  }
+
   if (!bookId) {
     console.log("BookId is missing.");
     return;
   }
-  try {
-    const getChapterDetailReq = {
-      bookId: bookId,
-      chapterNumber: chapterNum || chapterNumber,
-    }
-    const getChapterDetailResult = await apiRequest(API_ENDPOINTS.GET_CHAPTER_DETAIL, {
-        method: "POST",
-        body: JSON.stringify(getChapterDetailReq),
-    });
-    console.log("获取书籍详情信息结果：｛｝", getChapterDetailResult);
-    if (getChapterDetailResult.code === 200) {
-      book.value = getChapterDetailResult.data;
-    }
-  }catch (error){
-  }
-  await fetchChapterContent(chapterNumber);
   await fetchAllPublishedChapters(false);
   // 初始化停留时间
   currentChapterStatus.value.stayStartTime = Date.now();
@@ -1045,15 +1169,6 @@ onMounted(async () => {
   if (bookContentRef.value) {
     bookContentRef.value.addEventListener('scroll', handleContentScroll);
   }
-  watch(
-    () => chapterNumber,
-    async (newChapter, oldChapter) => {
-      if (newChapter !== oldChapter) {
-        await fetchChapterContent(newChapter);
-      }
-    },
-    { immediate: true }
-  )
 });
 
 // 组件卸载时移除事件监听（避免内存泄漏）
@@ -1071,11 +1186,13 @@ watch(
   () => route.query.book,
   async (newBookId) => {
     if (newBookId) {
-      await fetchChapterContent(bookId.value);
+      await fetchChapterContent(chapterNumber.value);
     }
   },
-  { immediate: true }, // 立即执行一次
-  
+  { immediate: true }
+)
+
+watch(
   () => chapterNumber.value,
   async (newChapter, oldChapter) => { 
     if (newChapter !== oldChapter && oldChapter) {
@@ -1202,19 +1319,53 @@ watch(
   margin-bottom: 10px;
   word-spacing: 0.3em;
 }
-.next-page-btn {
-  width: 118px;
-  height: 36px;
-  background: linear-gradient( 90deg, #F9A825 0%, #F9A825 100%);
-  border-radius: 18px;
-  font-family: PingFangSC, PingFang SC;
-  font-weight: 400;
-  font-size: 14px;
-  color: #FFFFFF;
-  line-height: 20px;
-  text-align: center;
-  font-style: normal;
+.chapter-nav-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
   margin: 38px 0 40px 0;
+  width: 100%;
+}
+
+.chapter-nav-btn {
+  height: 38px;
+  min-width: 120px;
+  padding: 0 24px;
+  border-radius: 19px;
+  font-family: PingFangSC, PingFang SC;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 38px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  outline: none;
+
+  &.prev-chapter-btn {
+    background: rgba(255, 255, 255, 0.08);
+    color: #c0c0c0;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.16);
+      color: #ffffff;
+      transform: translateY(-1px);
+    }
+  }
+
+  &.next-chapter-btn {
+    background: linear-gradient(90deg, #F9A825 0%, #F96E08 100%);
+    color: #FFFFFF;
+    box-shadow: 0 4px 12px rgba(249, 168, 37, 0.25);
+
+    &:hover {
+      opacity: 0.92;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(249, 168, 37, 0.35);
+    }
+  }
 }
 .chapter-header {
   text-align: center;
@@ -1344,6 +1495,22 @@ watch(
 .floating-btn:hover {
   background: #444;
   transform: scale(1.05);
+}
+
+.floating-btn.btn-in-bookshelf {
+  background: rgba(249, 168, 37, 0.12);
+  border: 1px solid rgba(249, 168, 37, 0.35);
+  cursor: default;
+
+  .btn-icon,
+  .btn-text {
+    color: #F9A825;
+  }
+
+  &:hover {
+    background: rgba(249, 168, 37, 0.12);
+    transform: none;
+  }
 }
 
 .btn-icon {
@@ -1855,7 +2022,7 @@ watch(
   color: #F96E08;
 }
 /* 蒙层 */
- overlay {
+.overlay {
   position: fixed;
   top: 0;
   left: 0;

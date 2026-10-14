@@ -2,44 +2,58 @@
   <div class="ranking-page">
     <Header />
     <div class="ranking-container">
-      <div class="ranking-box">
-        <div class="ranking-nav-box">
-          <div class="ranking-nav-list">
-            <div 
-              v-for="item in rankingNavItems" 
-              :key="item.id"
-              class="ranking-nav-item"
-              :class="{ 'active': item.active }"
-              @click="selectRanking(item)">
-                <SvgIcon :name="item.active ? item.iconActivePath : item.iconPath" :class="item.active ? item.iconActivePath : item.iconPath" color=""/>
-                <div style="margin-left: 10px;" :class="{ 'active-text': item.active }">{{ item.name }}</div>
+      <!-- 面包屑导航 -->
+      <nav class="ranking-breadcrumb" aria-label="面包屑导航">
+        <NuxtLink to="/" class="breadcrumb-link">首页</NuxtLink>
+        <span class="breadcrumb-separator">/</span>
+        <span class="breadcrumb-current">排行榜</span>
+        <span class="breadcrumb-separator">/</span>
+        <span class="breadcrumb-current active-sub">{{ currentRanking }}</span>
+      </nav>
+
+      <div class="ranking-main-layout">
+        <div class="ranking-box">
+          <div class="ranking-nav-box">
+            <div class="ranking-nav-list">
+              <div 
+                v-for="item in rankingNavItems" 
+                :key="item.id"
+                class="ranking-nav-item"
+                :class="{ 'active': item.active }"
+                @click="selectRanking(item)">
+                  <SvgIcon :name="item.active ? item.iconActivePath : item.iconPath" :class="item.active ? item.iconActivePath : item.iconPath" color=""/>
+                  <div style="margin-left: 10px;" :class="{ 'active-text': item.active }">{{ item.name }}</div>
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <div class="ranking-content-box">
-        <div class="ranking-title-box">
-          <div class="ranking-title">
-              {{ currentRanking }}
+        <div class="ranking-content-box">
+          <div class="ranking-title-box">
+            <div class="ranking-title">
+                {{ currentRanking }}
+            </div>
           </div>
-        </div>
-        <div class="ranking-book-box">
-          <div class="ranking-book-list" v-reveal>
-            <div 
-              v-for="book in rankingBooks" 
-              :key="book.bookId"
-              @click="gotoBookDetail(book.bookId)"
-              class="ranking-book-item motion-card">
-              <div class="cover-wrapper">
-                <img class="book-img" :src="book.coverImageUrl" :alt="book.title || '封面'" loading="lazy">
-              </div>
-              <div class="book-info">
-                <div class="book-title">{{ book.title }}</div>
-                <div class="book-author">{{ book.penName }}</div>
-                <div class="book-desc">{{ book.description }}</div>
-                <div class="book-status">
-                    {{ formatSerialStatus(book.serialStatus) }}
+          <div class="ranking-book-box">
+            <div class="ranking-book-list" v-reveal>
+              <div 
+                v-for="(book, index) in rankingBooks" 
+                :key="book.bookId || index"
+                @click="gotoBookDetail(book.bookId)"
+                class="ranking-book-item motion-card">
+                <div class="cover-wrapper">
+                  <span class="rank-badge" :class="index < 3 ? `rank-${index + 1}` : 'rank-other'">
+                    {{ index + 1 }}
+                  </span>
+                  <img class="book-img" :src="book.coverImageUrl" :alt="book.title || '封面'" loading="lazy">
+                </div>
+                <div class="book-info">
+                  <div class="book-title">{{ book.title }}</div>
+                  <div class="book-author">{{ book.penName }}</div>
+                  <div class="book-desc">{{ book.description }}</div>
+                  <div class="book-status">
+                      {{ formatSerialStatus(book.serialStatus) }}
+                  </div>
                 </div>
               </div>
             </div>
@@ -47,11 +61,13 @@
         </div>
       </div>
     </div>
+    <Footer />
   </div>
 </template>
 
 <script setup>
   import Header from "@/components/layout/Header.vue";
+  import Footer from "@/components/layout/Footer.vue";
   import SvgIcon from "@/components/SvgIcon.vue";
   import { formatTimestamp, formatSerialStatus } from '@/utils/dataFormatter';
   
@@ -128,13 +144,47 @@
   .ranking-page {
     display: flex;
     flex-direction: column;
+    min-height: 100vh;
   }
   .ranking-container {
     max-width: 1200px;
     width: calc(100% - 32px);
     margin: 0 auto;
     display: flex;
-    padding-top: 122px;
+    flex-direction: column;
+    padding-top: 96px;
+    padding-bottom: 60px;
+    flex: 1;
+  }
+  .ranking-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: #7c7e82;
+    margin-bottom: 24px;
+    .breadcrumb-link {
+      color: #b0b1b3;
+      text-decoration: none;
+      transition: color 0.15s ease;
+      &:hover {
+        color: #e59344;
+      }
+    }
+    .breadcrumb-separator {
+      color: rgba(255, 255, 255, 0.2);
+    }
+    .breadcrumb-current {
+      color: #7c7e82;
+      &.active-sub {
+        color: #e59344;
+        font-weight: 500;
+      }
+    }
+  }
+  .ranking-main-layout {
+    display: flex;
+    width: 100%;
   }
   .ranking-box {
     width: 200px;
@@ -285,11 +335,53 @@
     }
   }
   .cover-wrapper {
+    position: relative;
     overflow: hidden;
     margin: 24px 35px 0 35px;
     border-radius: 10px;
     display: flex;
     justify-content: center;
+  }
+  .rank-badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 3;
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    color: #ffffff;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(4px);
+
+    &.rank-1 {
+      background: linear-gradient(135deg, #ffd700 0%, #ff8c00 100%);
+      color: #000000;
+      box-shadow: 0 4px 12px rgba(255, 215, 0, 0.5);
+    }
+
+    &.rank-2 {
+      background: linear-gradient(135deg, #e0e0e0 0%, #9e9e9e 100%);
+      color: #000000;
+      box-shadow: 0 4px 12px rgba(200, 200, 200, 0.4);
+    }
+
+    &.rank-3 {
+      background: linear-gradient(135deg, #e6a875 0%, #b8652e 100%);
+      color: #ffffff;
+      box-shadow: 0 4px 12px rgba(205, 127, 50, 0.4);
+    }
+
+    &.rank-other {
+      background: rgba(0, 0, 0, 0.65);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #e0e0e0;
+    }
   }
   .book-img {
     width: 240px;
@@ -377,7 +469,10 @@
     .ranking-container {
       width: 100%;
       flex-direction: column;
-      padding: 90px 16px 0;
+      padding: 90px 16px 20px;
+    }
+    .ranking-main-layout {
+      flex-direction: column;
     }
     .ranking-box {
       width: 100%;

@@ -1,0 +1,71 @@
+version: "1.0"
+name: simurg-reader-web-pipeline
+displayName: Simurg Reader Web CI/CD 流水线
+stages:
+- name: 云端构建与打包
+  displayName: 云端构建与打包
+  strategy: naturally
+  trigger: auto
+  steps:
+  - step: build@nodejs
+    name: build_nodejs
+    displayName: Node.js 构建与打包
+    nodeVersion: 24.13.0
+    commands:
+    - npm config set registry https://registry.npmmirror.com
+    - npx -y pnpm@9 install
+    - "echo \"NUXT_PUBLIC_API_BASE=${NUXT_PUBLIC_API_BASE:-http://www.sr-web-test.tata.org.cn:8082/api}\"\
+      \ > .env.production"
+    - npx -y pnpm@9 run build:prod
+    artifacts:
+    - name: output
+      path:
+      - .output.tar.gz
+      type: .tar.gz
+    strategy:
+      retry: "0"
+- name: 发布部署至宝塔服务器
+  displayName: 发布部署至宝塔服务器
+  strategy: naturally
+  trigger: auto
+  steps:
+  - step: deploy@agent
+    name: deploy_agent
+    displayName: 主机部署与平滑重载
+    deployArtifact:
+    - name: output
+      target: /www/wwwroot/simurg-reader-web
+      source: build
+      dependArtifact: output
+      artifactRepository: default
+      artifactName: output
+      artifactVersion: latest
+    script: |
+      cd /www/wwwroot/simurg-reader-web
+      # 1. 自动快照备份当前版本
+      if [ -d ".output" ]; then
+        mkdir -p backups
+        cp -r .output "backups/output_$(date +%Y%m%d_%H%M%S)"
+        cd backups && ls -td output_* 2>/dev/null | tail -n +4 | xargs -r rm -rf && cd ..
+      fi
+
+      # 2. 解压新版本并清理压缩包
+      tar -zxf output.tar.gz || tar -zxf .output.tar.gz || true
+      rm -f output.tar.gz .output.tar.gz
+
+      # 3. PM2 零停机平滑重载
+      pm2 reload ecosystem.config.cjs --update-env || pm2 start ecosystem.config.cjs
+
+      # 4. 本地端口健康检查
+      sleep 3
+      curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:3001 || true
+triggers:
+  trigger: auto
+  push:
+    branches:
+      prefix: []
+      precise:
+      - master
+      - feature-1.0
+      include: []
+notify: []

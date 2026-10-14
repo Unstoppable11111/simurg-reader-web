@@ -62,8 +62,8 @@ import { ref, defineProps, defineEmits, onUnmounted } from 'vue'
     }
   })
 
-  // 定义事件（新增 clear 事件，用于输入为空时通知父组件）
-  const emit = defineEmits(['search', 'clear', 'input'])
+  // 定义事件（同时声明 input 与 input-change 保证兼容性）
+  const emit = defineEmits(['search', 'clear', 'input', 'input-change'])
 
   // 搜索框状态
   const searchQuery = ref(props.initialValue)
@@ -72,7 +72,8 @@ import { ref, defineProps, defineEmits, onUnmounted } from 'vue'
   // 核心：创建防抖函数（延迟触发输入事件/清空事件）
   const handleInputDebounce = debounce(() => {
     const trimedValue = searchQuery.value.trim()
-    emit('input', trimedValue) // 派发输入变化事件
+    emit('input', trimedValue) // 派发标准 input 事件
+    emit('input-change', trimedValue) // 派发与 Header 对齐的 input-change 事件
     if (trimedValue) {
       // 输入有内容：可选择自动触发搜索（可选，根据需求）
       // emit('search', trimedValue)

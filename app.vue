@@ -1,10 +1,16 @@
 <template>
-   <div class="app">
+  <div class="app">
+    <NuxtLoadingIndicator color="#F9A825" :height="3" :duration="2000" />
     <NuxtPage />
+    <ClientOnly>
+      <ChatWidget />
+    </ClientOnly>
   </div>
 </template>
 
 <script setup lang="ts">
+  import ChatWidget from "~/components/chat/ChatWidget.vue";
+
   useSeoMeta({
     // 网站标题
     title: "Simurg Reader - 一千零一夜的故事正在被重写",

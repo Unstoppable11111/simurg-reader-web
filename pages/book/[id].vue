@@ -49,7 +49,7 @@
               <span class="stat-divider">|</span>
               <span class="stat-item">{{ book.bookViews || 0 }} 次浏览</span>
               <span class="stat-divider">|</span>
-              <span class="stat-item">{{ book.totalFavorites || 0 }} 万累计人气</span>
+              <span class="stat-item">{{ formatPopularity(book.totalFavorites) }}</span>
             </div>
 
             <div class="book-actions">
@@ -59,11 +59,16 @@
                 </svg>
                 开始阅读
               </button>
-              <button class="btn-add-to-bookshelf" @click="addToBookshelf">
+              <button 
+                class="btn-add-to-bookshelf" 
+                :class="{ 'btn-in-bookshelf': isInBookshelf }"
+                :disabled="isInBookshelf"
+                @click="addToBookshelf"
+              >
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
                 </svg>
-                加入书架
+                {{ isInBookshelf ? '已在书架' : '加入书架' }}
               </button>
             </div>
           </div>
@@ -192,6 +197,19 @@
       </section>
     </main>
 
+    <!-- 书籍不存在或加载失败兜底 -->
+    <div v-else-if="isNotFound" class="book-empty-state app-container">
+      <div class="empty-card">
+        <div class="empty-icon-wrap">📖</div>
+        <h2 class="empty-title">书籍不存在或已被下架</h2>
+        <p class="empty-desc">很抱歉，未能找到该书籍的信息，可能已被下架或链接错误。</p>
+        <div class="empty-actions">
+          <NuxtLink to="/" class="btn-empty-home">返回首页</NuxtLink>
+          <NuxtLink to="/bookcate" class="btn-empty-cate">浏览书库</NuxtLink>
+        </div>
+      </div>
+    </div>
+
     <!-- 加载占位 -->
     <div v-else class="book-loading-placeholder app-container">
       <el-skeleton :rows="10" animated />
@@ -244,16 +262,42 @@ const formatBookWordCount = (wordCount) => {
   return `${num}字`;
 };
 
+// 格式化累计人气，超过1万显示万，低于1万显示真实数值，杜绝硬拼接"万"
+const formatPopularity = (count) => {
+  if (!count || isNaN(count) || Number(count) <= 0) return '0 累计人气';
+  const num = Number(count);
+  if (num >= 10000) {
+    return `${(num / 10000).toFixed(1)} 万累计人气`;
+  }
+  return `${num} 累计人气`;
+};
+
+const isInBookshelf = ref(false);
+const isNotFound = ref(false);
+
+// 动态设置书籍详情页 SEO Meta
+useSeoMeta({
+  title: () => book.value?.title ? `${book.value.title} - ${book.value.authorPenName || '小说'} - Simurg Reader` : '书籍详情 - Simurg Reader',
+  description: () => book.value?.description?.slice(0, 160) || 'Simurg Reader 在线小说阅读与创作平台',
+  keywords: () => book.value ? `${book.value.title}, ${book.value.authorPenName || ''}, 小说阅读, Simurg Reader` : '小说阅读, Simurg Reader',
+  ogTitle: () => book.value?.title || 'Simurg Reader',
+  ogDescription: () => book.value?.description?.slice(0, 160) || '',
+  ogImage: () => book.value?.coverImageUrl || '/favicon.svg'
+});
+
 // 获取书籍详情
 try {
   const url = `${API_ENDPOINTS.BOOK_DETAIL}/${bookId}`;
   const bookResult = await apiRequest(url);
-  if (bookResult.code === 200) {          
+  if (bookResult.code === 200 && bookResult.data) {          
     authorId.value = bookResult.data.authorId;
     book.value = bookResult.data;
+  } else {
+    isNotFound.value = true;
   }
 } catch (error) { 
   console.error('Error fetching book data:', error);
+  isNotFound.value = true;
 }
 
 // 获取章节列表 - 封装成可复用方法
@@ -335,6 +379,12 @@ const switchToChapter = async (chapterNum) => {
  * 加入书架
  */
 const addToBookshelf = async () => {
+  if (isInBookshelf.value) return;
+  if (!isLoggedIn.value) {
+    ElMessage.info('请先登录后再加入书架');
+    router.push(`/login?redirectPath=${encodeURIComponent(route.fullPath)}`);
+    return;
+  }
   const currentBookId = route.params.id;
   const addFavoriteReq = {
     bookIdList: [currentBookId]
@@ -346,10 +396,16 @@ const addToBookshelf = async () => {
       body: JSON.stringify(addFavoriteReq)
     });
     if (response.code === 2008) {
-      router.push('/login');
+      ElMessage.warning('登录已过期，请重新登录');
+      router.push(`/login?redirectPath=${encodeURIComponent(route.fullPath)}`);
       return;
     }
-    ElMessage.success('添加成功！');
+    if (response.code === 200) {
+      isInBookshelf.value = true;
+      ElMessage.success('已加入书架！');
+    } else {
+      ElMessage.info(response.message || '加入书架失败');
+    }
   } catch (error) {
     console.error('Error adding book to favorite:', error);
   }
@@ -654,11 +710,21 @@ useHead({
   cursor: pointer;
   transition: all var(--transition-fast, 150ms ease);
 
-  &:hover {
+  &:hover:not(:disabled) {
     background: rgba(255, 255, 255, 0.1);
     border-color: var(--color-brand-primary, #e59344);
     color: var(--color-brand-primary, #e59344);
     transform: translateY(-1px);
+  }
+
+  &.btn-in-bookshelf,
+  &:disabled {
+    opacity: 0.65;
+    cursor: default;
+    border-color: rgba(255, 255, 255, 0.15);
+    color: #a2a0a0;
+    background: rgba(255, 255, 255, 0.02);
+    transform: none !important;
   }
 }
 
@@ -1059,6 +1125,86 @@ useHead({
 
   .chapter-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+.book-empty-state {
+  min-height: 50vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 24px;
+}
+
+.empty-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  background: var(--bg-surface-1, rgba(255, 255, 255, 0.05));
+  border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.08));
+  border-radius: 16px;
+  padding: 48px 32px;
+  max-width: 480px;
+  width: 100%;
+}
+
+.empty-icon-wrap {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.empty-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-primary, #ffffff);
+  margin: 0 0 8px;
+}
+
+.empty-desc {
+  font-size: 14px;
+  color: var(--text-secondary, #90949d);
+  margin: 0 0 28px;
+  line-height: 1.5;
+}
+
+.empty-actions {
+  display: flex;
+  gap: 16px;
+}
+
+.btn-empty-home,
+.btn-empty-cate {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 38px;
+  padding: 0 20px;
+  border-radius: 19px;
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.btn-empty-home {
+  background: linear-gradient(135deg, #e59e2b 0%, #e06828 100%);
+  color: #ffffff;
+
+  &:hover {
+    opacity: 0.92;
+    transform: translateY(-1px);
+  }
+}
+
+.btn-empty-cate {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-primary, #ffffff);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: translateY(-1px);
   }
 }
 </style>

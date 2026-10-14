@@ -1,4 +1,6 @@
 <template>
+  <div class="feedback-page-wrapper">
+    <Header />
   <div class="feedback-page">
     <Header :margin-left="'360px'"/>
     <div class="feedback-container">
@@ -73,12 +75,15 @@
       </div>
     </div>
   </div>
+  <Footer />
+</div>
 </template>
 
 <script setup>
-import { ref, reactive, computed } from 'vue';
-import Header from "@/components/layout/Header.vue";
-import { API_ENDPOINTS, apiFileRequest, apiRequest } from "@/utils/api";
+import Header from '@/components/layout/Header.vue'
+import Footer from '@/components/layout/Footer.vue'
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 
 const typeOptions = [
   { label: '建议', value: 1 },
@@ -144,14 +149,21 @@ const handleSubmit = async () => {
 };
 </script>
 
-<style scoped>
-/* 基础容器 */
+<style lang="scss" scoped>
+.feedback-page-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: #1a1a1a;
+}
+
 .feedback-page {
   display: flex;
   flex-direction: column;
   align-items: center;
-  background-color: #1a1a1a;
-  min-height: 100vh;
+  padding: 96px 20px 60px;
+  flex: 1;
+  color: #ffffff;
 }
 
 .feedback-container {

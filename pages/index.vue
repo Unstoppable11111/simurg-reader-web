@@ -106,6 +106,7 @@ definePageMeta({
 });
 
 const router = useRouter();
+const route = useRoute();
 const isSearching = ref(false);
 const banners = ref([]);
 const books = ref([]);
@@ -141,11 +142,27 @@ const handleTriggerSearch = async (query) => {
   }
 };
 
+// 监听 URL query 参数 ?q=xxx 实现跨页面搜索直达与刷新保持
+watch(
+  () => route.query.q,
+  (newQ) => {
+    if (newQ && typeof newQ === 'string' && newQ.trim()) {
+      handleTriggerSearch(newQ.trim());
+    } else if (!newQ && searchQuery.value) {
+      clearSearchResult();
+    }
+  },
+  { immediate: true }
+);
+
 // 清空搜索结果，恢复原首页内容
 const clearSearchResult = () => {
   searchQuery.value = '';
   searchResult.value = [];
   isSearching.value = false;
+  if (route.query.q) {
+    router.replace({ path: '/' });
+  }
 };
 
 // 接收 Header 返回的搜索结果

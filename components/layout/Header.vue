@@ -1,5 +1,5 @@
 <template>
-  <header class="header" :class="{ 'scrolled': isScrolled }">
+  <header class="header" :class="{ 'scrolled': isScrolled, 'menu-open': isMobileMenuOpen }">
     <div class="header-container">
       <!-- 网站 Logo -->
       <NuxtLink to="/" class="logo-link" title="返回首页">
@@ -11,13 +11,14 @@
         <NuxtLink to="/" class="header-nav" :class="{ 'header-nav-active': $route.path === '/' }">
           首页
         </NuxtLink>
-        <a 
-          @click="handleBookShelfClick" 
+        <NuxtLink 
+          to="/bookshelf"
+          @click.prevent="handleBookShelfClick" 
           class="header-nav" 
           :class="{ 'header-nav-active': $route.path === '/bookshelf' }"
         >
           书架
-        </a>
+        </NuxtLink>
         <NuxtLink to="/bookcate" class="header-nav" :class="{ 'header-nav-active': $route.path.startsWith('/bookcate') }">
           分类
         </NuxtLink>
@@ -49,6 +50,7 @@
           class="search" 
           placeholder="请输入书名或作者名"
           @search="handleSearch"
+          @input="handleSearchInput"
           @input-change="handleSearchInput"
           @clear="handleSearchClear"  
         />
@@ -101,9 +103,9 @@
           <NuxtLink to="/" class="mobile-nav-item" @click="closeMobileMenu">
             首页
           </NuxtLink>
-          <a @click="handleBookShelfClickMobile" class="mobile-nav-item">
+          <NuxtLink to="/bookshelf" @click.prevent="handleBookShelfClickMobile" class="mobile-nav-item">
             我的书架
-          </a>
+          </NuxtLink>
           <NuxtLink to="/bookcate" class="mobile-nav-item" @click="closeMobileMenu">
             全部分类
           </NuxtLink>
@@ -252,22 +254,38 @@ const handleSearch = (query: string) => {
     emit('clear-search');
     return;
   }
-  emit('trigger-search', query.trim());
+  const trimmed = query.trim();
+  if (route.path !== '/') {
+    // 跨页面搜索：跳转首页并携带搜索参数
+    router.push({ path: '/', query: { q: trimmed } });
+  } else {
+    emit('trigger-search', trimmed);
+  }
 };
 
 const handleSearchInput = (value: string) => {
-  value?.trim() ? emit('trigger-search', value.trim()) : emit('clear-search');
+  if (route.path === '/') {
+    value?.trim() ? emit('trigger-search', value.trim()) : emit('clear-search');
+  }
 };
 
 const handleSearchClear = () => {
   emit('clear-search');
 };
 
+let scrollTicking = false;
 const handleScroll = () => {
-  isScrolled.value = window.scrollY > 40;
+  if (!scrollTicking) {
+    window.requestAnimationFrame(() => {
+      isScrolled.value = window.scrollY > 40;
+      scrollTicking = false;
+    });
+    scrollTicking = true;
+  }
 };
 
 onMounted(() => {
+  handleScroll(); // 初始化立即检测一次滚动状态，防止 F5 刷新时初始样式失真
   window.addEventListener('scroll', handleScroll, { passive: true });
   document.addEventListener('click', closeDropdown);
 });
@@ -286,16 +304,34 @@ onBeforeUnmount(() => {
   right: 0;
   height: 72px;
   z-index: var(--z-index-sticky, 1020);
-  background-color: transparent;
+  background-color: rgba(18, 19, 21, 0.55);
+  -webkit-backdrop-filter: blur(12px) saturate(160%);
+  backdrop-filter: blur(12px) saturate(160%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
   transition: background-color var(--transition-normal, 250ms ease),
+              border-color var(--transition-normal, 250ms ease),
               box-shadow var(--transition-normal, 250ms ease),
+              -webkit-backdrop-filter var(--transition-normal, 250ms ease),
               backdrop-filter var(--transition-normal, 250ms ease);
 
+  &:hover {
+    background-color: rgba(18, 19, 21, 0.78);
+    border-bottom-color: rgba(255, 255, 255, 0.14);
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.25);
+  }
+
   &.scrolled {
-    background-color: rgba(19, 20, 21, 0.88);
+    background-color: rgba(19, 20, 21, 0.92);
+    -webkit-backdrop-filter: blur(16px);
     backdrop-filter: blur(16px);
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
     border-bottom: 1px solid var(--color-border-subtle, rgba(255, 255, 255, 0.06));
+  }
+
+  &.menu-open {
+    background-color: rgba(19, 20, 21, 0.96);
+    border-bottom-color: transparent;
   }
 }
 
