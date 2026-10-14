@@ -15,13 +15,21 @@
         <div class="ranking-box">
           <div class="ranking-nav-box">
             <div class="ranking-nav-list">
+              <!-- 丝滑移动的活动高亮滑块（带白金发光指示条） -->
               <div 
-                v-for="item in rankingNavItems" 
+                class="sliding-nav-active-pill"
+                :style="{ transform: `translateY(${activeItemIndex * 56}px)` }"
+              >
+                <div class="nav-active-indicator"></div>
+              </div>
+
+              <!-- 导航选项列表 -->
+              <div 
+                v-for="(item, index) in rankingNavItems" 
                 :key="item.id"
                 class="ranking-nav-item"
-                :class="{ 'active': item.active }"
+                :class="{ 'is-active': item.active }"
                 @click="selectRanking(item)">
-                  <div class="nav-active-indicator" v-if="item.active"></div>
                   <SvgIcon :name="item.active ? item.iconActivePath : item.iconPath" :class="item.active ? item.iconActivePath : item.iconPath" color=""/>
                   <div class="nav-item-name" :class="{ 'active-text': item.active }">{{ item.name }}</div>
               </div>
@@ -39,22 +47,22 @@
           </div>
 
           <div class="ranking-book-box">
-            <!-- 骨架屏：数据加载中 -->
-            <div v-if="isLoading" class="ranking-skeleton-grid">
-              <div v-for="n in 6" :key="n" class="skeleton-card motion-card">
-                <div class="skeleton-cover skeleton-shimmer"></div>
-                <div class="skeleton-info">
-                  <div class="skeleton-line skeleton-title skeleton-shimmer"></div>
-                  <div class="skeleton-line skeleton-author skeleton-shimmer"></div>
-                  <div class="skeleton-line skeleton-desc skeleton-shimmer"></div>
+            <!-- 统一平滑淡入淡出 Transition 容器（彻底消除状态切换与首屏闪烁） -->
+            <Transition name="ranking-fade-slide" mode="out-in">
+              <!-- 1. 骨架屏：数据加载中 -->
+              <div v-if="isLoading" key="skeleton" class="ranking-skeleton-grid">
+                <div v-for="n in 6" :key="n" class="skeleton-card motion-card">
+                  <div class="skeleton-cover skeleton-shimmer"></div>
+                  <div class="skeleton-info">
+                    <div class="skeleton-line skeleton-title skeleton-shimmer"></div>
+                    <div class="skeleton-line skeleton-author skeleton-shimmer"></div>
+                    <div class="skeleton-line skeleton-desc skeleton-shimmer"></div>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <!-- 数据展示区与空状态（平滑过渡动画） -->
-            <Transition v-else name="ranking-fade-slide" mode="out-in">
-              <!-- 有数据时展示列表 -->
-              <div v-if="rankingBooks && rankingBooks.length > 0" :key="currentRankingCode" class="ranking-book-list" v-reveal>
+              <!-- 2. 数据列表：有数据时 -->
+              <div v-else-if="rankingBooks && rankingBooks.length > 0" :key="currentRankingCode" class="ranking-book-list" v-reveal>
                 <div 
                   v-for="(book, index) in rankingBooks" 
                   :key="book.bookId || index"
@@ -77,7 +85,7 @@
                 </div>
               </div>
 
-              <!-- 顶级空数据状态视觉体验 -->
+              <!-- 3. 顶级空数据状态视觉体验 -->
               <div v-else :key="'empty-' + currentRankingCode" class="ranking-empty-card">
                 <div class="empty-glow-ambient"></div>
                 <div class="empty-content">
@@ -121,16 +129,16 @@
                     </button>
                   </div>
 
-                  <!-- 热门流派探索入口快捷胶囊 -->
-                  <div class="empty-tags-box">
+                  <!-- 热门流派探索入口快捷胶囊（实时分类数据 + 选中联动跳转） -->
+                  <div class="empty-tags-box" v-if="realCategories && realCategories.length > 0">
                     <span class="tags-hint">猜你想看：</span>
                     <div class="tags-list">
                       <NuxtLink 
-                        v-for="cat in quickCategories" 
-                        :key="cat.name" 
-                        :to="cat.path" 
+                        v-for="cat in realCategories" 
+                        :key="cat.categoryId" 
+                        :to="`/bookcate?categoryId=${cat.categoryId}`" 
                         class="quick-cat-pill">
-                        {{ cat.name }}
+                        {{ cat.categoryName }}
                       </NuxtLink>
                     </div>
                   </div>
@@ -169,23 +177,35 @@
   // 榜单类型（日榜、月榜）
   const rankingType = ref('日榜');
   
+  // 当前激活项的索引（驱动绝对定位滑块平移动效）
+  const activeItemIndex = computed(() => {
+    const idx = rankingNavItems.value.findIndex(item => item.active);
+    return idx >= 0 ? idx : 0;
+  });
+
   // 模拟书籍数据
   const rankingBooks = ref([]);
   // 加载中状态指示
   const isLoading = ref(true);
 
-  // 空数据状态快捷推荐分类
-  const quickCategories = [
-    { name: '玄幻奇幻', path: '/bookcate' },
-    { name: '都市高武', path: '/bookcate' },
-    { name: '悬疑惊悚', path: '/bookcate' },
-    { name: '科幻未来', path: '/bookcate' },
-    { name: '古代言情', path: '/bookcate' },
-    { name: '武侠修仙', path: '/bookcate' },
-  ];
+  // 实时分类列表
+  const realCategories = ref([]);
+
+  // 获取服务端实时分类数据
+  const fetchCategories = async () => {
+    try {
+      const res = await apiRequest(API_ENDPOINTS.CATEGORIES, { method: 'GET' });
+      if (res?.code === 200 && Array.isArray(res.data)) {
+        realCategories.value = res.data.slice(0, 8);
+      }
+    } catch (err) {
+      console.error('获取分类列表失败:', err);
+    }
+  };
 
   const fetchRankingData = async (rankingCode) => {
     isLoading.value = true;
+    const startTime = Date.now();
     try {
       const targetCode = rankingCode || currentRankingCode.value;
       const rankingBookListReq = {
@@ -198,6 +218,13 @@
         body: JSON.stringify(rankingBookListReq)
       });
       console.log("rankingCode书籍榜单", targetCode, rankingBookResult);
+
+      // 防闪烁平滑缓冲：避免接口 30ms 极速返回导致骨架屏闪跳
+      const elapsed = Date.now() - startTime;
+      if (elapsed < 160) {
+        await new Promise(resolve => setTimeout(resolve, 160 - elapsed));
+      }
+
       if (rankingBookResult && rankingBookResult.code === 200 && Array.isArray(rankingBookResult.data)) {
         rankingBooks.value = rankingBookResult.data;
       } else {
@@ -213,6 +240,7 @@
 
   onMounted(() => {
     fetchRankingData(currentRankingCode.value);
+    fetchCategories();
   });
   
   // 选择榜单
@@ -299,48 +327,26 @@
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
   }
   .ranking-nav-list {
+    position: relative;
     display: flex;
     flex-direction: column;
     width: 100%;
   }
-  .ranking-nav-item {
-    position: relative;
-    display: flex;
-    align-items: center;
+
+  /* 独立的高亮活动滑块（从上一个按钮平滑滑动过渡到下一个按钮） */
+  .sliding-nav-active-pill {
+    position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
     height: 56px;
-    padding: 0 22px;
-    font-family: PingFangSC, PingFang SC, sans-serif;
-    font-weight: 400;
-    font-size: 15px;
-    color: #A2A0A0;
-    background-color: transparent;
-    cursor: pointer;
-    user-select: none;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    transition: all 220ms cubic-bezier(0.16, 1, 0.3, 1);
-
-    &:last-child {
-      border-bottom: none;
-    }
-
-    &:hover:not(.active) {
-      color: #FFFFFF;
-      background-color: rgba(255, 255, 255, 0.06);
-      padding-left: 26px;
-    }
-
-    &.active {
-      background: linear-gradient(90deg, #F9A825 0%, #ED5B00 100%);
-      color: #FFFFFF;
-      font-weight: 600;
-      box-shadow: 0 4px 18px rgba(237, 91, 0, 0.35);
-
-      .nav-item-name {
-        font-weight: 600;
-        color: #FFFFFF;
-      }
-    }
+    background: linear-gradient(90deg, #F9A825 0%, #ED5B00 100%);
+    box-shadow: 0 4px 18px rgba(237, 91, 0, 0.4);
+    z-index: 1;
+    pointer-events: none;
+    /* 特调丝滑弹性过渡贝塞尔曲线 */
+    transition: transform 300ms cubic-bezier(0.34, 1.25, 0.64, 1);
+    will-change: transform;
   }
 
   .nav-active-indicator {
@@ -351,12 +357,51 @@
     width: 4px;
     background: #FFFFFF;
     border-radius: 0 2px 2px 0;
-    box-shadow: 0 0 8px rgba(255, 255, 255, 0.9);
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.95);
+  }
+
+  .ranking-nav-item {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    height: 56px;
+    padding: 0 22px;
+    font-family: PingFangSC, PingFang SC, sans-serif;
+    font-weight: 400;
+    font-size: 15px;
+    color: #A2A0A0;
+    background-color: transparent !important;
+    cursor: pointer;
+    user-select: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    transition: color 240ms ease, padding-left 220ms cubic-bezier(0.16, 1, 0.3, 1);
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    &:hover:not(.is-active) {
+      color: #FFFFFF;
+      background-color: rgba(255, 255, 255, 0.05) !important;
+      padding-left: 26px;
+    }
+
+    &.is-active {
+      color: #FFFFFF;
+      font-weight: 600;
+
+      .nav-item-name {
+        font-weight: 600;
+        color: #FFFFFF;
+      }
+    }
   }
 
   .nav-item-name {
     margin-left: 12px;
-    transition: transform 220ms cubic-bezier(0.16, 1, 0.3, 1);
+    transition: color 240ms ease, transform 220ms cubic-bezier(0.16, 1, 0.3, 1);
   }
 
   .ranking-hot, .ranking-new, 
@@ -824,17 +869,24 @@
       flex-wrap: wrap;
       gap: 8px;
     }
+    .sliding-nav-active-pill {
+      display: none;
+    }
     .ranking-nav-item {
       width: calc(50% - 4px);
       height: 44px;
       border-radius: 10px;
       border: 1px solid rgba(255, 255, 255, 0.08);
-      background: #232428;
+      background: #232428 !important;
       padding: 0 14px;
       justify-content: center;
 
-      &:hover:not(.active) {
+      &:hover:not(.is-active) {
         padding-left: 14px;
+      }
+
+      &.is-active {
+        background: linear-gradient(90deg, #F9A825 0%, #ED5B00 100%) !important;
       }
     }
     .nav-active-indicator {

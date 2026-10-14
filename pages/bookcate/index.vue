@@ -22,7 +22,7 @@
               v-for="bookCate in bookCateList"
               :key="bookCate.categoryId"
               class="book-cate-item"
-              :class="{'book-cate-item-active' : selectedCategoryId === bookCate.categoryId}"
+              :class="{'book-cate-item-active' : selectedCategoryId != null && String(selectedCategoryId) === String(bookCate.categoryId)}"
               :data-category-id="bookCate.categoryId"
               @click="selectCategory(bookCate.categoryId)"
              >
@@ -239,7 +239,14 @@
       selectedCategoryId.value = route.query.categoryId;
     }
     getLibraryBookList();
-  })
+  });
+
+  watch(() => route.query.categoryId, (newId) => {
+    if (newId !== undefined && String(newId) !== String(selectedCategoryId.value)) {
+      selectedCategoryId.value = newId || null;
+      getLibraryBookList();
+    }
+  });
 
 </script>
 
