@@ -3,10 +3,25 @@
     <!-- 顶部状态栏 -->
     <div class="chat-header">
       <div class="assistant-info">
-        <div class="avatar-badge">
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
-            <!-- 凤凰/书卷羽翼羽毛造型 -->
-            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+        <div class="avatar-badge" title="司木 · Simu 智慧伴读官">
+          <svg viewBox="0 0 32 32" width="24" height="24" fill="none">
+            <circle cx="16" cy="16" r="14" fill="url(#simuHeaderHeadGrad)" />
+            <path d="M4 17C2.5 13 4 8 8 9.5C9 13.5 6.5 16.5 4 17Z" fill="#FFA726" />
+            <path d="M28 17C29.5 13 28 8 24 9.5C23 13.5 25.5 16.5 28 17Z" fill="#FF7043" />
+            <circle cx="16" cy="3" r="1.5" fill="#FFE082" />
+            <ellipse cx="11.5" cy="15" rx="2" ry="2.4" fill="#261C14" />
+            <circle cx="12.3" cy="14.2" r="0.8" fill="#FFFFFF" />
+            <ellipse cx="20.5" cy="15" rx="2" ry="2.4" fill="#261C14" />
+            <circle cx="21.3" cy="14.2" r="0.8" fill="#FFFFFF" />
+            <ellipse cx="8.5" cy="17.8" rx="1.5" ry="1" fill="rgba(255, 87, 34, 0.45)" />
+            <ellipse cx="23.5" cy="17.8" rx="1.5" ry="1" fill="rgba(255, 87, 34, 0.45)" />
+            <path d="M14 18.2C15 19.3 17 19.3 18 18.2" stroke="#5D4037" stroke-width="1.3" stroke-linecap="round" />
+            <defs>
+              <linearGradient id="simuHeaderHeadGrad" x1="4" y1="4" x2="28" y2="28" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#FFCA28" />
+                <stop offset="1" stop-color="#F57C00" />
+              </linearGradient>
+            </defs>
           </svg>
         </div>
         <div>
@@ -88,9 +103,33 @@
           class="message-row"
           :class="[msg.role === 'user' ? 'user-row' : 'assistant-row']"
         >
-          <!-- 助手头像 -->
+          <!-- 助手头像（灵动萌趣的司木小书灵） -->
           <div v-if="msg.role === 'assistant'" class="avatar-cell">
-            <div class="assistant-mini-avatar">司</div>
+            <div class="assistant-mini-avatar" title="司木 · Simu">
+              <svg viewBox="0 0 32 32" width="22" height="22" fill="none" class="simu-avatar-svg">
+                <circle cx="16" cy="16" r="14" fill="url(#simuMiniHeadGrad)" />
+                <!-- 小羽翼 -->
+                <path d="M4 17C2.5 13 4 8 8 9.5C9 13.5 6.5 16.5 4 17Z" fill="#FFA726" />
+                <path d="M28 17C29.5 13 28 8 24 9.5C23 13.5 25.5 16.5 28 17Z" fill="#FF7043" />
+                <!-- 顶羽 -->
+                <circle cx="16" cy="3" r="1.5" fill="#FFE082" />
+                <!-- 灵动大眼睛 -->
+                <ellipse cx="11.5" cy="15" rx="2" ry="2.4" fill="#261C14" />
+                <circle cx="12.3" cy="14.2" r="0.8" fill="#FFFFFF" />
+                <ellipse cx="20.5" cy="15" rx="2" ry="2.4" fill="#261C14" />
+                <circle cx="21.3" cy="14.2" r="0.8" fill="#FFFFFF" />
+                <!-- 腮红与治愈微笑 -->
+                <ellipse cx="8.5" cy="17.8" rx="1.5" ry="1" fill="rgba(255, 87, 34, 0.45)" />
+                <ellipse cx="23.5" cy="17.8" rx="1.5" ry="1" fill="rgba(255, 87, 34, 0.45)" />
+                <path d="M14 18.2C15 19.3 17 19.3 18 18.2" stroke="#5D4037" stroke-width="1.3" stroke-linecap="round" />
+                <defs>
+                  <linearGradient id="simuMiniHeadGrad" x1="4" y1="4" x2="28" y2="28" gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#FFCA28" />
+                    <stop offset="1" stop-color="#F57C00" />
+                  </linearGradient>
+                </defs>
+              </svg>
+            </div>
           </div>
 
           <!-- 气泡内容主体 -->
@@ -497,18 +536,20 @@ function handleGoLogin() {
 }
 
 .assistant-mini-avatar {
-  width: 30px;
-  height: 30px;
-  border-radius: 8px;
-  background: var(--brand-gradient, linear-gradient(135deg, #e59e2b 0%, #e06828 100%));
-  color: #fff;
-  font-size: 12px;
-  font-weight: 700;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: transparent;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 8px rgba(229, 158, 43, 0.3);
   flex-shrink: 0;
+  filter: drop-shadow(0 3px 8px rgba(245, 124, 0, 0.4));
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.assistant-mini-avatar:hover {
+  transform: scale(1.12) rotate(4deg);
 }
 
 .bubble-wrapper {
