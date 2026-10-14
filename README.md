@@ -101,6 +101,11 @@ simurg-reader/
     |—— resultUtils.js -- 结果集处理工具
 ```
 
+### 工程规范与文档
+
+- 📘 [Git 工作流与提交规范](docs/GIT_WORKFLOW_SPEC.md)（分支命名、Conventional Commits、开发协作流程）
+- 🚀 [CI/CD 自动化部署指南](docs/CICD_SETUP_GUIDE.md)（Gitee Go / GitHub Actions 流水线配置）
+
 ### 运行项目
 
 ## 更新打包命令 npm run build:prod，将产物.output.tar.gz上传到服务器
