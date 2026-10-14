@@ -23,13 +23,13 @@
 
       <div class="header-actions">
         <!-- 未登录/已登录额度指示 -->
-        <div class="quota-pill" :class="{ 'quota-exhausted': !chatStore.canSend }">
+        <div class="quota-pill" :class="{ 'quota-exhausted': !chatStore.canSend }" :title="chatStore.isLoggedIn ? '已登录尊享无限畅聊' : '未登录每日可享 5 次提问体验，北京时间 00:00 自动重置'">
           <template v-if="chatStore.isLoggedIn">
             <span class="vip-icon">✨</span>
             <span>已登录 · 无限畅聊</span>
           </template>
           <template v-else>
-            <span>体验额度: </span>
+            <span>今日额度: </span>
             <strong class="quota-number">{{ chatStore.remainingGuestQuota }}</strong>
             <span>/5 次</span>
           </template>

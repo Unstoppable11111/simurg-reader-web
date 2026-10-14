@@ -17,7 +17,29 @@ export interface Thread {
 
 const STORAGE_THREADS_KEY = "simu_reader_chat_threads";
 const STORAGE_GUEST_COUNT_KEY = "simu_guest_chat_count";
+const STORAGE_GUEST_DATE_KEY = "simu_guest_chat_date";
 export const GUEST_MAX_QUOTA = 5;
+
+/** 获取当前精确的北京时间 (UTC+8) 日期字符串 YYYY-MM-DD */
+export function getBeijingDateString(date = new Date()): string {
+  try {
+    const formatter = new Intl.DateTimeFormat("en-CA", {
+      timeZone: "Asia/Shanghai",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    });
+    return formatter.format(date);
+  } catch {
+    // 降级兼容：按时间偏移量计算 UTC+8
+    const utcTime = date.getTime() + date.getTimezoneOffset() * 60000;
+    const beijingTime = new Date(utcTime + 8 * 3600000);
+    const y = beijingTime.getFullYear();
+    const m = String(beijingTime.getMonth() + 1).padStart(2, "0");
+    const d = String(beijingTime.getDate()).padStart(2, "0");
+    return `${y}-${m}-${d}`;
+  }
+}
 
 export const useChatStore = defineStore("simuChat", () => {
   const authStore = useAuthStore();
@@ -29,12 +51,36 @@ export const useChatStore = defineStore("simuChat", () => {
   const isWidgetOpen = ref(false);
   const initialized = ref(false);
 
+  // 检查并按北京时间自动重置游客每日额度
+  function checkDailyGuestReset() {
+    if (typeof window === "undefined") return;
+    const todayBeijing = getBeijingDateString();
+    try {
+      const storedDate = localStorage.getItem(STORAGE_GUEST_DATE_KEY);
+      if (storedDate !== todayBeijing) {
+        // 进入北京时间新的一天，自动重置次数
+        guestCount.value = 0;
+        localStorage.setItem(STORAGE_GUEST_DATE_KEY, todayBeijing);
+        localStorage.setItem(STORAGE_GUEST_COUNT_KEY, "0");
+      }
+    } catch (e) {
+      console.warn("重置游客每日额度异常", e);
+    }
+  }
+
   // 是否已登录
   const isLoggedIn = computed(() => !!authStore.isLoggedIn);
 
-  // 未登录用户的剩余提问额度
+  // 未登录用户的剩余提问额度（每日零点自动重置）
   const remainingGuestQuota = computed(() => {
     if (isLoggedIn.value) return Infinity;
+    if (typeof window !== "undefined") {
+      const storedDate = localStorage.getItem(STORAGE_GUEST_DATE_KEY);
+      // 若已跨天但尚未触发显式重置，视图层直接呈现满额度 5 次
+      if (storedDate && storedDate !== getBeijingDateString()) {
+        return GUEST_MAX_QUOTA;
+      }
+    }
     return Math.max(0, GUEST_MAX_QUOTA - guestCount.value);
   });
 
@@ -54,7 +100,8 @@ export const useChatStore = defineStore("simuChat", () => {
   function init() {
     if (typeof window === "undefined" || initialized.value) return;
 
-    // 1. 读取未登录提问额度
+    // 1. 读取并校验未登录提问额度（跨天自动重置）
+    checkDailyGuestReset();
     try {
       const storedCount = localStorage.getItem(STORAGE_GUEST_COUNT_KEY);
       guestCount.value = storedCount ? parseInt(storedCount, 10) || 0 : 0;
@@ -85,8 +132,10 @@ export const useChatStore = defineStore("simuChat", () => {
   function persist() {
     if (typeof window === "undefined") return;
     try {
+      const todayBeijing = getBeijingDateString();
       localStorage.setItem(STORAGE_THREADS_KEY, JSON.stringify(threads.value.slice(0, 10)));
       localStorage.setItem(STORAGE_GUEST_COUNT_KEY, guestCount.value.toString());
+      localStorage.setItem(STORAGE_GUEST_DATE_KEY, todayBeijing);
 
       // 【预留云端同步扩展点】：如果用户已登录，可在后续无缝开启接口同步
       // if (isLoggedIn.value) syncToServer();
@@ -154,6 +203,9 @@ export const useChatStore = defineStore("simuChat", () => {
   async function sendMessage(userText: string) {
     const text = userText.trim();
     if (!text || loading.value) return;
+
+    // 检查并按北京时间自动重置游客每日额度
+    checkDailyGuestReset();
 
     // 检查未登录额度
     if (!canSend.value) {
@@ -258,6 +310,7 @@ export const useChatStore = defineStore("simuChat", () => {
     canSend,
     isWidgetOpen,
     init,
+    checkDailyGuestReset,
     createNewThread,
     selectThread,
     deleteThread,
